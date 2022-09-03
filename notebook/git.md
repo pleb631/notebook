@@ -99,7 +99,7 @@ $ git commit --amend
 $ git fetch <远程仓库的别名>
 ```
 - 将远程仓库指定分支的最新版本取回到本地
-```
+```   
 $ git fetch <远程主机名> <分支名>
 ```
 ### git init
