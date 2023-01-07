@@ -29,7 +29,7 @@
 # glob
 | 模块/方法 | 作用 | 备注 |
 |---|---|---|
-| glob.glob(source) | 匹配满足条件的文件 | "glob.glob('dir/*') 星号(*)匹配零个或多个字符 |
+| glob.glob(source,recursive=False) | 匹配满足条件的文件 | "glob.glob('dir/*') 星号(*)匹配零个或多个字符 ,如果recursive=True,则递归寻找，此时source格式应为"./**/file"|
 | glob.glob('dir/file?.txt') 问号(?)匹配任何单个的字符  |
 | glob.glob('dir/*[0-9].*') 匹配一个特定的字符，可以使用一个范围" |
 
