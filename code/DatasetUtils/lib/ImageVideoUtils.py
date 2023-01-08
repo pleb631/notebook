@@ -10,6 +10,12 @@ from .FileUtils import *
 from .Convertion import xyxy2xywh_center, xywh_center2xyxy, xyxy2points, quadrilateral_points2left_top_first_quadrilateral, quadrilateral_points2rectangle_xyxy
 
 
+def on_EVENT_LBUTTONDOWN(event, x, y, flags, param):
+    global image_path
+
+    if event == cv2.EVENT_LBUTTONDOWN:
+        print(image_path)
+        print(x, y)
         
 
 def get_image_features(image, mode='cv2'):
@@ -70,7 +76,33 @@ def get_video_features(capture):
     
     return fps, width, height, whole_frame_num, current_frame_num, duration, fourcc
  
- 
+
+def fftCacul(img):
+    '''
+    :param img: the input image
+    :param isOccu: judge whether to occlusion of the current frame by
+                    Gaussian mixture model background modeling
+    :return: judge whether to occlusion of the current frame by FFT or backGround modeling
+    '''
+    img_col = cv2.resize(img, (403, 226), interpolation=cv2.INTER_AREA)
+
+    np.seterr(all='ignore')
+    assert isinstance(img_col, np.ndarray), 'img_col must be a numpy array'
+    assert img_col.ndim == 3, 'img_col must be a color image ({0} dimensions currently)'.format(img_col.ndim)
+
+    img_gry = cv2.cvtColor(img_col, cv2.COLOR_RGB2GRAY)
+    rows, cols = img_gry.shape
+    crow, ccol = rows//2, cols//2
+    f = np.fft.fft2(img_gry)
+    fshift = np.fft.fftshift(f)
+    fshift[crow-75:crow+75, ccol-75:ccol+75] = 0
+    f_ishift = np.fft.ifftshift(fshift)
+    img_fft = np.fft.ifft2(f_ishift)
+    img_fft = 20 * np.log(np.abs(img_fft))
+    result = np.mean(img_fft)
+
+    return img_fft, result
+    
 
 def is_valid_jpg(jpg_file_path):
     """判断JPG文件下载是否完整，筛选出保存一半中断的jpg图片
