@@ -51,3 +51,40 @@ git pull <远程主机名> <远程分支名>:<本地分支名>
 git stash 
 git stash pop
 ```
+
+-----------------------------------------
+# 第二次笔记
+- git rebase \<branch>
+把当前分支内容合并给其他分支上
+- git merge \<branch>
+把其他分支合并给当前分支
+
+- git checkout \<branch>^
+把head切换到指定分支的父节点
+
+- git checkout HEAD^
+  git checkout HEAD~\<n>
+把head向父节点移动1/n次
+
+- git branch -f \<branch> <提交记录>
+将当前分支强制指向某个提交记录
+
+- git reset HEAD^
+撤销本地仓库的一次提交，并指向上一个节点
+- git revert \<branch>
+撤销该分支的修改，并形成新的提交记录 
+
+- git cherry-pick <提交记录>
+把其他提交记录复制到当前分支下并形成新的提交记录节点
+
+- git rebase -i <提交记录>
+把该当前节点进行可视化整理并在提交记录下形成新的分支
+
+- git commit --amend 
+修改当前提交记录
+
+- git tag \<name> <提交记录>
+为某个提交记录增加标识
+
+- git pull=fetch+merge
+  git pull --rebase =fetch+rebase
