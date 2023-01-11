@@ -16,13 +16,15 @@ Path('path')
 |Path(INPUT).suffix|返回文件后缀
 |Path(INPUT).suffixes|返回文件后缀列表|
 |Path(INPUT).root|返回根目录
+Path.replace()|文件重命名或移动|
+Path.joinpath('path')
 |Path(INPUT).parts||
 |Path(INPUT).anchor||
 |Path(INPUT).parent|返回父级目录|
 |Path(INPUT).exists()|判断 Path 路径是否存在|
 |Path(INPUT).is_dir()|判断 Path 是否是一个文件夹
 Path(INPUT).is_file()|判断 Path 是否是一个文件
-Path(INPUT).mkdir()|创建文件夹；
+Path(INPUT).mkdir(exist_ok=True,parents=True)|创建文件夹；
 Path(INPUT).rmdir()|删除文件夹，文件夹必须为空
 Path(INPUT).unlink()|删除文件
 Path(INPUT).iterdir()|查找文件夹下的所有文件，返回的是一个生成器类型
