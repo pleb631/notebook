@@ -6,7 +6,7 @@ import pandas as pd
 
 from .FileUtils import *
 from .ImageVideoUtils import *
-from .DataVisualization import *
+from .DetectDataVisualization import *
 from .Math import Distance
 from .Convertion import get_xyxy_center
 
