@@ -16,4 +16,4 @@
 
 # Log
 - 2023.1.8: 创建DatasetUtils项目
-- 2023.1.14: 把暂时用不到或者看不懂的代码移动至PendingFile，加入paddle-segmentation的图像处理代码,加入以后可能会用到的class库
+- 2023.1.14: 把暂时用不到或者看不懂的代码移动至PendingFile，加入paddle-segmentation的图像处理代码
