@@ -1,10 +1,24 @@
 [toc]
 # other
+- 计算MD5校验码
+`md5sum file`
+- 快速生成训练文件
+```shell
+# 生成 train.txt、valid.txt和test.txt列表文件
+>>ls images/*.png | shuf > all_image_list.txt
+>>awk -F"/" '{print $2}' all_image_list.txt | awk -F".png" '{print $1}'  | awk -F"\t" '{print "images/"$1".png annotations/"$1".xml"}' > all_list.txt
 
-| 常用命令          | 作用                     |
-| ----------------- | ------------------------ |
-md5sum |计算MD5校验码
-# 关机/重启/注销
+# 训练集、验证集、测试集比例分别约80%、10%、10%。
+>>head -n 88 all_list.txt > test.txt
+>>head -n 176 all_list.txt | tail -n 88 > valid.txt
+>>tail -n 701 all_list.txt > train.txt
+
+# 删除不用文件
+>>rm -rf all_image_list.txt all_list.txt
+```
+---
+# CheatSheat
+## 关机/重启/注销
 
 | 常用命令          | 作用                     |
 | ----------------- | ------------------------ |
@@ -25,7 +39,7 @@ md5sum |计算MD5校验码
 | sync              | buff数据同步到磁盘       |
 | logout            | 退出登录Shell            |
 
-# 系统信息和性能查看
+## 系统信息和性能查看
 
 | 常用命令                    | 作用                               |
 | --------------------------- | ---------------------------------- |
@@ -57,7 +71,7 @@ md5sum |计算MD5校验码
 | 查看io读写/cpu使⽤情况      | 查询cpu使⽤情况（1秒⼀次，共10次） |
 | sar -d 1 10                 | 查询磁盘性能                       |
 
-# 磁盘和分区
+## 磁盘和分区
 
 | 常用命令                            | 作用                           |
 | ----------------------------------- | ------------------------------ |
@@ -74,7 +88,7 @@ md5sum |计算MD5校验码
 | umount -v /mnt/mymnt                | 通过挂载点卸载                 |
 | fuser -km /mnt/hda1                 | 强制卸载(慎⽤)                 |
 
-# ⽤户和⽤户组
+## ⽤户和⽤户组
 
 | 常用命令                                              | 作用                                           |
 | ----------------------------------------------------- | ---------------------------------------------- |
@@ -97,7 +111,7 @@ md5sum |计算MD5校验码
 | cut -d: -f1 /etc/passwd                               | 查看系统所有⽤户                               |
 | cut -d: -f1 /etc/group                                | 查看系统所有组                                 |
 
-# ⽹络和进程管理
+## ⽹络和进程管理
 
 | 常用命令                                                     | 作用                                 |
 | ------------------------------------------------------------ | ------------------------------------ |
@@ -128,7 +142,7 @@ md5sum |计算MD5校验码
 | sar -u 1 10                                                  | 查询cpu使⽤情况（1秒⼀次，共10次）   |
 | sar -d 1 10                                                  | 查询磁盘性能                         |
 
-# 常⻅系统服务命令
+## 常⻅系统服务命令
 
 | 常用命令                   | 作用         |
 | -------------------------- | ------------ |
@@ -144,7 +158,7 @@ md5sum |计算MD5校验码
 | systemctl enable <服务名>  | 关闭⾃启动   |
 | systemctl disable <服务名> | 关闭⾃启动   |
 
-# ⽂件和⽬录操作
+## ⽂件和⽬录操作
 
 | 常用命令                 | 作用                                                         |
 | ------------------------ | ------------------------------------------------------------ |
@@ -189,7 +203,7 @@ md5sum |计算MD5校验码
 | chgrp group1 file1       | 改变⽂件群组                                                 |
 | chown user1:group1 file1 | 改变⽂件的所有⼈和群组                                       |
 
-# ⽂件查看和处理
+## ⽂件查看和处理
 
 | 常用命令                      | 作用                                    |
 | ----------------------------- | --------------------------------------- |
@@ -220,7 +234,7 @@ md5sum |计算MD5校验码
 | comm -2 file1 file2           | ⽐较两个⽂件的内容(去除'file2'所含内容  |
 | comm -3 file1 file2           | ⽐较两个⽂件的内容(去除两⽂件共有部分)  |
 
-# 打包和解压
+## 打包和解压
 
 | 常用命令                          | 作用                     |
 | --------------------------------- | ------------------------ |
@@ -241,74 +255,4 @@ md5sum |计算MD5校验码
 | gunzip xxx.gz                     | 解压gzip压缩包           |
 | gzip filename                     | 压缩⽂件                 |
 | gzip -9 filename                  | 最⼤程度压缩             |
-
-# RPM包管理命令
-
-| 常用命令                  | 作用                          |
-| ------------------------- | ----------------------------- |
-| rpm -qa                   | 查看已安装的rpm包             |
-| rpm -q pkg_name           | 查询某个rpm包                 |
-| rpm -q --whatprovides xxx | 显示xxx功能是由哪个包提供的   |
-| rpm -q --whatrequires xxx | 显示xxx功能被哪个程序包依赖的 |
-| rpm -q --changelog xxx    | 显示xxx包的更改记录           |
-| rpm -qi pkg_name          | 查看⼀个包的详细信息          |
-| rpm -qd pkg_name          | 查询⼀个包所提供的⽂档        |
-| rpm -qc pkg_name          | 查看已安装rpm包提供的配置⽂件 |
-| rpm -ql pkg_name          | 查看⼀个包安装了哪些⽂件      |
-| rpm -qf filename          | 查看某个⽂件属于哪个包        |
-| rpm -qR pkg_name          | 查询包的依赖关系              |
-| rpm -ivh xxx.rpm          | 安装rpm包                     |
-| rpm -ivh --test xxx.rpm   | 测试安装rpm包                 |
-| rpm -ivh --nodeps xxx.rpm | 安装rpm包时忽略依赖关系       |
-| rpm -e xxx                | 卸载程序包                    |
-| rpm -Fvh pkg_name         | 升级确定已安装的rpm包         |
-| rpm -Uvh pkg_name         | 升级rpm包(若未安装则会安装)   |
-| rpm -V pkg_name           | RPM包详细信息校验             |
-
-# YUM包管理命令
-
-| 常用命令                            | 作用                 |
-| ----------------------------------- | -------------------- |
-| yum repolist enabled                | 显示可⽤的源仓库     |
-| yum search pkg_name                 | 搜索软件包           |
-| yum install pkg_name                | 下载并安装软件包     |
-| yum install --downloadonly pkg_name | 只 下 载 不 安 装    |
-| yum list                            | 显示所有程序包       |
-| yum list installed                  | 查看当前系统已安装包 |
-| yum list updates                    | 查看可以更新的包列表 |
-| yum check-update                    | 查看可升级的软件包   |
-| yum update                          | 更新所有软件包       |
-| yum update pkg_name                 | 升级指定软件包       |
-| yum deplist pkg_name                | 列出软件包依赖关系   |
-| yum remove pkg_name                 | 删除软件包           |
-| yum clean all                       | 清除缓存             |
-| yum clean packages                  | 清除缓存的软件包     |
-| yum clean headers                   | 清除缓存的header     |
-
-# DPKG包管理命令
-
-| 常用命令             | 作用                  |
-| -------------------- | --------------------- |
-| dpkg -c xxx.deb      | 列出deb包的内容       |
-| dpkg -i xxx.deb      | 安装/更新deb包        |
-| dpkg -r pkg_name     | 移除deb包             |
-| dpkg -P pkg_name     | 移除deb包(不保留配置) |
-| dpkg -l              | 查看系统中已安装deb包 |
-| dpkg -l pkg_name     | 显示包的⼤致信息      |
-| dpkg -L pkg_name     | 查看deb包安装的⽂件   |
-| dpkg -s pkg_name     | 查看包的详细信息      |
-| dpkg –unpack xxx.deb | 解开deb包的内容       |
-
-# APT软件⼯具
-
-| 常用命令                  | 作用                   |
-| ------------------------- | ---------------------- |
-| apt-cache search pkg_name | 搜索程序包             |
-| apt-cache show pkg_name   | 获取包的概览信息       |
-| apt-get install pkg_name  | 安装/升级软件包        |
-| apt-get purge pkg_name    | 卸载软件（包括配置）   |
-| apt-get remove pkg_name   | 卸载软件（不包括配置） |
-| apt-get update            | 更新包索引信息         |
-| apt-get upgrade           | 更新已安装软件包       |
-| apt-get clean             | 清理缓存               |
 
