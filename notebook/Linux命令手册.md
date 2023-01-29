@@ -2,6 +2,13 @@
 # other
 - 计算MD5校验码
 `md5sum file`
+- 清空指定GPU
+`nvidia-smi --gpu-reset -i [gpu_id]`
+或者
+```bash
+ps aux | grep python
+kill -9 [pid]
+```
 - 快速生成训练文件
 ```shell
 # 生成 train.txt、valid.txt和test.txt列表文件
