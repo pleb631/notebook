@@ -128,7 +128,8 @@ if __name__ == "__main__":
 ```
 # other
 
-## print
+- print
+
 | 模块/方法 | 作用 | 备注 |
 |---|---|---|
 |制表符 \t|用来为字符串与字符串之间产生间距||
@@ -136,8 +137,28 @@ if __name__ == "__main__":
 |#-*- coding: UTF-8 -*-|放在文件开头来解决中文乱码问题||
 | print(*object,sep=' ',end='\n',file=sys.stdout,flush=False)|objects -> 可以为一个或多个对象，输出多个对象时，需要用逗号分隔 <br>sep -> 用来间隔多个对象，默认值是一个空格 <br>end -> 用来设定结尾方式，默认值是换行符 \n ，也可以换成其他字符串 <br>file -> 要写入的文件对象||
 
-## read
+- read
 read()  ： 一次性读取整个文件内容。推荐使用read(size)方法，size越大运行时间越长  
 readline()  ：每次读取一行内容。内存不够时使用，一般不太用  
 readlines()   ：一次性读取整个文件内容，并按行返回到list，方便我们遍历
 
+
+- reduce
+```python
+# reduce(function, sequence[, initial]) -> value
+"""
+Apply a function of two arguments cumulatively to the items of a sequence,
+from left to right, so as to reduce the sequence to a single value.
+For example, reduce(lambda x, y: x+y, [1, 2, 3, 4, 5]) calculates
+((((1+2)+3)+4)+5).  If initial is present, it is placed before the items
+of the sequence in the calculation, and serves as a default when the
+sequence is empty.
+"""
+from functools import reduce 
+reduce(lambda x,y: x+y, [1, 2, 3]) 
+#输出 6 
+reduce(lambda x, y: x+y, [1,2,3], 9) 
+#输出 15 
+reduce(lambda x,y: x+y, [1, 2, 3], 7) 
+#输出 13
+```

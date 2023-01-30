@@ -1,4 +1,7 @@
-[tqdm]
+[TOC]
+
+[tqdm,argparse]
+
 ## tqdm
 tqdm是 Python 进度条库，可以在 Python长循环中添加一个进度提示信息。用户只需要封装任意的迭代器，是一个快速、扩展性强的进度条工具库
 - 手动更新
@@ -25,3 +28,48 @@ for i in tqdm(range(100)):
     time.sleep(0.01)
 100%|██████████| 100/100 [00:01<00:00, 64.60it/s]
 ```
+
+## argparse
+
+基本框架
+
+```python
+import argparse
+
+def get_parser():
+    parser = argparse.ArgumentParser(description="Demo of argparse")
+    parser.add_argument('--name', default='Great'，type=str，help='')
+    parser.add_argument('--output', action='store_true')
+    parser.add_argument("--pattern","-p", type=str, required=True,default="plane",choices=['plane', 'line'])
+
+    return parser
+
+
+if __name__ == '__main__':
+    parser = get_parser()
+    args = parser.parse_args()
+    name = args.name
+    print('Hello {}'.format(name))
+```
+
+其他参数
+
+dest
+
+`parser.add_argument('-num',dest='n',action='store_const', const=10)`
+
+在代码运行的过程中，`num`会被`n`进行复写，只能通过`args.n`来调用`num`·的数据
+
+nargs
+
+`parser.add_argument('--ls', nargs=2, type=int)`
+
+此案例中`ls`需要输入两个值，输多或少都会报错。
+
+|值|  含义|
+|--|--|
+N  | 参数的绝对个数（例如：3）
+'?' |  0或1个参数
+'*' |  0或所有参数
+'+' |  所有，并且至少一个参数
+
