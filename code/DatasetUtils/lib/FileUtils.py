@@ -308,9 +308,7 @@ def read_xml(xml_path, mode='std'):
         xml_path: str, xml文件路径
         mode: str, 'std'标准模式读取file_name、size、bndboxes；
                                 'with_pred_topk'模式读取时在bndboxes中添加了预测的topk类别；
-                                'with_pred_topk_keypoints'模式读取时在bndboxes中添加了预测的topk类别和关键点；
-                                'with_hip_mid_keypoint'模式读取时在bndboxes中添加了臀部关键点；
-                                'with_headshoulder_box'模式读取时添加了头肩box；
+
 
     Returns:
         xml_data: list, xml文件内容
@@ -345,29 +343,7 @@ def read_xml(xml_path, mode='std'):
             classes_name = pred_cls.findall('cls_name')
             for class_name in classes_name:
                 bndbox.append(class_name.text)
-        elif mode == 'with_pred_topk_keypoints':
-            keypoint = obj_node.find('keypoint')
-            pred_cls = obj_node.find('pred_cls')
-            classes_name = pred_cls.findall('cls_name')
-            for class_name in classes_name:
-                bndbox.append(class_name.text)
-            kpts = ['x1', 'y1', 'x2', 'y2', 'x3', 'y3', 'x4', 'y4']
-            for i, kpt in enumerate(kpts):
-                cur_kpt = int(keypoint.find(kpt).text)
-                bndbox.append(cur_kpt)
-        elif mode == 'with_hip_mid_keypoint':
-            keypoint = obj_node.find('midpoint')
-            kpts = ['xm', 'ym']
-            for i, kpt in enumerate(kpts):
-                cur_kpt = int(keypoint.find(kpt).text)
-                bndbox.append(cur_kpt)
-        elif mode == 'with_headshoulder_box':
-            hs_bbox = obj_node.find('hsbndbox')
-            pts = ['xmin', 'ymin', 'xmax', 'ymax']
-            for i, pt in enumerate(pts):
-                cur_pt = int(hs_bbox.find(pt).text)
-                bndbox.append(cur_pt)
-
+        
         bndboxes.append(bndbox)
     
     xml_data['bndboxes'] = bndboxes

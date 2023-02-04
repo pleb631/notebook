@@ -1,5 +1,5 @@
 [TOC]
-[OS,shutil,glob,multiprocessing,POOL,other]
+[OS,shutil,glob,multiprocessing,threading,random,other]
 # OS
 | 模块/方法 | 作用 | 备注 |
 |---|---|---|
@@ -19,6 +19,9 @@
 | os.path.isdir(path) | 是否为目录  |  |
 | os.path.isfile(path) | 是否为文件 |  |
 | os.path.splitext(path) | 把扩展名和其他字符分开 | |
+| os.path.getsize(path)      | 返回path对应文件的大小，以字节为单位<br/>>>>os.path.getsize("D:/PYE/file.txt")<br/>180768 |
+|os.getcwd()，os.path.abspath('.')，os.path.abspath(os.curdir)|获取当前文件路径|
+
 
 # shutil
 | 模块/方法 | 作用 | 备注 |
@@ -35,13 +38,21 @@
 | glob.glob('dir/*[0-9].*') 匹配一个特定的字符，可以使用一个范围" |
 
 
-# multiprocessing
-## Pool
+
+# random
+| 模块/方法 | 作用 | 备注 |
+|---|---|---|
+random.random()|从(0,1)均匀分布随机取数|
+random.chioce(dict)|从列表随机取个元素|
+random.shuffle(dcit)|打乱列表顺序
+
+# 多进程和多线程
+## multiprocessing
 
 pool.apply_async 用多线程执行函数
 ```python
 import multiprocessing
-import time111111
+import time
  
 def func(msg):
     print("msg:", msg)
@@ -124,7 +135,48 @@ if __name__ == "__main__":
 # end
 # end
 # Sub-process(es) done.
+##
+```
+## threading
+```python
+"""
+使用锁实现线程同步
+"""
+import time
+import threading
 
+# 创建锁
+lock = threading.Lock()
+
+# 全局变量
+global_resource = [None] * 5
+
+
+def change_resource(para, sleep):
+    # 请求锁
+    lock.acquire()
+
+    # 这段代码如果不加锁，第一个线程运行结束后global_resource中是乱的，输出为：修改全局变量为： ['hello', 'hi', 'hi', 'hello', 'hello']
+    # 第二个线程运行结束后，global_resource中还是乱的，输出为：修改全局变量为： ['hello', 'hi', 'hi', 'hi', 'hi']
+    global global_resource
+    for i in range(len(global_resource)):
+        global_resource[i] = para
+        time.sleep(sleep)
+    print("修改全局变量为：", global_resource)
+
+    # 释放锁
+    lock.release()
+
+
+def main():
+    thread_hi = threading.Thread(target=change_resource, args=('hi', 2))
+    thread_hello = threading.Thread(target=change_resource, args=('hello', 1))
+    thread_hi.start()
+    thread_hello.start()
+
+
+if __name__ == '__main__':
+    main()
 ```
 # other
 
@@ -162,3 +214,5 @@ reduce(lambda x, y: x+y, [1,2,3], 9)
 reduce(lambda x,y: x+y, [1, 2, 3], 7) 
 #输出 13
 ```
+
+sorted(d.items(), key=lambda x: x[1], reverse=reverse)

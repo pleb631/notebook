@@ -171,6 +171,30 @@ void main()
 效果：
 >`ctrl+a`    
 
+#### 4.12 删除线
+
+使用 ~~ 表示删除线。
+用法：`~~这是一段错误的文本。~~`
+效果：~~这是一段错误的文本。~~
+#### 4.13 注脚
+使用 `[^keyword]` 表示注脚。
+这是一个注脚[^1]的样例。
+[^1]: 这是一个 *注脚* 的 **文本**。
+
+#### 4.14 flowchart
+```flow
+st=>start: Start:>http://adrai.github.io/flowchart.js/
+io=>inputoutput: verification
+op=>operation: Your Operation
+cond=>condition: Yes or No?
+sub=>subroutine: Your Subroutine
+e=>end
+
+st->io->op->cond
+cond(yes)->e
+cond(no)->sub->io
+```
+更多语法参考：[流程图语法参考](http://adrai.github.io/flowchart.js/)
 #### 5. *谁*在用？
 Markdown的使用者：
 + GitHub
