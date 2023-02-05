@@ -448,6 +448,26 @@ def byte_to_base64(byte_data):
     return base64_data
 
 
+def image_to_base64(rgb_image):
+    bgr_image = cv2.cvtColor(rgb_image, cv2.COLOR_RGB2BGR)
+    image = cv2.imencode('.jpg', bgr_image)[1]
+    # image_base64 = str(base64.b64encode(image))[2:-1]
+    image_base64 = base64.b64encode(image)
+    image_base64 = str(image_base64, encoding='utf-8')
+    return image_base64
+
+
+def base64_to_image(image_base64):
+    # base64解码
+    img_data = base64.b64decode(image_base64)
+    # 转换为np数组
+    rgb_array = np.fromstring(img_data, np.uint8)
+    # 转换成opencv可用格式
+    img = cv2.imdecode(rgb_array, cv2.IMREAD_COLOR)
+    # img = cv2.imdecode(rgb_array, cv2.COLOR_BGR2RGB)
+    return img
+
+
 def download_url(file_url, save_file_path):
     '''下载并存储网络文件
 
@@ -516,6 +536,37 @@ def get_str_of_size(size):
         level = -1
     return '{}.{:>03d} {}'.format(integer, remainder, units[level])
 
+
+def copy_dir(src, dst):
+    """ copy src-directory to dst-directory, will cover the same files"""
+    if not os.path.exists(src):
+        print("\nno src path:{}".format(src))
+        return
+    for root, dirs, files in os.walk(src, topdown=False):
+        dest_path = os.path.join(dst, os.path.relpath(root, src))
+        if not os.path.exists(dest_path):
+            os.makedirs(dest_path)
+        for filename in files:
+            copy_file(
+                os.path.join(root, filename),
+                os.path.join(dest_path, filename)
+            )
+
+
+def copy_file(srcfile, dstfile):
+    """
+    copy src file to dst file
+    :param srcfile:
+    :param dstfile:
+    :return:
+    """
+    if not os.path.isfile(srcfile):
+        print("%s not exist!" % (srcfile))
+    else:
+        fpath, fname = os.path.split(dstfile)  # 分离文件名和路径
+        if not os.path.exists(fpath):
+            os.makedirs(fpath)  # 创建路径
+        shutil.copyfile(srcfile, dstfile)  # 复制文件
 
 def others():
     '''文件处理相关的小功能，一两行能实现的
