@@ -4,7 +4,7 @@
 `md5sum file`
 - 清空指定GPU
 `nvidia-smi --gpu-reset -i [gpu_id]`
-或者
+或者`ps -ef | grep "run" | grep -v grep | awk '{print "kill -9 "$2}' | sh`或者
 ```bash
 ps aux | grep python
 kill -9 [pid]

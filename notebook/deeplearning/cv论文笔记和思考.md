@@ -4,7 +4,6 @@
 
 - Googlenet
 
-![asd](https://thumbnail1.baidupcs.com/thumbnail/dfc730f46p9e899abfdf441a53d77b5d?fid=2652311658-250528-525722132197257&rt=pr&sign=FDTAER-DCb740ccc5511e5e8fedcff06b081203-Hj8lasb3LrsFRbfWSTURmqHbLy4%3d&expires=8h&chkbd=0&chkv=0&dp-logid=8737040498903573115&dp-callid=0&time=1674982800&size=c1920_u1080&quality=90&vuk=2652311658&ft=image&autopolicy=1)
 
 文章一上来首先表明了提高网络性能的方法就是增加网络的深度和宽度，
 
@@ -15,6 +14,18 @@
 
 作者认为把全连接的结构转化为稀疏连接的结构，参考Hebbian principle，提出**Inception模块**，这个模块的最重要的作用就是让神经网络在学习的过程中自发的选择合适的路径或感受野，从而增加模型的**稀疏性**。
 
+## REID
+ ### [Bag of Tricks and A Strong Baseline for Deep Person Re-identification](https://openaccess.thecvf.com/content_CVPRW_2019/papers/TRMTMCT/Luo_Bag_of_Tricks_and_a_Strong_Baseline_for_Deep_Person_CVPRW_2019_paper.pdf)
+
+1.Warmup, 
+2.Random Erasing,
+3.Label Smoothing,
+4.最后一个stride从2改为1，计算量不会增加很多,
+5.作者认为ID-loss是对特征划分超平面，类间距离会很明显，类内分布不明确；triptle-loss 是对特征聚合，没有全局约束；直接结合两者的损失会训不好，因为两种损失的所带来特征分布是有极大区别，所以需要卷积进行过渡，在输出的两个上分别作损失计算
+6.作者认为triplet-loss只考虑的特征之间的绝对距离，所以增加一个center-loss来改善类内特征的紧密性
+7.消融实验中，作者认为batch_size的选择很重要，要兼顾类间和类内，并且认为图片尺寸对REID没有影响
+
+### [Deep Learning for Person Re-identification:A Survey and Outlook](https://arxiv.org/pdf/2001.04193v2.pdf)
 
 
 ## 理解
