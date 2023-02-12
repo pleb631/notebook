@@ -36,7 +36,7 @@ def judge(browser): #滑动窗口的页面版
         time.sleep(3)
         return 0
 
-def judge1(browser): #滑动窗口的弹窗版，技术有限，没找到破解方法，遇到就直接叉掉弹窗
+def judge1(browser): #滑动窗口的弹窗版，遇到就直接叉掉弹窗
     try:
         browser.find_element(By.XPATH,'/html/body/div[11]/div[2]/div').click()
         print("judge1 success")

@@ -17,17 +17,19 @@
 ## REID
  ### [Bag of Tricks and A Strong Baseline for Deep Person Re-identification](https://openaccess.thecvf.com/content_CVPRW_2019/papers/TRMTMCT/Luo_Bag_of_Tricks_and_a_Strong_Baseline_for_Deep_Person_CVPRW_2019_paper.pdf)
 
-1.Warmup, 
-2.Random Erasing,
-3.Label Smoothing,
-4.最后一个stride从2改为1，计算量不会增加很多,
-5.作者认为ID-loss是对特征划分超平面，类间距离会很明显，类内分布不明确；triptle-loss 是对特征聚合，没有全局约束；直接结合两者的损失会训不好，因为两种损失的所带来特征分布是有极大区别，所以需要卷积进行过渡，在输出的两个上分别作损失计算
-6.作者认为triplet-loss只考虑的特征之间的绝对距离，所以增加一个center-loss来改善类内特征的紧密性
-7.消融实验中，作者认为batch_size的选择很重要，要兼顾类间和类内，并且认为图片尺寸对REID没有影响
+1. Warmup, 
+2. Random Erasing,
+3. Label Smoothing,
+4. 最后一个stride从2改为1，计算量不会增加很多,
+5. 作者认为ID-loss是对特征划分超平面，类间距离会很明显，类内分布不明确；triptle-loss 是对特征聚合，没有全局约束；直接结合两者的损失会训不好，因为两种损失的所带来特征分布是有极大区别，所以需要卷积进行过渡，在输出的两个上分别作损失计算
+6. 作者认为triplet-loss只考虑的特征之间的绝对距离，所以增加一个center-loss来改善类内特征的紧密性
+7. 消融实验中，作者认为batch_size的选择很重要，要兼顾类间和类内，并且认为图片尺寸对REID没有影响
 
 ### [Deep Learning for Person Re-identification:A Survey and Outlook](https://arxiv.org/pdf/2001.04193v2.pdf)
-
-
+1. Non-local Attention
+2. Generalized-mean Pooling
+3. Weighted Regularization Triplet loss
+代码在[fast-reid](https://github.com/JDAI-CV/fast-reid/tree/39887a102eeec84661f0c0332000f8138aa9109d)
 ## 理解
 
 ### 模型的稀疏性

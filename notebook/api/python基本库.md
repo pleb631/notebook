@@ -178,24 +178,30 @@ def main():
 if __name__ == '__main__':
     main()
 ```
-# other
 
-- print
-
+#functools
 | 模块/方法 | 作用 | 备注 |
 |---|---|---|
-|制表符 \t|用来为字符串与字符串之间产生间距||
-|"{},{}".format(object1,object)|格式化输出||
-|#-*- coding: UTF-8 -*-|放在文件开头来解决中文乱码问题||
-| print(*object,sep=' ',end='\n',file=sys.stdout,flush=False)|objects -> 可以为一个或多个对象，输出多个对象时，需要用逗号分隔 <br>sep -> 用来间隔多个对象，默认值是一个空格 <br>end -> 用来设定结尾方式，默认值是换行符 \n ，也可以换成其他字符串 <br>file -> 要写入的文件对象||
+cmp_to_key|为sorted()函数自定义比较方法|
+reduce|对列表逐元素数学操作|
+partial|基于现有函数固定参数生成新的可调用对象|
+```python
+#cmp_to_key
+from functools import cmp_to_key
+a = [(9, 4), (2, 10), (4, 3), (3, 6),(9, 2)]
+def cmp(x,y):
+    if x[0] < y[0]:
+        return 1
+    elif x[0] > y[0]:
+         return -1
+    else:
+        if x[1] > y[1]:
+            return 1
+        else:
+            return -1
+print(sorted(a,key=cmp_to_key(cmp)))
+```
 
-- read
-read()  ： 一次性读取整个文件内容。推荐使用read(size)方法，size越大运行时间越长  
-readline()  ：每次读取一行内容。内存不够时使用，一般不太用  
-readlines()   ：一次性读取整个文件内容，并按行返回到list，方便我们遍历
-
-
-- reduce
 ```python
 # reduce(function, sequence[, initial]) -> value
 """
@@ -214,5 +220,32 @@ reduce(lambda x, y: x+y, [1,2,3], 9)
 reduce(lambda x,y: x+y, [1, 2, 3], 7) 
 #输出 13
 ```
+```python
+#functools.partial
+import functools
 
-sorted(d.items(), key=lambda x: x[1], reverse=reverse)
+def add(a, b):
+    print("当前结果值", a+b)
+
+add = functools.partial(add, 1)
+add(2)
+```
+# other
+
+- print
+
+| 模块/方法 | 作用 | 备注 |
+|---|---|---|
+|制表符 \t|用来为字符串与字符串之间产生间距||
+|"{},{}".format(object1,object)|格式化输出||
+|#-*- coding: UTF-8 -*-|放在文件开头来解决中文乱码问题||
+| print(*object,sep=' ',end='\n',file=sys.stdout,flush=False)|objects -> 可以为一个或多个对象，输出多个对象时，需要用逗号分隔 <br>sep -> 用来间隔多个对象，默认值是一个空格 <br>end -> 用来设定结尾方式，默认值是换行符 \n ，也可以换成其他字符串 <br>file -> 要写入的文件对象||
+
+- read
+read()  ： 一次性读取整个文件内容。推荐使用read(size)方法，size越大运行时间越长  
+readline()  ：每次读取一行内容。内存不够时使用，一般不太用  
+readlines()   ：一次性读取整个文件内容，并按行返回到list，方便我们遍历
+
+
+
+

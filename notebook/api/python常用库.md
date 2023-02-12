@@ -41,13 +41,18 @@ def get_parser():
     parser.add_argument('--name', default='Great'，type=str，help='')
     parser.add_argument('--output', action='store_true')
     parser.add_argument("--pattern","-p", type=str, required=True,default="plane",choices=['plane', 'line'])
+    args = parser.parse_args()
+    
+    def print_args(args):
+        args = args.__dict__
+        for k, v in args.items():
+            print("{}: {}".format(k, v))
 
-    return parser
+    return args
 
 
 if __name__ == '__main__':
-    parser = get_parser()
-    args = parser.parse_args()
+    args = get_parser()
     name = args.name
     print('Hello {}'.format(name))
 ```

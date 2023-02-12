@@ -35,4 +35,5 @@ plt.ylabel('y label')
 plt.title("Simple Plot")
 plt.legend()
 plt.show()
+plt.savefig("barChart.jpg")
 ```

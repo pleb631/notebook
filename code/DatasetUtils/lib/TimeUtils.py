@@ -2,6 +2,23 @@ import os
 import datetime
 
 
+def get_time(format="S"):
+    """
+    :param format:
+    :return:
+    """
+    if format in ["S", "s"]:
+        # time = datetime.strftime(datetime.now(), '%Y%m%d_%H%M%S')
+        time = datetime.strftime(datetime.now(), '%Y%m%d%H%M%S')
+    elif format in ["P", "p"]:
+        # 20200508_143059_379116
+        time = datetime.strftime(datetime.now(), '%Y%m%d_%H%M%S_%f')
+        time = time[:-2]
+    else:
+        time = (str(datetime.now())[:-10]).replace(' ', '-').replace(':', '-')
+    return time
+
+
 def time_internal():
     '''计算时间差
     '''
