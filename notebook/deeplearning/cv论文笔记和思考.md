@@ -25,11 +25,34 @@
 6. 作者认为triplet-loss只考虑的特征之间的绝对距离，所以增加一个center-loss来改善类内特征的紧密性
 7. 消融实验中，作者认为batch_size的选择很重要，要兼顾类间和类内，并且认为图片尺寸对REID没有影响
 
+可用trick
+Bag of Freebies(BoF):
+1. Circle loss
+2. Freeze backbone training
+3. Cutout data augmentation & Auto Augmentation
+4. Cosine annealing learning rate decay
+5. Soft margin triplet loss
+
+Bag of Specials(BoS):
+1. Non-local block
+2. GeM pooling
+
 ### [Deep Learning for Person Re-identification:A Survey and Outlook](https://arxiv.org/pdf/2001.04193v2.pdf)
 1. Non-local Attention
 2. Generalized-mean Pooling
 3. Weighted Regularization Triplet loss
 代码在[fast-reid](https://github.com/JDAI-CV/fast-reid/tree/39887a102eeec84661f0c0332000f8138aa9109d)
+
+### [Learning Discriminative Features with Multiple Granularities for Person Re-Identification](https://arxiv.org/pdf/1804.01438v1.pdf)
+基于高级语义特征，多分支，沿着垂直方向分成若干个stripe，在对每一个stripe产生的特征做损失，推理时对多分枝的特征进行堆叠
+
+### [Learning Generalisable Omni-Scale Representations for Person Re-Identification](https://arxiv.org/pdf/1910.06827v5.pdf)
+1. 采用DW卷积
+2. 将单分支bottleneck改成改成多分支，并用gate把多尺寸特征进行结合
+3. 插入Instance Normalisation，有助于去除图像风格带来的差异
+
+### [Parsing-based View-aware Embedding Network for Vehicle Re-Identification](https://openaccess.thecvf.com/content_CVPR_2020/papers/Meng_Parsing-Based_View-Aware_Embedding_Network_for_Vehicle_Re-Identification_CVPR_2020_paper.pdf)
+1. 使用图像分割网络把汽车解构成几个子部分，再用带掩膜的平均池化提取子部分的高级语义嵌入特征，并使用这些嵌入特征做triplet损失
 ## 理解
 
 ### 模型的稀疏性
