@@ -1,3 +1,4 @@
+[TOC]
 ### xargs
 xargs可以将stdin中以空格或换行符进行分隔的数据，形成以空格分隔的参数（arguments），传递给其他命令。因为以空格作为分隔符，所以有一些文件名或者其他意义的字符串内含有空格的时候，xargs可能会误判。简单来说，xargs的作用是给其他命令传递参数，是构建单行命令的重要组件之一。
 之所以要用到xargs，是因为很多命令不支持使用管道|来传递参数，例如：
@@ -5,7 +6,7 @@ xargs可以将stdin中以空格或换行符进行分隔的数据，形成以空�
 find /sbin -perm +700 | ls -l         # 这个命令是错误,因为标准输入不能作为ls的参数
 find /sbin -perm +700 | xargs ls -l   # 这样才是正确的
 ```
->**命令格式**
+**命令格式**
 `xargs [OPTIONS] [COMMAND]`
 
 |选项|说明|
@@ -84,6 +85,233 @@ a b c d e f g h i j k l m n o
 ```bash
 ps -ef | grep spp | awk '{printf "%s ",$2}' | xargs kill -9
 ```
+### awk
+Awk  pattern scanning and processing language，对文本和数据进行处理。
+awk 是一种编程语言，用于在linux/unix下对文本和数据进行处理。数据可以来自标准输(stdin)、一个或多个文件，或其它命令的输出。它在命令行中使用，但更多是作为脚本来使用。awk有很多内建的功能，比如数组、函数等，这是它和C语言的相同之处，灵活性是awk最大的优势。
+**命令格式**
+`awk [options] 'scripts' var=value filename`
+**常用参数**
+`awk 'BEGIN{ print "start" } pattern{ commands } END{ print "end" }' filename`
+一个awk脚本通常由BEGIN语句+模式匹配+END语句三部分组成,这三部分都是可选项.
+工作原理:
+第一步执行BEGIN 语句
+第二步从文件或标准输入读取一行，然后再执行pattern语句，逐行扫描文件到文件全部被读取
+第三步执行END语句
+|选项|说明|
+|------|-------|
+-F |指定分隔符（可以是字符串或正则表达式）
+-f |从脚本文件中读取awk命令
+-v var=value |赋值变量，将外部变量传递给awk
+**示例**
+```bash
+echo "hello " | awk 'BEGIN{ print "welcome" } END{ print "2017-08-08" }'
+welcome
+2017-08-08
+
+echo -e "hello" | awk 'BEGIN{ print "welcome" } {print} END{ print "2017-08-08" }'
+welcome
+hello
+2017-08-08
+#不加print参数时默认只打印当前的行
+
+echo|awk '{ a="hello"; b="nihao"; c="mingongge"; print a,b,c; }'
+hello nihao mingongge
+#使用print以逗号分隔时，打印则是以空格分界
+
+echo|awk '{ a="mgg"; b="mingg"; c="mingongge"; print a" is "b" or "c; }'
+mgg is mingg or mingongge
+#awk的print语句中双引号其实就是个拼接作用
+```
+**变量**
+外部变量
+```bash
+>a=100
+>b=100
+>echo |awk '{print v1*v2 }' v1=$a v2=$b
+10000
+```
+内置变量
+```bash
+$0   #当前记录
+$1~$n #当前记录的第N个字段
+FS   #输入字段分隔符（-F相同作用）默认空格
+RS   #输入记录分割符，默认换行符
+NF   #字段个数就是列 
+NR   #记录数，就是行号，默认从1开始
+OFS  #输出字段分隔符，默认空格
+ORS  #输出记录分割符，默认换行符
+```
+
+可以使用各种运算符和正则表达式
+**示例**
+```bash
+awk –F : ‘{print $2}’ datafile
+#以:分隔打印第二列
+
+awk –F : ‘/^Dan/{print $2}’ datafile
+#以:分隔打印以Dan开头行的第二列内容
+
+awk –F : ‘/^[CE]/{print $1}’ datafile 
+#打印以C或E开头行的第一列
+
+awk –F : ‘{if(length($1) == 4) print $1}’ datafile 
+#打印以:分隔且长度为4字符的第一列内容
+
+awk –F : ‘/[916]/{print $1}’ datafile
+#匹配916的行以:分隔打印第一列
+
+awk -F : '/^Vinh/{print "a"$5}' 2.txt
+#显示以Dan开头行并在第五列前加上a
+
+awk –F : ‘{print $2”,”$1}’  datafile
+#打印第二列第一列并以,分隔
+
+awk -F : '($5 == 68900) {print $1}' 2.txt
+#以:分隔打印第五列是68900的行第一列  
+
+awk -F : '{if(length($1) == 11) print $1}' 2.txt
+#打印以:分隔且长度为4字符的第一列内容
+
+awk -F : '$1~/Tommy Savage/ {print $5}' 2.txt
+awk -F : '($1 == "Tommy Savage") {print $5}' 2.txt
+#打印以:分隔且第一列为Tommy Savage的第五列内容
+
+ll |awk 'BEGIN {size=0;} {size=size+$5;} END{print "[end]size is ",size}'
+#统计目录个的文件所有的字节数
+
+awk 'BEGIN{size=0;} {size=size+$5;} END{print "[end]size is ",size/1024/1024,"M"}' 
+#以M为单位显示目录下的所有字节数
+
+awk 'BEGIN{a=10;a+=10;print a}'
+20 
+#a+10等价于 a=a+10
+
+echo|awk 'BEGIN{a="100testaaa"}a~/test/{print "ok"}' 
+#正则匹配a 是否有test字符，成立打印ok
+
+awk 'BEGIN{a="b";print a=="b"?"ok":"err"}'
+ok
+awk 'BEGIN{a="b";print a=="c"?"ok":"err"}'
+err
+#三目运算符?:
+
+awk '/root/{print $0}' passwd 
+#匹配所有包含root的行
+
+awk -F: '$5~/root/{print $0}' passwd 
+# 以分号作为分隔符，匹配第5个字段是root的行
+
+ifconfig eth0|awk 'BEGIN{FS="[[:space:]:]+"} NR==2{print $4}'
+#打印IP地址
+
+awk '{print toupper($0)}' test.txt
+#toupper是awk内置函数，将所小写字母转换成大写
+``` 
+### grep
+文本查找或搜索工具。用于查找内容包含指定的范本样式的文件，如果发现某文件的内容符合所指定的范本样式，预设grep会把含有范本样式的那一列显示出来。若不指定任何文件名称，或是所给予的文件名为 -，则grep会从标准输入设备读取数据。
+同样可以配合正则表达式来搜索文本，并将匹配的行打印输出,也可用于过滤与搜索特定字符串，使用十分灵活
+**常用参数**
+|选项|说明|
+|------|-------|
+-a  |不要忽略二进制数据
+-A  |除了显示符合范本样式的那一行之外，并显示该行之后的内容
+-b  |在显示符合范本样式的那一行之外，并显示该行之前的内容
+-B  |除了显示符合样式的那一行之外，并显示该行之前的内容
+-c  |计算符合范本样式的列数
+-C  |除了显示符合范本样式的那一列之外，并显示该列之前后的内容
+-d  |当指定要查找的是目录而非文件时，必须使用这项参数，否则grep命令将回报信息并停止动作
+-e  |指定字符串作为查找文件内容的范本样式
+-E  |将范本样式为延伸的普通表示法来使用，意味着使用能使用扩展正则表达式
+-f  |指定范本文件，其内容有一个或多个范本样式，让grep查找符合范本条件的文件内容，格式为每一列的范本样式
+-F  |将范本样式视为固定字符串的列表
+-G  |将范本样式视为普通的表示法来使用
+-h  |在显示符合范本样式的那一列之前，不标示该列所属的文件名称
+-H  |在显示符合范本样式的那一列之前，标示该列的文件名称
+-i  |忽略字符大小写的差别
+-l  |列出文件内容符合指定的范本样式的文件名称
+-L  |列出文件内容不符合指定的范本样式的文件名称
+-n  |在显示符合范本样式的那一列之前，标示出该列的编号
+-q  |不显示任何信息
+-R/-r|此参数的效果和指定“-d recurse”参数相同
+-s  |不显示错误信息
+-v  |反转查找
+-V  |显示版本信息 
+-w  |只显示全字符合的列
+-x  |只显示全列符合的列
+-y  |此参数效果跟“-i”相同
+-o  |只输出文件中匹配到的部分
+**示例**
+1、在多个文件中查找：
+
+`grep "file" file_1 file_2 file_3`
+2、输出除之外的所有行 -v 选项：
+
+`grep -v "file" file_name`
+3、标记匹配颜色 --color=auto 选项：
+
+`grep "file" file_name --color=auto`
+4、使用正则表达式 -E 选项：
+
+`grep -E "[1-9]+"`
+
+`egrep "[1-9]+"`
+5、只输出文件中匹配到的部分 -o 选项：
+
+```bash
+>echo this is a test line. | grep -o -E "[a-z]+."
+line.
+
+>echo this is a test line. | egrep -o "[a-z]+."
+line.
+```
+6、统计文件或者文本中包含匹配字符串的行数-c 选项：
+```bash
+>grep -c "text" file_name
+2
+```
+7、输出包含匹配字符串的行数 -n 选项：
+```bash
+grep "text" -n file_name
+#或
+cat file_name | grep "text" -n
+```
+8、多个文件
+```bash
+grep "text" -n file_1 file_2
+```
+9、搜索多个文件并查找匹配文本在哪些文件中：
+`grep -l "text" file1 file2 file3...`
+10、grep递归搜索文件
+
+在多级目录中对文本进行递归搜索：
+
+`grep "text" . -r -n`
+11、忽略匹配样式中的字符大小写：
+```bash
+>echo "hello world" | grep -i "HELLO"
+hello
+```
+12、选项 -e 指定多个匹配样式：
+```bash
+>echo this is a text line | grep -e "is" -e "line" -o
+is
+line
+```
+13、也可以使用 -f 选项来匹配多个样式，在样式文件中逐行写出需要匹配的字符。
+```bash
+>cat patfile
+aaa
+bbb
+
+>echo aaa bbb ccc ddd eee | grep -f patfile -o
+```
+14、在grep搜索结果中包括或者排除指定文件：
+只在目录中所有的.php和.html文件中递归搜索字符"main()"
+`grep "main()" . -r --include *.{php,html}`
+15、在搜索结果中排除所有README文件
+`grep "main()" . -r --exclude "README"`
+16、在搜索结果中排除filelist文件列表里的文件
+`grep "main()" . -r --exclude-from filelist`
 
 ### cat
 cat命令用来连接文件内容并打印输出到标准设备上，所以，它常常被用来查看显示文件的内容，或者将几个文件连接起来显示，或者从标准输入读取内容并显示，它常与重定向符号配合使用。
