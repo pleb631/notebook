@@ -1,4 +1,4 @@
-matplotlib提供了两种最常用的绘图接口
+# matplotlib提供了两种最常用的绘图接口
 
 1. 显式创建figure和axes，在上面调用绘图方法，也被称为OO模式（object-oriented style)
 

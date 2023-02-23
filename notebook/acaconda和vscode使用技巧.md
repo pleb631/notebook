@@ -7,11 +7,11 @@
 
 - Jupyter Notebook使用指定的conda环境
 
- ```
+ ```Jupyter
  !conda install nb_conda
  ```
 
- ![](./.cache/2022-08-21-21-09-50.png)
+ ![界面转换kernel](./.cache/2022-08-21-21-09-50.png)
 
 ### vscode有用的插件
 
@@ -22,14 +22,14 @@
 
 - pip 永久换镜像源
 
-```
+```shell
 pip install pip -U
 pip config set global.index-url https://pypi.tuna.tsinghua.edu.cn/simple
 ```
 
 - conda 换镜像源
 
-```
+```shell
 conda config --add channels https://mirrors.tuna.tsinghua.edu.cn/anaconda/pkgs/free/
 conda config --add channels https://mirrors.tuna.tsinghua.edu.cn/anaconda/pkgs/main/
 conda config --set show_channel_urls yes
@@ -38,30 +38,30 @@ conda config --set show_channel_urls yes
 
 - 创建并激活一个环境
 
-```
+```shell
 conda create --name huanjing python=3.9
 ```
 
 - 列出所有的环境
 
-```
+```shell
 conda info --envs
 ```
 
 克隆一个环境
 
-```
+```shell
 conda create -n flowers --clone snowflakes
 ```
 
 删除环境
 
-```
+```shell
 conda remove -n flowers --all
 ```
 
 检查python版本
 
-```
+```shell
 conda search --full --name python
 ```

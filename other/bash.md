@@ -1,12 +1,17 @@
 [TOC]
+
 ### xargs
+
 xargs可以将stdin中以空格或换行符进行分隔的数据，形成以空格分隔的参数（arguments），传递给其他命令。因为以空格作为分隔符，所以有一些文件名或者其他意义的字符串内含有空格的时候，xargs可能会误判。简单来说，xargs的作用是给其他命令传递参数，是构建单行命令的重要组件之一。
 之所以要用到xargs，是因为很多命令不支持使用管道|来传递参数，例如：
+
 ```bash
 find /sbin -perm +700 | ls -l         # 这个命令是错误,因为标准输入不能作为ls的参数
 find /sbin -perm +700 | xargs ls -l   # 这样才是正确的
 ```
-**命令格式**
+
+#### 命令格式
+
 `xargs [OPTIONS] [COMMAND]`
 
 |选项|说明|
@@ -29,48 +34,52 @@ find /sbin -perm +700 | xargs ls -l   # 这样才是正确的
 -t， --verbose|#先打印命令到标准错误输出，然后再执行
 -x, --exit|#配合 -s 使用，当命令行字符数大于 -s 指定的数值时，退出 xargs
 
-**示例**
-1. 将 Shell 的特殊字符反引号还原为一般字符
+#### 示例
+
 ```bash
+#将 Shell 的特殊字符反引号还原为一般字符
+
 echo '`0123`4 56789' | xargs -t echo
 >echo `0123`4 56789 
 >`0123`4 56789
 ```
-如果直接进行如下操作，会报无法找到命令 01234 的错误，因为反引号在 Shell 中会将 01234 作为一个命令来执行，但是 01234 不是一个命令。-t 表示先打印命令，然后再执行。
+
+如果直接进行如下操作，会报无法找到命令 01234 的错误，因为反引号在 Shell 中会将 01234  作为一个命来执     行，但是 01234 不是一个命令。-t 表示先打印命令，然后再执行。
+
 ```bash
 echo `01234` 56789
 >-bash: 01234: command not found
-```
-2. 设置 xargs 读入参数时的结束标识，以逗号结束。这里要注意结束标志必须要是单独的字段，即以空格或者换行符分隔的字段。
-```bash
+
+#设置 xargs 读入参数时的结束标识，以逗号结束。这里要注意结束标志必须要是单独的字段， 即以空格或者换行符分隔的字段。
+
 echo 01234 , 56789 | xargs -E ","
 >01234
-```
-3. 使用 rm、mv 等命令同时操作多个文件时，有时会报 “argument list too long” 参数列表过长的错误，此时可以使用 xargs 来解决。xargs 将标准输入的字符串分隔后，作为参数传递给后面的命令。例如，给当前目录的所有文件添加后缀名。
-```bash
+
+ 
+#使用 rm、mv 等命令同时操作多个文件时，有时会报 “argument list too long” 参数列表过长的错误，此时可以使用 xargs 来解决。xargs 将标准输入的字符串分隔后，作为参数传递给后面的命令。例如，给当前目录的所有文件添加后缀名。
 ls | xargs -t -i mv {} {}.bak
 
 # 选择符合条件的文件
 ls | grep -E "201701|201702|201703" | xargs -I {} mv {} {}.bak
-```
-4. 设置命令行的最大字符数。参数默认一个一个单独传入命令中执行。
-```bash
+
+
+#设置命令行的最大字符数。参数默认一个一个单独传入命令中执行。
 echo "01234 56789" | xargs -t -s 11
 >echo 01234 
 >01234
 >echo 56789 
 >56789
-```
-5. 设置标准输入中每次多少行作为命令的参数，默认是将标准输入中所有行的归并到一行一次性传给命令执行。
-```bash
+
+
+# 设置标准输入中每次多少行作为命令的参数，默认是将标准输入中所有行的归并到一行一次性传给命令执行。
+
 echo -e "01234\n56789\n01234" | xargs -t -L 2 echo
 >echo 01234 56789 
 >01234 56789
 >echo 01234 
 >01234
-```
-6. 将文件内容以空格分隔合并为一行输出。
-```bash
+
+#将文件内容以空格分隔合并为一行输出。
 # 列出文件内容
 cat test.txt
 a b c d e
@@ -80,15 +89,20 @@ k l m n o
 # 多行输入合并为一行输出
 cat test.txt | xargs
 a b c d e f g h i j k l m n o
-```
-7. 与ps、grep、awk和kill结合，强制终止指定进程。
-```bash
+
+
+#与ps、grep、awk和kill结合，强制终止指定进程。
 ps -ef | grep spp | awk '{printf "%s ",$2}' | xargs kill -9
+
 ```
+
 ### awk
+
 Awk  pattern scanning and processing language，对文本和数据进行处理。
 awk 是一种编程语言，用于在linux/unix下对文本和数据进行处理。数据可以来自标准输(stdin)、一个或多个文件，或其它命令的输出。它在命令行中使用，但更多是作为脚本来使用。awk有很多内建的功能，比如数组、函数等，这是它和C语言的相同之处，灵活性是awk最大的优势。
-**命令格式**
+
+#### 命令格式
+
 `awk [options] 'scripts' var=value filename`
 **常用参数**
 `awk 'BEGIN{ print "start" } pattern{ commands } END{ print "end" }' filename`
@@ -102,7 +116,9 @@ awk 是一种编程语言，用于在linux/unix下对文本和数据进行处理
 -F |指定分隔符（可以是字符串或正则表达式）
 -f |从脚本文件中读取awk命令
 -v var=value |赋值变量，将外部变量传递给awk
-**示例**
+
+#### 示例1
+
 ```bash
 echo "hello " | awk 'BEGIN{ print "welcome" } END{ print "2017-08-08" }'
 welcome
@@ -122,15 +138,20 @@ echo|awk '{ a="mgg"; b="mingg"; c="mingongge"; print a" is "b" or "c; }'
 mgg is mingg or mingongge
 #awk的print语句中双引号其实就是个拼接作用
 ```
-**变量**
+
+#### 变量
+
 外部变量
+
 ```bash
 >a=100
 >b=100
 >echo |awk '{print v1*v2 }' v1=$a v2=$b
 10000
 ```
+
 内置变量
+
 ```bash
 $0   #当前记录
 $1~$n #当前记录的第N个字段
@@ -143,7 +164,9 @@ ORS  #输出记录分割符，默认换行符
 ```
 
 可以使用各种运算符和正则表达式
-**示例**
+
+#### 示例2
+
 ```bash
 awk –F : ‘{print $2}’ datafile
 #以:分隔打印第二列
@@ -206,11 +229,15 @@ ifconfig eth0|awk 'BEGIN{FS="[[:space:]:]+"} NR==2{print $4}'
 
 awk '{print toupper($0)}' test.txt
 #toupper是awk内置函数，将所小写字母转换成大写
-``` 
+```
+
 ### grep
+
 文本查找或搜索工具。用于查找内容包含指定的范本样式的文件，如果发现某文件的内容符合所指定的范本样式，预设grep会把含有范本样式的那一列显示出来。若不指定任何文件名称，或是所给予的文件名为 -，则grep会从标准输入设备读取数据。
 同样可以配合正则表达式来搜索文本，并将匹配的行打印输出,也可用于过滤与搜索特定字符串，使用十分灵活
-**常用参数**
+
+#### 常用参数
+
 |选项|说明|
 |------|-------|
 -a  |不要忽略二进制数据
@@ -235,12 +262,14 @@ awk '{print toupper($0)}' test.txt
 -R/-r|此参数的效果和指定“-d recurse”参数相同
 -s  |不显示错误信息
 -v  |反转查找
--V  |显示版本信息 
+-V  |显示版本信息
 -w  |只显示全字符合的列
 -x  |只显示全列符合的列
 -y  |此参数效果跟“-i”相同
 -o  |只输出文件中匹配到的部分
-**示例**
+
+#### 示例
+
 1、在多个文件中查找：
 
 `grep "file" file_1 file_2 file_3`
@@ -264,21 +293,28 @@ line.
 >echo this is a test line. | egrep -o "[a-z]+."
 line.
 ```
+
 6、统计文件或者文本中包含匹配字符串的行数-c 选项：
+
 ```bash
 >grep -c "text" file_name
 2
 ```
+
 7、输出包含匹配字符串的行数 -n 选项：
+
 ```bash
 grep "text" -n file_name
 #或
 cat file_name | grep "text" -n
 ```
+
 8、多个文件
+
 ```bash
 grep "text" -n file_1 file_2
 ```
+
 9、搜索多个文件并查找匹配文本在哪些文件中：
 `grep -l "text" file1 file2 file3...`
 10、grep递归搜索文件
@@ -287,17 +323,22 @@ grep "text" -n file_1 file_2
 
 `grep "text" . -r -n`
 11、忽略匹配样式中的字符大小写：
+
 ```bash
 >echo "hello world" | grep -i "HELLO"
 hello
 ```
+
 12、选项 -e 指定多个匹配样式：
+
 ```bash
 >echo this is a text line | grep -e "is" -e "line" -o
 is
 line
 ```
+
 13、也可以使用 -f 选项来匹配多个样式，在样式文件中逐行写出需要匹配的字符。
+
 ```bash
 >cat patfile
 aaa
@@ -305,6 +346,7 @@ bbb
 
 >echo aaa bbb ccc ddd eee | grep -f patfile -o
 ```
+
 14、在grep搜索结果中包括或者排除指定文件：
 只在目录中所有的.php和.html文件中递归搜索字符"main()"
 `grep "main()" . -r --include *.{php,html}`
@@ -314,6 +356,7 @@ bbb
 `grep "main()" . -r --exclude-from filelist`
 
 ### cat
+
 cat命令用来连接文件内容并打印输出到标准设备上，所以，它常常被用来查看显示文件的内容，或者将几个文件连接起来显示，或者从标准输入读取内容并显示，它常与重定向符号配合使用。
 **cat命令三大功能**
 1、显示一个文件的全部内容，cat file_name
@@ -324,29 +367,28 @@ cat命令用来连接文件内容并打印输出到标准设备上，所以，�
 -b, --number-nonblank     |对非空输出行编号
 -E, --show-ends           |在每行结束处显示 $
 -n, --number              |对输出的所有行编号,由1开始对所有输出的行数编号
--s, --squeeze-blank       |有连续两行以上的空白行，就代换为一行的空白行 
+-s, --squeeze-blank       |有连续两行以上的空白行，就代换为一行的空白行
 -T, --show-tabs          |将跳格字符显示为 ^I
-示例
-1. 键盘录入内容到文件，回车是保存，退出Ctrl+z
+
+#### 示例
+
 ```bash
+##键盘录入内容到文件，回车是保存，退出Ctrl+z
 [root@localhost ~]# cat > mingongge.txt
 111111111111111
 2233445566778899
 0126459fdfdfdkffffkfkfkfkfdkfdkdfkk
 ^Z
 [4]+  Stopped                 cat > mingongge.tx
-```
-2. 合并文件
-```bash
+
+#合并文件
 [root@localhost ~]# cat mingongge.tar.gz_?? > mingongge.tar.gz   
 #可以用cat命令将多个压缩包合并成一个
-```
-3. 追加文字内容
-```bash
+
+#追加文字内容
 cat mingongge.txt >> mingongge.doc  #将mingongge.txt内容添加到mingongge.doc内容后
-```
-4. 插入多行内容
-```bash
+
+#插入多行内容
 [root@localhost ~]# cat >> mingongge.doc <<EOF
 > 111111111111
 > 222222222222
@@ -354,14 +396,18 @@ cat mingongge.txt >> mingongge.doc  #将mingongge.txt内容添加到mingongge.do
 > EOF
 #将你所要输入的内容插入到文件中，输入EOF即为结束插入，EOF也可以使用其它字符替代。
 ```
+
 ### wc
+
 wc 命令用来统计文件中的行数、单词数或字节数，然后将结果输出在终端上。我们可以使用 wc 命令来计算文件的Byte数、字数或是列数
-**语法格式**
+#### 语法格式
+
 ```bash
 wc [选项] [文件]
 wc [OPTION] [FILE]
 ```
-**选项说明**
+
+#### 选项说明
 |选项|说明|
 |------|-------|
 -c |统计字节数
@@ -371,9 +417,10 @@ wc [OPTION] [FILE]
 -L |显示最长行的长度
 
 ### ls
+
 ls(list)，ls命令显示指定目录下的内容，列出指定目录下所含的文件及子目录。此命令与Windows系统中dir命令功能相似。
 ls命令的输出信息可以进行彩色加亮显示，以分区不同类型的文件。
-**选项说明**
+#### 选项说明
 |选项|说明|
 |------|-------|
 -a |显示指定目录下的所有文件以及子目录，包含隐藏文件
@@ -387,13 +434,18 @@ ls命令的输出信息可以进行彩色加亮显示，以分区不同类型的
 -s|显示文件和目录的大小，以区块为单位
 -L|如果遇到性质为符号链接的文件或目录，直接列出该链接所指向的原始文件或目录
 -R|递归处理，将指定目录下的所有文件及子目录一并处理
-**示例**
+
+#### 示例
+
 1. 计算当前目录下的文件数和目录数
+
 ```bash
 ls -l * |grep "^-" |wc -l
 ls -l * |grep  "^d" |wc -l
 ```
+
 2.在ls中列出文件的绝对路径
+
 ```bash
 ls |sed "s:^:`pwd`/:"
 ```

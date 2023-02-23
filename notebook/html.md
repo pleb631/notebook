@@ -81,7 +81,7 @@ p.center {
 }
 ```
 
-该例子中，只有具有 class="center" 的 <p> 元素会居中对齐
+该例子中，只有具有 class="center" 的 `<p>`元素会居中对齐
 
 `<p class="center large">这个段落引用两个类。</p>`
 
