@@ -6,7 +6,6 @@ matplotlib提供了两种最常用的绘图接口
 
 使用第一种绘图接口，是这样的：
 
-
 ```python
 x = np.linspace(0, 2, 100)
 
@@ -22,7 +21,6 @@ plt.show()
 ```
 
 而如果采用第二种绘图接口，绘制同样的图，代码是这样的：
-
 
 ```python
 x = np.linspace(0, 2, 100)

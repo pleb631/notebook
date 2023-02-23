@@ -1,11 +1,15 @@
 # pathlib
+
 ## Path
+
 [官方文档](https://pathlib.readthedocs.io/en/pep428/)
+
 ```python
 from pathlib import Path
 Path('path')
 #WindowsPath('path')
 ```
+
 | 模块/方法                         | 作用                          | 备注        |
 | --------------------------------- | ----------------------------- | ----------- |
 |Path.cwd()|返回文件当前所在目录|

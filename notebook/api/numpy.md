@@ -6,10 +6,10 @@
 | np.linalg.matrix_power（gragh,n） | 计算图节点距离为n的节点       |             |
 | np.ascontiguousarray(array)       | 使array在内存空间中连续       |             |
 |np.alltrue(array）|检查是否所有元素都是True|array.all()同样功能，array.any()至少一个true则输出true
+
 ## CheatSheet
 
 此处罗列部分相关 API 用法，以二维为主，多维可自行拓展。
-
 
 | 说明 | 用法 |备注|
 |------|-----|----|

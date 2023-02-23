@@ -1,15 +1,20 @@
 [toc]
+
 # other
+
 - 计算MD5校验码
 `md5sum file`
 - 清空指定GPU
 `nvidia-smi --gpu-reset -i [gpu_id]`
-或者`ps -ef | grep "run" | grep -v grep | awk '{print "kill -9 "$2}' | sh`或者
+或者`ps -ef | grep "python" | grep -v grep | awk '{print "kill -9 "$2}' | sh`或者
+
 ```bash
 ps aux | grep python
 kill -9 [pid]
 ```
+
 - 快速生成训练文件
+
 ```shell
 # 生成 train.txt、valid.txt和test.txt列表文件
 >>ls images/*.png | shuf > all_image_list.txt
@@ -23,8 +28,11 @@ kill -9 [pid]
 # 删除不用文件
 >>rm -rf all_image_list.txt all_list.txt
 ```
+
 ---
+
 # CheatSheat
+
 ## 关机/重启/注销
 
 | 常用命令          | 作用                     |
@@ -262,4 +270,3 @@ kill -9 [pid]
 | gunzip xxx.gz                     | 解压gzip压缩包           |
 | gzip filename                     | 压缩⽂件                 |
 | gzip -9 filename                  | 最⼤程度压缩             |
-

@@ -4,7 +4,6 @@
 
 - Googlenet
 
-
 文章一上来首先表明了提高网络性能的方法就是增加网络的深度和宽度，
 
 但是会有两个缺点：
@@ -15,9 +14,10 @@
 作者认为把全连接的结构转化为稀疏连接的结构，参考Hebbian principle，提出**Inception模块**，这个模块的最重要的作用就是让神经网络在学习的过程中自发的选择合适的路径或感受野，从而增加模型的**稀疏性**。
 
 ## REID
- ### [Bag of Tricks and A Strong Baseline for Deep Person Re-identification](https://openaccess.thecvf.com/content_CVPRW_2019/papers/TRMTMCT/Luo_Bag_of_Tricks_and_a_Strong_Baseline_for_Deep_Person_CVPRW_2019_paper.pdf)
 
-1. Warmup, 
+### [Bag of Tricks and A Strong Baseline for Deep Person Re-identification](https://openaccess.thecvf.com/content_CVPRW_2019/papers/TRMTMCT/Luo_Bag_of_Tricks_and_a_Strong_Baseline_for_Deep_Person_CVPRW_2019_paper.pdf)
+
+1. Warmup,
 2. Random Erasing,
 3. Label Smoothing,
 4. 最后一个stride从2改为1，计算量不会增加很多,
@@ -27,6 +27,7 @@
 
 可用trick
 Bag of Freebies(BoF):
+
 1. Circle loss
 2. Freeze backbone training
 3. Cutout data augmentation & Auto Augmentation
@@ -34,25 +35,31 @@ Bag of Freebies(BoF):
 5. Soft margin triplet loss
 
 Bag of Specials(BoS):
+
 1. Non-local block
 2. GeM pooling
 
 ### [Deep Learning for Person Re-identification:A Survey and Outlook](https://arxiv.org/pdf/2001.04193v2.pdf)
+
 1. Non-local Attention
 2. Generalized-mean Pooling
 3. Weighted Regularization Triplet loss
 代码在[fast-reid](https://github.com/JDAI-CV/fast-reid/tree/39887a102eeec84661f0c0332000f8138aa9109d)
 
 ### [Learning Discriminative Features with Multiple Granularities for Person Re-Identification](https://arxiv.org/pdf/1804.01438v1.pdf)
+
 基于高级语义特征，多分支，沿着垂直方向分成若干个stripe，在对每一个stripe产生的特征做损失，推理时对多分枝的特征进行堆叠
 
 ### [Learning Generalisable Omni-Scale Representations for Person Re-Identification](https://arxiv.org/pdf/1910.06827v5.pdf)
+
 1. 采用DW卷积
 2. 将单分支bottleneck改成改成多分支，并用gate把多尺寸特征进行结合
 3. 插入Instance Normalisation，有助于去除图像风格带来的差异
 
 ### [Parsing-based View-aware Embedding Network for Vehicle Re-Identification](https://openaccess.thecvf.com/content_CVPR_2020/papers/Meng_Parsing-Based_View-Aware_Embedding_Network_for_Vehicle_Re-Identification_CVPR_2020_paper.pdf)
+
 1. 使用图像分割网络把汽车解构成几个子部分，再用带掩膜的平均池化提取子部分的高级语义嵌入特征，并使用这些嵌入特征做triplet损失
+
 ## 理解
 
 ### 模型的稀疏性

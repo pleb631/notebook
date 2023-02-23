@@ -1,6 +1,8 @@
 [TOC]
 [OS,shutil,glob,multiprocessing,threading,random,other]
+
 # OS
+
 | 模块/方法 | 作用 | 备注 |
 |---|---|---|
 | os.getcwd() | 返回当前工作目录 |  |
@@ -22,24 +24,25 @@
 | os.path.getsize(path)      | 返回path对应文件的大小，以字节为单位<br/>>>>os.path.getsize("D:/PYE/file.txt")<br/>180768 |
 |os.getcwd()，os.path.abspath('.')，os.path.abspath(os.curdir)|获取当前文件路径|
 
-
 # shutil
+
 | 模块/方法 | 作用 | 备注 |
 |---|---|---|
 | shutil.copyfile(src, dst) | 复制文件 |  |
 | shutil.copy(src, dst) | 拷贝文件和权限 |  |
 | shutil.rmtree(dir) | 递归的去删除文件 |  |
 | shutil.move(src, dst) | 移动文件 |  |
+
 # glob
+
 | 模块/方法 | 作用 | 备注 |
 |---|---|---|
 | glob.glob(source,recursive=False) | 匹配满足条件的文件 | "glob.glob('dir/*') 星号(*)匹配零个或多个字符 ,如果recursive=True,则递归寻找，此时source格式应为"./**/file"|
 | glob.glob('dir/file?.txt') 问号(?)匹配任何单个的字符  |
 | glob.glob('dir/*[0-9].*') 匹配一个特定的字符，可以使用一个范围" |
 
-
-
 # random
+
 | 模块/方法 | 作用 | 备注 |
 |---|---|---|
 random.random()|从(0,1)均匀分布随机取数|
@@ -47,9 +50,11 @@ random.chioce(dict)|从列表随机取个元素|
 random.shuffle(dcit)|打乱列表顺序
 
 # 多进程和多线程
+
 ## multiprocessing
 
 pool.apply_async 用多线程执行函数
+
 ```python
 import multiprocessing
 import time
@@ -80,7 +85,9 @@ if __name__ == "__main__":
 
 
 ```
+
 pool.map_async 可以自动把数据分配给多个线程，缺点是不好支持多个输入参数
+
 ```python
 import multiprocessing
 import time
@@ -108,7 +115,9 @@ if __name__ == "__main__":
 # Sub-process(es) done.
 
 ```
+
 pool.starmap_async 在支持自动分配线程的同时也可以支持多个输入参数
+
 ```python
 import multiprocessing
 import time
@@ -137,7 +146,9 @@ if __name__ == "__main__":
 # Sub-process(es) done.
 ##
 ```
+
 ## threading
+
 ```python
 """
 使用锁实现线程同步
@@ -179,12 +190,14 @@ if __name__ == '__main__':
     main()
 ```
 
-#functools
+# functools
+
 | 模块/方法 | 作用 | 备注 |
 |---|---|---|
 cmp_to_key|为sorted()函数自定义比较方法|
 reduce|对列表逐元素数学操作|
 partial|基于现有函数固定参数生成新的可调用对象|
+
 ```python
 #cmp_to_key
 from functools import cmp_to_key
@@ -220,6 +233,7 @@ reduce(lambda x, y: x+y, [1,2,3], 9)
 reduce(lambda x,y: x+y, [1, 2, 3], 7) 
 #输出 13
 ```
+
 ```python
 #functools.partial
 import functools
@@ -230,6 +244,7 @@ def add(a, b):
 add = functools.partial(add, 1)
 add(2)
 ```
+
 # other
 
 - print
@@ -245,7 +260,3 @@ add(2)
 read()  ： 一次性读取整个文件内容。推荐使用read(size)方法，size越大运行时间越长  
 readline()  ：每次读取一行内容。内存不够时使用，一般不太用  
 readlines()   ：一次性读取整个文件内容，并按行返回到list，方便我们遍历
-
-
-
-
