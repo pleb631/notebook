@@ -1,6 +1,6 @@
 [TOC]
 
-[tqdm,argparse]
+[tqdm,argparse,pprint]
 
 ## tqdm
 
@@ -82,3 +82,8 @@ N  | 参数的绝对个数（例如：3）
 '?' |  0或1个参数
 '*' |  0或所有参数
 '+' |  所有，并且至少一个参数
+
+## pprint
+
+可以按照目标格式按行输出内容，易于debug
+pprint.pprint(content)
