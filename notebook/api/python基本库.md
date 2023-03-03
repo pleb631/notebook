@@ -249,12 +249,43 @@ add(2)
 
 - print
 
-| 模块/方法 | 作用 | 备注 |
-|---|---|---|
-|制表符 \t|用来为字符串与字符串之间产生间距||
-|"{},{}".format(object1,object)|格式化输出||
-|#-*- coding: UTF-8 -*-|放在文件开头来解决中文乱码问题||
-| print(*object,sep=' ',end='\n',file=sys.stdout,flush=False)|objects -> 可以为一个或多个对象，输出多个对象时，需要用逗号分隔 <br>sep -> 用来间隔多个对象，默认值是一个空格 <br>end -> 用来设定结尾方式，默认值是换行符 \n ，也可以换成其他字符串 <br>file -> 要写入的文件对象||
+1. `%`
+
+```python
+name = "Alice"
+age = 20
+print("Hello, %s. You are %d years old." % (name, age))
+# Hello, Alice. You are 20 years old.
+```
+
+2. `.format`
+
+```python
+name = "Bob"
+age = 21
+print("Hello, {}. You are {} years old.".format(name, age))
+# Hello, Bob. You are 21 years old.
+print("Hello, {0}. You are {1} years old.".format(name, age))
+# Hello, Bob. You are 21 years old.
+print("Hello, {name}. You are {age} years old.".format(name=name, age=age))
+# Hello, Bob. You are 21 years old.
+
+num = 0.123456
+print("%.2f%%" % num) # 输出0.12%
+```
+
+3. f-string
+
+```python
+name = "Charlie"
+age = 22
+print(f"Hello, {name}. You are {age} years old.")
+# Hello, Charlie. You are 22 years old.
+
+num = 0.123456
+print("{:.2f}%".format(num)) # 输出0.12%
+print(f"{num:.2f}%") # 输出0.12%
+```
 
 - read
 read()  ： 一次性读取整个文件内容。推荐使用read(size)方法，size越大运行时间越长  
