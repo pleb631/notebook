@@ -10,8 +10,7 @@
  ```Jupyter
  !conda install nb_conda
  ```
-
- ![界面转换kernel](./.cache/2022-08-21-21-09-50.png)
+![2023-03-02-21-22-20](https://cdn.jsdelivr.net/gh/pleb631/ImgManager@main/img/2023-03-02-21-22-20.png)
 
 ### vscode有用的插件
 
