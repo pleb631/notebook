@@ -47,7 +47,8 @@
 |---|---|---|
 random.random()|从(0,1)均匀分布随机取数|
 random.chioce(dict)|从列表随机取个元素|
-random.shuffle(dcit)|打乱列表顺序
+random.shuffle(dict)|打乱列表顺序
+random.sample(dict,n)|随机采样n个元素
 
 # 多进程和多线程
 
