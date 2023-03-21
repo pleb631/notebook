@@ -1,6 +1,6 @@
 # 导入openpyxl模块
 import openpyxl
-
+from openpyxl.styles import Alignment
 # 创建工作簿和工作表
 wb = openpyxl.Workbook()
 ws = wb.active

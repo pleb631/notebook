@@ -246,6 +246,8 @@ add = functools.partial(add, 1)
 add(2)
 ```
 
+# time
+见 [python.ipynb](/notebook/python/ipy/python.ipynb)
 # other
 
 - print
