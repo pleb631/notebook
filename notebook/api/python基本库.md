@@ -54,7 +54,9 @@ random.sample(dict,n)|随机采样n个元素
 
 ## multiprocessing
 
-pool.apply_async 用多线程执行函数
+### pool.apply_async
+
+**场景**：输入参数只有1个或0个，手动分配数据
 
 ```python
 import multiprocessing
@@ -87,7 +89,9 @@ if __name__ == "__main__":
 
 ```
 
-pool.map_async 可以自动把数据分配给多个线程，缺点是不好支持多个输入参数
+### pool.map_async
+
+**场景**：输入参数只有1个或0个，自动分配数据
 
 ```python
 import multiprocessing
@@ -117,7 +121,9 @@ if __name__ == "__main__":
 
 ```
 
-pool.starmap_async 在支持自动分配线程的同时也可以支持多个输入参数
+### pool.starmap_async 
+
+**场景**：自动分配数据，支持多个参数
 
 ```python
 import multiprocessing
@@ -146,6 +152,41 @@ if __name__ == "__main__":
 # end
 # Sub-process(es) done.
 ##
+```
+
+### 多进程通信和处理文件的demo
+
+```python
+import os
+from multiprocessing import Pool, Manager
+
+def process_file(file_path, result_dict):
+    # 处理单个文件的函数
+    print(f"Processing file {file_path}")
+    # ...
+
+    # 记录处理结果到共享字典中
+    result_dict[file_path] = result
+
+if __name__ == '__main__':
+    # 获取待处理文件列表
+    file_list = []
+    for root, dirs, files in os.walk('data/'):
+        for file in files:
+            if file.endswith('.txt'):
+                file_list.append(os.path.join(root, file))
+
+    # 使用进程池并发处理文件，并且利用 Manager 共享数据
+    num_processes = os.cpu_count()
+    with Manager() as manager:
+        result_dict = manager.dict()
+        with Pool(num_processes) as pool:
+            pool.starmap(process_file, [(file_path, result_dict) for file_path in file_list])
+
+    # 输出处理结果
+    for file_path, result in result_dict.items():
+        print(f"{file_path}: {result}")
+
 ```
 
 ## threading
@@ -247,7 +288,9 @@ add(2)
 ```
 
 # time
+
 见 [python.ipynb](/notebook/python/ipy/python.ipynb)
+
 # other
 
 - print
