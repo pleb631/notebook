@@ -1,9 +1,15 @@
 [toc]
 
 # other
+du -d 1 -h ./
+查看空间占用
+
+- 查找占用GPU资源的PID
+fuser -v /dev/nvidia*
 
 - 计算MD5校验码
 `md5sum file`
+
 - 清空指定GPU
 `nvidia-smi --gpu-reset -i [gpu_id]`
 或者`ps -ef | grep "python" | grep -v grep | awk '{print "kill -9 "$2}' | sh`或者
