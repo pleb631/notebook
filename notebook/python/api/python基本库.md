@@ -121,7 +121,7 @@ if __name__ == "__main__":
 
 ```
 
-### pool.starmap_async 
+### pool.starmap_async
 
 **场景**：自动分配数据，支持多个参数
 
@@ -289,7 +289,119 @@ add(2)
 
 # time
 
-见 [python.ipynb](/notebook/python/ipy/python.ipynb)
+见 [python.ipynb](../python/ipy/python.ipynb)
+
+# itertools
+
+| 模块/方法 | 作用 | 备注 |
+|---|---|---|
+combinations(iterable,r) |返回的是可迭代对象所有的长度为 r 的子序列
+permutations(iterable,r=None)|返回的是可迭代元素中的一个排列组合
+combinations_with_replacement(iterable, r) |返回一个可与自身重复的元素组合
+product(*iterables, repeat=1)|返回可迭代对象的笛卡儿积|等价于`((x,y) for x in A for y in B)`
+cycle(iterable)|无限迭代器
+chain(*iterables) |可以把多个可迭代对象组合起来，形成一个更大的迭代器
+groupby(iterable,key=None) |可以把相邻元素按照 key 函数分组，并返回相应的 key 和 groupby，如果key函数为 None，则只有相同的元素才能放在一组。
+accumulate(iterable [,func]) |可以计算出一个迭代器，这个迭代器是由特定的二元函数的累计结果生成的，如果不指定的话，默认函数为求和函数。
+pairwise(iterable)|`pairwise('ABCDEFG') --> AB BC CD DE EF FG`
+
+# collection
+
+### Counter
+
+对列表计数
+
+```python
+from collection import Counter
+L = ['red', 'blue', 'red', 'green', 'blue', 'blue'] 
+Counter(L)
+#{'red': 2, 'blue': 3, 'green': 1}
+Counter(L).most_common(2)
+#{'red': 2, 'blue': 3}
+```
+
+### defaultdict
+
+更加易用的dict
+
+```python
+s = 'mississippi'
+d = defaultdict(int)
+for k in s:
+    d[k] += 1
+sorted(d.items())
+#[('i', 4), ('m', 1), ('p', 2), ('s', 4)]
+ ```
+
+### namedtuple
+
+可命名元祖
+
+ ```python
+
+ from collections import namedtuple
+
+Color = namedtuple("Color", "r g b alpha")
+
+a=Color(r=50, g=205, b=50, alpha=0)
+b=Color(50, 0, 0, 0)
+print(a.r) #打印指定元素
+
+c=b._asdict() #转为dict形式
+tuple(b) #转为tuple形式
+
+d=b._replace(b=100) #从已有元组构建出新的元组
+
+print(c._fields) #返回元素名
+
+
+Color1 = namedtuple("Color", c)#从dict中创建namedtuple
+e = Color1(**c)
+
+
+Account = namedtuple('Account', ['type', 'balance','c'], defaults=[1,0]) #设置默认值
+print(Account._field_defaults) #{'balance': 1, 'c': 0}
+print(Account('premium')) #Account(type='premium', balance=1, c=0)
+```
+
+### ChainMap
+
+适用范围：
+
+- 通过多个字典搜索
+- 提供链缺省值
+- 经常计算字典子集的性能关键的应用程序
+
+特性：
+
+- 找到一个就不找了：这个列表是按照第一次搜索到最后一次搜索的顺序组织的，搜索查询底层映射，直到一个键被找到。
+- 更新原始映射：不同的是，写，更新和删除只操作第一个映射。
+- 支持所有常用字典方法。
+
+```python
+from collections import ChainMap 
+baseline = {'music': 'bach', 'art': 'rembrandt'}
+adjustments = {'art': 'van gogh', 'opera': 'carmen'}
+NewMap = ChainMap(adjustments, baseline)
+
+print(NewMap)
+#ChainMap({'art': 'van gogh', 'opera': 'carmen'}, {'music': 'bach', 'art': 'rembrandt'})
+print(list(ChainMap(adjustments, baseline)))
+#['music', 'art', 'opera']
+#存在重复元素时，也不会去重
+
+NewMap1=NewMap.new_child(m={'key_new':888}) #把NewMap作为父节点并添加新的字典并创建子节点ChainMap
+#ChainMap({'key_new': 888}, {'art': 'van gogh', 'opera': 'carmen'}, {'music': 'bach', 'art': 'rembrandt'})
+
+NewMap1.parents #返回父节点
+
+NewMap1['art']='abc' #只会改变第一个字典
+#ChainMap({'key_new': 888, 'art': 'abc'}, {'art': 'van gogh', 'opera': 'carmen'}, {'music': 'bach', 'art': 'rembrandt'})
+
+print(NewMap1['art']) #'abc'
+#按字典顺序、映射顺序依次搜索，搜索第一个key即停止
+
+```
 
 # other
 
