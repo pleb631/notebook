@@ -22,7 +22,7 @@
 | os.path.isfile(path) | 是否为文件 |  |
 | os.path.splitext(path) | 把扩展名和其他字符分开 | |
 | os.path.getsize(path)      | 返回path对应文件的大小，以字节为单位<br/>>>>os.path.getsize("D:/PYE/file.txt")<br/>180768 |
-|os.getcwd()，os.path.abspath('.')，os.path.abspath(os.curdir)|获取当前文件路径|
+|os.getcwd()，os.path.abspath('.')，os.path.abspath(os.curdir)|获取当前工作路径|可以使用`print(__file__)`,`__dir__ = os.path.dirname(os.path.abspath(__file__))`来获取当前py文件的路径,使用sys.argv[0]获取原始执行py文件的路径|
 
 # shutil
 
