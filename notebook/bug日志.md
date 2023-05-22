@@ -1,3 +1,5 @@
+[TOC]
+
 # python
 
 ## opencv
@@ -52,3 +54,14 @@ conda config --set show_channel_urls yes
  ```
 
 ![2023-03-02-21-22-20](https://cdn.jsdelivr.net/gh/pleb631/ImgManager@main/img/2023-03-02-21-22-20.png)
+
+### Vscode解决 Failed to connect to github.com port 443:connection timed out
+
+方案1：先全局代理再取消
+
+```
+git config --global http.proxy http://127.0.0.1:1080
+git config --global https.proxy http://127.0.0.1:1080
+git config --global --unset https.https://github.com.proxy
+git config --global --unset http.https://github.com.proxy
+```
