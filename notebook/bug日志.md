@@ -7,3 +7,48 @@
 原因1：俩函数不支持中文路径
 方案1：用imdecode/imencode替代，见[文档](/notebook/api/cv2.md)
 方案2：用PIL包替代
+
+### lap 安装方法
+
+```shell
+conda install -c conda-forge lap
+```
+
+### Microsoft Visual C++ 14.0 is required
+
+```shell
+conda install libpython m2w64-toolchain -c msys2
+```
+
+### acaconda常用命令
+
+- pip 永久换镜像源
+
+```shell
+pip install pip -U
+pip config set global.index-url https://pypi.tuna.tsinghua.edu.cn/simple
+```
+
+- conda 换镜像源
+
+```shell
+conda config --add channels https://mirrors.tuna.tsinghua.edu.cn/anaconda/pkgs/free/
+conda config --add channels https://mirrors.tuna.tsinghua.edu.cn/anaconda/pkgs/main/
+conda config --set show_channel_urls yes
+
+```
+
+- 从cmd启动jupyter
+
+```shell
+!conda install jupyter notebook
+!jupyter notebook
+```
+
+- Jupyter Notebook使用指定的conda环境
+
+ ```Jupyter
+ !conda install nb_conda
+ ```
+
+![2023-03-02-21-22-20](https://cdn.jsdelivr.net/gh/pleb631/ImgManager@main/img/2023-03-02-21-22-20.png)

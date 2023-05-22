@@ -23,7 +23,7 @@ def read_json(json_path, mode='all'):
         json_data: list, json文件内容
     '''
     json_data = []
-    with open(json_path, 'r') as json_file:
+    with open(json_path, 'r',encoding="UTF-8") as json_file:
         if mode == 'all':
             # 把读取内容转换为python字典
             json_data = json.loads(json_file.read())
@@ -45,14 +45,14 @@ def save_json(json_path, info, indent=4, mode='w', with_return_char=False):
         mode: str, 'w'代表覆盖写；'a'代表追加写
         with_return_char: bool, 写文件时是否在结尾添加换行符
     '''
-    os.makedirs(os.path.split(json_path)[0], exist_ok=True)
+    #os.makedirs(os.path.split(json_path)[0], exist_ok=True)
     
     # 把python字典转换为字符串
     json_str = json.dumps(info, indent=indent)
     if with_return_char:
         json_str += '\n'
     
-    with open(json_path, mode) as json_file:
+    with open(json_path, mode,encoding="UTF-8") as json_file:
         json_file.write(json_str)
     
     json_file.close()
@@ -177,7 +177,7 @@ def read_yaml(yaml_path):
         yaml_data: dict, yaml文件内容
     '''
     yaml_data = []
-    with open(yaml_path, 'r') as yaml_file:
+    with open(yaml_path, 'r',encoding="UTF-8") as yaml_file:
         yaml_data = yaml.load(yaml_file, Loader=yaml.FullLoader)
     
     return yaml_data
@@ -195,7 +195,7 @@ def read_csv(csv_path):
     Returns:
         reader_data: list, csv文件内容
     '''
-    csv_file = open(csv_path, "r")
+    csv_file = open(csv_path, "r",encoding="UTF-8")
     reader = csv.reader(csv_file)
     reader_data = list(reader)
 
@@ -229,7 +229,7 @@ def read_txt(txt_path):
     Returns:
         txt_data: list, txt文件内容
     '''
-    txt_file = open(txt_path, "r")
+    txt_file = open(txt_path, "r",encoding="UTF-8")
     txt_data = []
     for line in txt_file.readlines():
         txt_data.append(line.replace('\n', ''))

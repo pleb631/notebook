@@ -124,26 +124,16 @@ list_=db.lcreate('database') # 创建list
 data={1:1,2:2,3:3}
 
 db.ladd('database',data) # 将data 添加到list
-
 print db.lgetall('database') # 获取list中的所有内容 [{1: 1, 2: 2, 3: 3}]
-
 db.lextend('database',data) # 用序列扩展列表
-
 print db.lgetall('database') # [{1: 1, 2: 2, 3: 3}, 1, 2, 3]
-
 print db.lget('database',0) # 在列表中返回一个值 {1: 1, 2: 2, 3: 3}
-
 # db.lrem('database') # 删除一个列表及其所有值
-
 db.lpop('database',-1) # 从列表中删除一个值
 print db.lgetall('database') # [{1: 1, 2: 2, 3: 3}, 1, 2]
-
 print(db.llen('database')) # 返回列表的长度 3
-
 db.lappend('database',0,data) # 在列表中添加更多值
-
 print db.lgetall('database') # ['{1: 1, 2: 2, 3: 3}{1: 1, 2: 2, 3: 3}', 1, 2]
-
 print db.getall() # ['database']
 ```
 
@@ -155,30 +145,18 @@ import pickledb
 import pickle
 
 db=pickledb.load('example.db',False) # 加载数据库，如果没有会自动创建
-
 dict_=db.dcreate('database') # 创建dict
-
-
 db.dadd('database',(1,2)) # 将一个键值对添加到字典中，“pair”是一个元组
 db.dadd('database',(2,3))
 print db.dgetall('database') # 从字典中返回所有键值对 {1: 2, 2: 3}
-
 print db.dget('database',1) # 2 在字典中返回一个key的值
-
 print db.dkeys('database') # 在字典中返回一个key的值 [1,2]
-
 print db.dvals('database') # 返回一个字典的所有value [2,3]
-
 print db.dexists('database',2) # 确定key是否存在 存在返回1,不存在报错
-
 # db.drem('database') # 删除一个字典和所有的对
-
 db.dpop('database',1) # 删除一个字典中的一个key
-
 print db.dgetall('database') # {2: 3}
-
 print db.getall() # ['database']
-
 db.deldb() # 从数据库中删除所有内容
 
 db.dump() # 将数据库从内存保存到文件

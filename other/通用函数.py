@@ -72,55 +72,18 @@ def convert_ndarray_to_tensor(state_dict: dict):
             state_dict[k] = torch.from_numpy(v)
 
 import os
-import glob
 import shutil
-import tqdm
-def copyfiles(src,dst,suffix=None,mode=['cp'],isFilter=None):
-    assert os.path.exists(src)
-    assert ('cp' in mode)^('rm' in mode)
-    if os.path.isfile(src):
-        if suffix:
-            assert suffix in src
-            dstpath = src.replace(suffix,dst)
-        else:
-            dstpath = os.path.join(dst,os.path.basename(src))
-            
-        os.makedirs(os.path.dirname(dstpath),exist_ok=True)
-        
-        if 'cp' in mode:
-            shutil.copyfile(src,dstpath)
-        if 'mv' in mode:
-            shutil.move(src,dstpath)
-        if 'rm' in mode:
-            if len(os.listdir(os.path.dirname(src))) == 0:
-                os.rmdir(os.path.dirname(src))
-    
-    elif os.path.isdir(src):
-        src = src.lstrip('\\').lstrip('/')
-        for item in tqdm.tqdm(glob.iglob(src+'/**/*.*',recursive=True)):
-            if isFilter and isFilter(item):
-                continue
-            
-            dstpath = item.replace(src,dst)
-            os.makedirs(os.path.dirname(dstpath),exist_ok=True)
-            
-        
-            if 'cp' in mode:
-                shutil.copyfile(src,dstpath)
-            if 'mv' in mode:
-                shutil.move(src,dstpath)
-        
-        if 'rm' in mode:
-            #删除空目录
-            for root, dirs, files in os.walk(src, topdown=False):
-                for name in dirs:
-                    dirpath = os.path.join(root, name)
-                    if not len(os.listdir(dirpath)):
-                        os.rmdir(dirpath)
-            
-               
-    else:
-        raise 
-    
-    return 0
+def copytree(src,dst):
+    dirs = os.listdir(src)#获取目录下的所有文件包括文件夹
+    print(dirs)
+    for dir in dirs:#遍历文件或文件夹
+        from_dir = os.path.join(src,dir)#将要复制的文件夹或文件路径
+        to_dir = os.path.join(dst,dir)#将要复制到的文件夹或文件路径
+        if os.path.isdir(from_dir):#判断是否为文件夹
+            if not os.path.exists(to_dir):#判断目标文件夹是否存在,不存在则创建
+                os.mkdir(to_dir)
+            copytree(from_dir,to_dir)#迭代 遍历子文件夹并复制文件
+        elif os.path.isfile(from_dir):#如果为文件,则直接复制文件
+            shutil.copy(from_dir,to_dir)#复制文件
+
     

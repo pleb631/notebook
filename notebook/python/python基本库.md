@@ -1,5 +1,6 @@
 [TOC]
-[OS,shutil,glob,multiprocessing,threading,random,other]
+
+[OS,shutil,glob,multiprocessing,threading,random,collection,functools,itertools,time]
 
 # OS
 
@@ -289,7 +290,7 @@ add(2)
 
 # time
 
-见 [python.ipynb](../python/ipy/python.ipynb)
+见 [python.ipynb](ipynb/python.ipynb)
 
 # itertools
 
