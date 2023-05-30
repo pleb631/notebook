@@ -1,6 +1,6 @@
 [TOC]
 
-[OS,shutil,glob,multiprocessing,threading,random,collection,functools,itertools,time]
+[OS,shutil,glob,multiprocessing,threading,random,collection,functools,itertools,time,difflib]
 
 # OS
 
@@ -33,6 +33,7 @@
 | shutil.copy(src, dst) | 拷贝文件和权限 |  |
 | shutil.rmtree(dir) | 递归的去删除文件 |  |
 | shutil.move(src, dst) | 移动文件 |  |
+| shutil.copytree(src, dst) | 迭代复制文件，如果dst已存在则报错 |  |
 
 # glob
 
@@ -402,6 +403,45 @@ NewMap1['art']='abc' #只会改变第一个字典
 print(NewMap1['art']) #'abc'
 #按字典顺序、映射顺序依次搜索，搜索第一个key即停止
 
+```
+
+# difflib
+
+比较字符串差异
+
+```python
+text1 = "hello"
+text2 = "ciallo"
+diff = difflib.ndiff(text1, text2)#得到的是如何操作可以由text1变为text2的过程，逐字符比较
+print('\n'.join(diff))
+similarity = difflib.SequenceMatcher(None, text1, text2).ratio()#计算字符串相似度
+
+with open('file1.txt') as file1, open('file2.txt') as file2:
+    diff = difflib.ndiff(file1.readlines(), file2.readlines())
+    print('\n'.join(diff))  ##逐行比较文件差异
+
+```
+
+比较列表的差异
+
+```python
+import difflib
+list1 = ['apple', 'a','banana', 'cherry']
+list2 = ['apple', 'b','banana', 'kiwi']
+diff = difflib.ndiff(list1, list2)#得到的是如何操作可以由list1变为list2的过程
+```
+
+获取两个字符串的相似块
+
+```python
+import difflib
+text1 = "hello world"
+text2 = "there asd hello "
+blocks = difflib.SequenceMatcher(None, text1, text2).get_matching_blocks()
+#[Match(a=0, b=10, size=6), Match(a=11, b=16, size=0)] 
+#可以用blocks[0].a来访问
+lcs = difflib.SequenceMatcher(None, text1, text2).find_longest_match(0, len(text1), 0, len(text2))
+#返回最大相似块 Match(a=0, b=10, size=6)
 ```
 
 # other
