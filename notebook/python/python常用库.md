@@ -177,17 +177,19 @@ Path('path')
 |Path.cwd()|返回工作路径|
 |Path.home()|返回电脑用户的目录|#WindowsPath('C:/Users/admin')
 |Path(Path.home(), "Desktop")|#拼接地址|WindowsPath('C:/Users/admin/Desktop')
+|Path(input).reslove()|取绝对路径，等价于Path.cwd().joinpath(input)
 |Path(INPUT).name|返回文件名+文件后缀|
 |Path(INPUT).stem|返回文件名|
 |Path(INPUT).relative_to('path')|去掉路径前缀|
 |Path(INPUT).suffix|返回文件后缀|
 |Path(INPUT).suffixes|返回文件后缀列表|
 |Path(INPUT).root|返回根目录|
-Path.replace()|文件重命名或移动|
-Path.joinpath('path')
+|Path(INPUT).anchor|自动判断返回drive或root|
+|Path.replace(input)|文件重命名或移动|
+|Path.joinpath('path')|
 |Path(INPUT).parts|拆分路径，类似os.path.split('\\')|
-|Path(INPUT).anchor||
 |Path(INPUT).parent|返回父级目录|
+|Path(INPUT).parents|返回各级父级目录|
 |Path(INPUT).exists()|判断 Path 路径是否存在|
 |Path(INPUT).is_dir()|判断 Path 是否是一个文件夹
 Path(INPUT).is_file()|判断 Path 是否是一个文件
@@ -202,3 +204,5 @@ Path(INPUT).with_name('INPUT1')|改变路径中文件名
 Path(INPUT).with_suffix('INPUT1')|改变路径中文件名后缀
 Path(INPUT).match('pattern')|测试路径是否符合pattern
 Path(INPUT).relative_to('path')|取相对路径
+Path(INPUT).read_bytes()，file.write_bytes(b'asdasd')|以bytes读写文件
+

@@ -19,4 +19,4 @@
 |cv2.drawContours|根据边界点绘制轮廓|
 |cv2.minAreaRect(contour)|寻找最小外接矩形，带角度|
 | cv2.contourArea(contour)|计算轮廓面积
-|im = cv2.imdecode(np.fromfile(path, dtype=np.uint8), -1)<br>cv2.imencode(".png", im)[1].tofile(save_img_path)|可以读入/写入汉字路径的文件|
+|im = cv2.imdecode(np.fromfile(path, dtype=np.uint8), -1)<br>cv2.imencode(".png", im)[1].tofile(save_img_path)|可以读入/写入汉字路径的文件,读入图像的格式是RGB|

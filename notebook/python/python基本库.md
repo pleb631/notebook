@@ -7,6 +7,7 @@
 | 模块/方法 | 作用 | 备注 |
 |---|---|---|
 | os.getcwd() | 返回当前工作目录 |  |
+| os.path.abspath()|返回绝对路径| |
 | os.listdir(path) | 列举指定目录中的文件名和目录名 |  |
 | os.mkdir(path) | 创建单层目录 |  |
 | os.makedirs(path,exist_ok=False) | 递归创建目录 |  |
@@ -23,6 +24,7 @@
 | os.path.isfile(path) | 是否为文件 |  |
 | os.path.splitext(path) | 把扩展名和其他字符分开 | |
 | os.path.getsize(path)      | 返回path对应文件的大小，以字节为单位<br/>>>>os.path.getsize("D:/PYE/file.txt")<br/>180768 |
+|os.path.relpath(path1,path2)|取path2相对path1的相对路径||
 |os.getcwd()，os.path.abspath('.')，os.path.abspath(os.curdir)|获取当前工作路径|可以使用`print(__file__)`,`__dir__ = os.path.dirname(os.path.abspath(__file__))`来获取当前py文件的路径,使用sys.argv[0]获取原始执行py文件的路径|
 
 # shutil
