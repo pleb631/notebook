@@ -65,3 +65,10 @@ git config --global https.proxy http://127.0.0.1:1080
 git config --global --unset https.https://github.com.proxy
 git config --global --unset http.https://github.com.proxy
 ```
+
+### tensorborad:not found
+先找到tensorboard的main.py
+```linux
+python -m pip show tensorboard
+python path/man.py --logdir [args]
+```
