@@ -40,14 +40,24 @@ if __name__ =='__main__':
     save_path = r''
     with open(file,'rb') as f:#方案1
         data=f.read()
-    #data = Path(file).read_bytes() #方案2
     encrypt_data = encrypt.encrypt(data) 
     with open(save_path,'wb') as f:#加密保存 方案1
         f.write(encrypt_data)
-    #data.write_bytes(save_path)#方案2
     with open( save_path,'rb') as f:
         data1=f.read()
-    decrypt_data = encrypt.decrypt(data1)#解密
+    decrypt_data = encrypt.decrypt(data1)
+    
+    #data = Path(file).read_bytes() #方案2
+    #encrypt_data = encrypt.encrypt(data) 
+    #data.write_bytes(save_path)#方案2
+    #decrypt_data = encrypt.decrypt(data1)#解密
+    
+    # from PIL import Image 
+    # from io import BytesIO
+    # im = Image.open(BytesIO(decrypt_data))
+    
+    #import cv2
+    #import numpy as np
     #im = cv2.imdecode(np.frombuffer(decrypt_data,np.uint8),cv2.IMREAD_UNCHANGED)
     
     

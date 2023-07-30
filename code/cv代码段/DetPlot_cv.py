@@ -62,6 +62,7 @@ def cv_show_image(title, image, type='rgb', waitKey=0):
     if title:
         cv2.imshow(title, img)
         cv2.waitKey(waitKey)
+        cv2.destroyAllWindows()
 
 
 
@@ -95,7 +96,7 @@ def combile_label_prob(label_list, prob_list):
     info = [str(l) + ":" + str(p)[:5] for l, p in zip(label_list, prob_list)]
     return info
 
-def draw_image_detection_bboxes(rgb_image, bboxes, probs, labels, color=None):
+def draw_bboxes_and_labels(rgb_image, bboxes, probs, labels, color=None):
     '''
     :param title:
     :param rgb_image:
@@ -109,21 +110,15 @@ def draw_image_detection_bboxes(rgb_image, bboxes, probs, labels, color=None):
         class_set = list(set(labels))
     boxes_name = combile_label_prob(labels, probs)
     bgr_image = cv2.cvtColor(rgb_image, cv2.COLOR_RGB2BGR)
-    # color_map=list(matplotlib.colors.cnames.values())
-    # color_map=list(reversed(color_map))
+
     set_color = color
     for l, name, box in zip(labels, boxes_name, bboxes):
         if not color:
             cls_id = class_set.index(l)
             set_color = get_color(cls_id)
         box = [int(b) for b in box]
-        # cv2.rectangle(bgr_image, (box[0], box[1]), (box[2], box[3]), (0, 255, 0), 2, 8, 0)
-        # cv2.putText(bgr_image, name, (box[0], box[1]), cv2.FONT_HERSHEY_SIMPLEX, 0.8, (0, 0, 255), thickness=2)
-        # cv2.rectangle(bgr_image, (box[0], box[1]), (box[2], box[3]), color, 2, 8, 0)
-        # cv2.putText(bgr_image, str(name), (box[0], box[1]), cv2.FONT_HERSHEY_SIMPLEX, 0.8, color, thickness=2)
         draw_bbox_text(bgr_image, box, set_color, name, drawType="custom")
-    # cv2.imshow(title, bgr_image)
-    # cv2.waitKey(0)
+
     rgb_image = cv2.cvtColor(bgr_image, cv2.COLOR_BGR2RGB)
     return rgb_image
 
@@ -133,7 +128,7 @@ def draw_image_detection_bboxes(rgb_image, bboxes, probs, labels, color=None):
 def draw_bbox_text(img, bbox, color, name, drawType="custom", top=True):
     """
     :param img:
-    :param bbox:
+    :param bbox:[x1y1x2y2]
     :param color:
     :param name:
     :param drawType:
@@ -147,16 +142,13 @@ def draw_bbox_text(img, bbox, color, name, drawType="custom", top=True):
         cv2.putText(img, str(name), (bbox[0], bbox[1]), cv2.FONT_HERSHEY_SIMPLEX, fontScale, color, thickness)
     elif drawType == "custom":
         cv2.rectangle(img, (bbox[0], bbox[1]), (bbox[2], bbox[3]), color, 2)
-        # draw score roi
-        # fontScale = 0.4
+
         fontScale = 0.6
         thickness = 1
         text_size, baseline = cv2.getTextSize(str(name), cv2.FONT_HERSHEY_SIMPLEX, fontScale, thickness)
         if top:
             text_loc = (bbox[0], bbox[1] - text_size[1])
         else:
-            # text_loc = (bbox[0], bbox[3])
-            # text_loc = (bbox[2], bbox[3] - text_size[1])
             text_loc = (bbox[2], bbox[1] + text_size[1])
 
         cv2.rectangle(img, (text_loc[0] - 2 // 2, text_loc[1] - 2 - baseline),
@@ -167,7 +159,7 @@ def draw_bbox_text(img, bbox, color, name, drawType="custom", top=True):
     return img
 
 
-def show_boxList(win_name, boxList, rgb_image, waitKey=0):
+def show_boxList(boxList, rgb_image):
     '''
     [xmin,ymin,xmax,ymax]
     :param win_name:
@@ -182,16 +174,13 @@ def show_boxList(win_name, boxList, rgb_image, waitKey=0):
         xmax = item["xbr"]
         ymin = item["ytl"]
         ymax = item["ybr"]
-        # box=[xbr,ybr,xtl,ytl]
         box = [xmin, ymin, xmax, ymax]
         box = [int(float(b)) for b in box]
         cv2.rectangle(bgr_image, (box[0], box[1]), (box[2], box[3]), (0, 255, 0), 2, 8, 0)
         cv2.putText(bgr_image, name, (box[0], box[1]), cv2.FONT_HERSHEY_SIMPLEX, 0.8, (0, 0, 255), thickness=2)
-    # cv2.imshow(title, bgr_image)
-    # cv2.waitKey(0)
+
     rgb_image = cv2.cvtColor(bgr_image, cv2.COLOR_BGR2RGB)
-    if win_name:
-        cv_show_image(win_name, rgb_image, waitKey=waitKey)
+
     return rgb_image
 
 
