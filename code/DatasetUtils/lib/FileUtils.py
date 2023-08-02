@@ -290,7 +290,7 @@ def save_txt(txt_path, info, mode='w'):
         info: list, txt文件内容
         mode: str, 'w'代表覆盖写；'a'代表追加写
     '''
-    os.makedirs(os.path.split(txt_path)[0], exist_ok=True)
+    #os.makedirs(os.path.split(txt_path)[0], exist_ok=True)
     
     txt_file = open(txt_path, mode)
     for line in info:

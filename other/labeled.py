@@ -9,7 +9,35 @@ import argparse
 from pathlib import Path
 
 ix, iy = -1, -1
+def save_txt(txt_path, info, mode='w'):
+    '''保存txt文件
 
+    Args:
+        txt_path: str, txt文件路径
+        info: list, txt文件内容
+        mode: str, 'w'代表覆盖写；'a'代表追加写
+    '''
+    os.makedirs(os.path.split(txt_path)[0], exist_ok=True)
+    
+    txt_file = open(txt_path, mode)
+    for line in info:
+        txt_file.write(line + '\n')
+    txt_file.close()
+def read_txt(txt_path):
+    '''读取txt文件
+
+    Args:
+        txt_path: str, txt文件路径
+
+    Returns:
+        txt_data: list, txt文件内容
+    '''
+    txt_file = open(txt_path, "r")
+    txt_data = []
+    for line in txt_file.readlines():
+        txt_data.append(line.replace('\n', ''))
+
+    return txt_data
 
 # 目标框标注程序
 class CLabeled:
@@ -40,7 +68,7 @@ class CLabeled:
         # 类别信息
         self.classes = list()
         self.cls = args.category
-        self.types = list()
+
         # 图像宽
         self.width = 320
         # 图像高
@@ -60,7 +88,7 @@ class CLabeled:
         self.label_path = None
         self.boxes = list()
         self.classes = list()
-        self.types = list()
+
 
     # 统计所有图片个数
     def _compute_total_image_number(self):
@@ -70,7 +98,7 @@ class CLabeled:
         if not os.path.exists(self.image_folder):
             print(self.image_folder, " does not exists! please check it !")
             exit(-1)
-        path = os.path.join(self.image_folder, "annotations")
+        path = os.path.join(self.image_folder, "labels")
         if not os.path.exists(path):
             os.makedirs(path)
 
@@ -90,20 +118,22 @@ class CLabeled:
         if y > self.height:
             y = self.height
         return x, y
+    
 
     # box标准化
-    def box_fix(self, box):
-        left_top_x = min(box[0], box[2])
-        left_top_y = min(box[1], box[3])
-        right_bottom_x = max(box[0], box[2])
-        right_bottom_y = max(box[1], box[3])
-        return [left_top_x, left_top_y, right_bottom_x, right_bottom_y]
+    def box_fix(self, xyxy):
+        x_center = float(xyxy[0] + xyxy[2]) / 2
+        y_center = float(xyxy[1] + xyxy[3]) / 2
+        width = abs(xyxy[2] - xyxy[0])
+        height = abs(xyxy[3] - xyxy[1])
+        xywh_center = [x_center, y_center, width, height]
+        return xywh_center
 
     # 标注感兴趣区域
     def _draw_roi(self, event, x, y, flags, param, mode=True):
         global ix, iy
         dst = self.image.copy()
-        self._draw_box_on_image(dst, self.boxes, self.classes, self.types)
+        self._draw_box_on_image(dst, self.boxes, self.classes)
         if event == cv2.EVENT_LBUTTONDOWN:  # 按下鼠标左键
             x, y = self._roi_limit(x, y)
             ix, iy = x, y
@@ -132,13 +162,26 @@ class CLabeled:
                     cv2.putText(self.current_image, "simple", (ix + 15, iy + 20), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 0), 1)
                     self.boxes.append([ix / self.width, iy / self.height, x / self.width, y / self.height])
                     self.classes.append(self.cls)
-                    self.types.append(0)
+
             else:
                 cv2.circle(self.current_image, (x, y), 5, (0, 0, 255), -1)
             cv2.imshow(self.windows_name, self.current_image)
         elif event == cv2.EVENT_LBUTTONDBLCLK:
-            self.types[-1] = int(not self.types[-1])
-            self._draw_box_on_image(self.current_image, self.boxes, self.classes, self.types)
+            x, y = self._roi_limit(x, y)
+            self.current_image = self.image.copy()
+            if len(self.boxes):
+                if len(self.boxes) > 1:
+                    current_point = np.array([x / self.width, y / self.height])
+                    current_center_point = (np.array([box[0:2] for box in self.boxes]) + np.array([box[2:4] for box in self.boxes])) / 2  # 中心点
+                    square1 = np.sum(np.square(current_center_point), axis=1)
+                    square2 = np.sum(np.square(current_point), axis=0)
+                    squared_dist = - 2 * np.matmul(current_center_point, current_point.T) + square1 + square2
+                    sort_index = np.argsort(squared_dist)
+                    self.classes[sort_index[0]] = 0 if self.classes[sort_index[0]] else 1
+                else:
+                        self.classes[-1]=0 if self.classes[-1] else 1
+                self._draw_box_on_image(self.current_image, self.boxes, self.classes)
+
         elif event == cv2.EVENT_RBUTTONDOWN:  # 删除(中心点或左上点)距离当前鼠标最近的框
             x, y = self._roi_limit(x, y)
             self.current_image = self.image.copy()
@@ -153,17 +196,16 @@ class CLabeled:
                     if self.classes[sort_index[0]] == self.cls:
                         del self.boxes[sort_index[0]]
                         del self.classes[sort_index[0]]
-                        del self.types[sort_index[0]]
                 else:
                     if self.classes[-1] == self.cls:
                         del self.boxes[-1]
                         del self.classes[-1]
-                        del self.types[-1]
-                self._draw_box_on_image(self.current_image, self.boxes, self.classes, self.types)
+
+                self._draw_box_on_image(self.current_image, self.boxes, self.classes)
 
     # 将标注框显示到图像上
-    def _draw_box_on_image(self, image, boxes, classes, types):
-        for box, cls, hard in zip(boxes, classes, types):
+    def _draw_box_on_image(self, image, boxes, classes):
+        for box, cls in zip(boxes, classes):
             x1, y1 = (int(image.shape[1] * box[0]), int(image.shape[0] * box[1]))
             x2, y2 = (int(image.shape[1] * box[2]), int(image.shape[0] * box[3]))
             if cls == self.cls:
@@ -172,65 +214,49 @@ class CLabeled:
             else:
                 cv2.rectangle(image, (x1, y1), (x2, y2), (0, 0, 255), 2)
                 cv2.putText(image, str(cls), (x1 + 5, y1 + 20), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 255), 1)
-            if hard:
-                cv2.putText(image, "hard", (x1 + 15, y1 + 20), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 0), 1)
-            else:
-                cv2.putText(image, "simple", (x1 + 15, y1 + 20), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 0), 1)
         cv2.imshow(self.windows_name, image)
+        
+    def xywh2xyxy(self,xywh):
+        '''[x, y, w, h]转为[xmin, ymin, xmax, ymax]
+        '''
+        xmin = xywh[0] - xywh[2] / 2
+        ymin = xywh[1] - xywh[3] / 2
+        xmax = xywh[0] + xywh[2] / 2
+        ymax = xywh[1] + xywh[3] / 2
+        xyxy = [xmin, ymin, xmax, ymax]
+
+        return xyxy
 
     # 从文本读取标注框信息
     def read_label_file(self, label_file_path):
+
         boxes = []
         classes = []
         types = []
-        label_file = open(label_file_path, 'r', encoding='utf-8')
-        self.annotation = json.load(label_file)
-        label_file.close()
-        if self.task not in self.annotation["annotation"]:
-            annotations = []
-        else:
-            annotations = self.annotation["annotation"][self.task]
-        for bbox in annotations:
-            if 'box' in bbox:
-                boxes.append(bbox["box"])
-            if 'type' in bbox:
-                types.append(bbox['type'])
-            else:
-                types.append(0)
-            if 'class' in bbox:
-                classes.append(int(bbox["class"]))
-            else:
-                classes.append(self.cls)
+        self.annotation = read_txt(label_file_path)
+        print(self.annotation)
+        print(label_file_path)
+        for bbox in self.annotation:
+                bbox = list(map(float,bbox.split()))
+                boxes.append(self.xywh2xyxy(bbox[1:]))
+                classes.append(bbox[0])
+
         self.boxes = boxes
         self.classes = classes
-        self.types = types
     
     def generate_label(self, image):
-        anno = {
-            "image": {
-                "information": {}
-            },
-            "annotation": {}
-        }
-        img_h, img_w = image.shape[:2]
-        anno["image"]["information"]["path"] = ""
-        anno["image"]["information"]["height"] = img_h
-        anno["image"]["information"]["width"] = img_w
+        anno = []
         return anno
         
     # 将标注框信息保存到文本
     def write_label_file(self, label_file_path):
         ann_boxes = []
-        for box, cls, hard in zip(self.boxes, self.classes, self.types):
-            ann_boxes.append({
-                "box": self.box_fix(box),
-                "class": cls,
-                "type": hard
-            })
-        self.annotation["annotation"][self.task] = ann_boxes
-        save_file = open(label_file_path, 'w', encoding="utf-8")
-        json.dump(self.annotation, save_file, indent=4, ensure_ascii=False)
-        save_file.close()
+        for box, cls in zip(self.boxes, self.classes):
+            box = list(map(str,self.box_fix(box)))
+            box.insert(0,str(cls))
+            ann_boxes.append(' '.join(box))
+        print(ann_boxes)
+        save_txt(label_file_path, ann_boxes)
 
     # 记录当前已标注位置，写到文本
     def write_checkpoint(self, checkpoint_path):
@@ -249,7 +275,7 @@ class CLabeled:
     # 标注程序运行部分
     def labeled(self):
         labeled_index, labeled_num, labeled_person = self.current_label_index, 0, 0
-        self.images_list = sorted(glob.glob(F"{self.image_folder}/*/*.jpg") + glob.glob(F"{self.image_folder}/*/*.png"))
+        self.images_list = sorted(glob.glob(F"{self.image_folder}/*/*.jpg") + glob.glob(F"{self.image_folder}/*/*.png"),key=lambda x:str(os.path.basename(x).split('.')[0]),reverse=False)
         self._compute_total_image_number()
         print("需要标注的图片总数为: ", self.total_image_number)
         if os.path.exists(self.checkpoint_path):
@@ -261,9 +287,10 @@ class CLabeled:
             self.write_checkpoint(self.checkpoint_path)
             self._reset()
             self.image = cv2.imdecode(np.fromfile(self.images_list[self.current_label_index], dtype=np.uint8), 1)
+            self.image = cv2.resize(self.image,(640,640))
             self.current_image = self.image.copy()
             filepath, filename = os.path.split(self.images_list[self.current_label_index])
-            self.label_path = os.path.join(filepath.replace("images", "annotations"), filename.replace(Path(filename).suffix, ".json"))
+            self.label_path = os.path.join(filepath.replace("images", "labels"), filename.replace(Path(filename).suffix, ".txt"))
             if os.path.exists(self.label_path):
                 self.read_label_file(self.label_path)
             else:
@@ -271,8 +298,8 @@ class CLabeled:
             self.width = self.image.shape[1]
             self.height = self.image.shape[0]
             if self.scale:
-                cv2.namedWindow(self.windows_name, 0)
-            self._draw_box_on_image(self.current_image, self.boxes, self.classes, self.types)
+                cv2.namedWindow(self.windows_name, cv2.WINDOW_NORMAL)
+            self._draw_box_on_image(self.current_image, self.boxes, self.classes)
             cv2.setMouseCallback(self.windows_name, self._draw_roi)
             key = cv2.waitKey(self.decay_time)
             self.write_label_file(self.label_path)
