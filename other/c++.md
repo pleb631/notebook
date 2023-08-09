@@ -1,3 +1,5 @@
+[TOC]
+
 ## main函数
 
 入门c++代码如下，main函数是一个程序的入口，每个程序都必须有这么一个函数，并且有且只有一个。
@@ -106,6 +108,57 @@ int main() {
 //111
 //444
 ```
+
+## 字符串和字面量
+
+c++的基本写法是`char *name ="string"`,或者用数组`char name[10]={'s','t','r','i','n','g','\0'}`
+这种语法下，不可以使用`+`来尝试连接字符串，因为两个地址不可以相加，应使用`strcat(a,b);`的函数进行连接。
+
+特殊语法
+
+```c++
+//进行换行打印
+const char* name1 = "asd\n"
+        "asd\n";
+const char* name2 = R"(asd
+        asd)";
+
+```
+
+合适的方法是用string库,`string name="string"`,这里面涉及`const char *`的隐式转换
+此时,可以使用以下语法
+
+```c++
+
+string a = string("asd")+"asd";
+string b = "asd"s+"asd";
+//string b = "asd"+"asd";//无效语法
+
+```
+
+## 枚举(enum)
+
+枚举类型(enumeration)：是C++中的一种派生数据类型，它是由用户定义的若干枚举常量的集合。
+`Enum 枚举类型名 {变量值列表}；`
+
+```c++
+enum Weekday{ SUM,MON,TUE,WED,THU,FRSAT };     //定义枚举类型
+//SUM = 0;   //SUM是枚举类型，此语句非法
+Weekday day1=WED, day2= SAT;
+if (day1 > day2)
+    cout << day1;
+else
+    cout << day2;
+cin.get();
+
+
+```
+
+- 枚举元素具有默认值，依次为：0，1，2，3。。。
+- 声明时可以另行定义枚举元素的值
+- `Enum Weekday {SUM=7,MON=1,TUE,WED,THU,FRI,SAT}`; //后面从TUE依次为23456
+- 枚举值可以进行关系运算
+- 整数值不能直接赋值给枚举变量，如需将整数值给枚举类型，需要进行强制转换
 
 ## 结构体(struct)
 
@@ -256,6 +309,55 @@ asd
 */
 ```
 
+### 析构函数
+
+析构函数语法：~类名(){}
+
+1. 析构函数，没有返回值也不写void。
+2. 函数名称与类名相同，在名称前加上符号。
+3. 析构函数不可以有参数，因此不可以发生重载。
+4. 程序在对象销毁前会自动调用析构，无须手动调用，而且只会调用一次。
+
+```c++
+#include <iostream>
+using namespace std;
+#include <string>
+
+class Person
+{
+public:  //无论是构造函数还是析构函数都是在public作用域下
+    Person()
+    {
+        cout << "Person 构造函数的调用" << endl;
+    }
+    ~Person()
+    {
+        cout << "Person 析构函数的调用" << endl;
+    }
+};
+
+//构造和析构都是必须有的实现，如果我们自己不提供，编译器会提供一个空实现
+void test()
+{
+    Person p;  //创建对象的时候，自动调用构造函数
+               //这个对象p是一个局部变量，是在栈上的数据，test01执行完，释放这个对象
+}
+
+int main()
+{
+    
+    test01();   // 析构释放时机在test01运行完前，test函数运行完后，里面的对象就被释放了,方便观测
+    /*
+    方式二：     //创建对象的时候，自动调用构造函数
+    Person p;   //只有main函数结束完前，对象要释放掉了，才会调用析构函数，不方便观测
+    */
+
+    std::cin.get();
+    return 0;
+
+}
+```
+
 ### 静态成员
 
 ① 静态成员就是在成员变量和成员函数前加上关键字static，称为静态成员。
@@ -277,3 +379,387 @@ asd
 
 - 通过对象调用
 - 通过类名调用
+
+```c++
+#include<iostream>
+using namespace std;
+
+class Person
+{
+public:
+    static int m_A;
+    int m_B;
+      static void func()
+    {
+        m_A = 100; //静态成员函数可以访问静态成员变量，这个数据是共享的，只有一份，所以不需要区分哪个对象的。                                
+        //m_B = 200; //静态成员函数不可以访问非静态成员变量，无法区分到底是哪个对象的m_B属性，非静态成员变量属于特定的对象上面
+        std::cout << "static void func调用" << std::endl;
+    }
+};
+//类外初始化
+int Person::m_A = 100;
+int main()
+{
+    Person p;
+    std::cout << p.m_A << endl;
+
+    Person p2;
+    p2.m_A = 200;
+
+    //100 ? 200，共享同一份数据，所以p.m_A为200
+    std::cout << p.m_A << endl;
+      //通过类名进行访问
+    std::cout << Person::m_A << endl;
+    std::cin.get();
+}
+/*输出
+100
+200
+200
+*/
+```
+
+### const修饰成员函数、mutable
+
+常函数：
+
+1. 成员函数后加const后我们称这个函数为常函数。
+2. 常函数内不可以修改成员属性。
+3. 成员属性声明时加关键字mutable后，在常函数中依然可以修改，mutable主要用于debug。
+
+常对象：
+
+1. 声明对象前加const称该对象为常对象。
+2. 常对象只能调用常函数。
+
+```c++
+class TestClass
+{
+public:
+ mutable int count = 0;
+ int count1 = 0;
+ void print() const
+ {
+  std::cout << count << std::endl;
+  ++count;
+  //++count1;//报错
+ }
+
+};
+
+```
+
+### this指针
+
+1. 每一个非静态成员函数只会诞生一份函数实例，也就是说多个同类型的对象会公用一块代码。
+
+2. C++通过提供特殊的对象指针，this指针指向被调用的成员函数所属的对象。
+
+3. this指针是隐含每一个非静态成员函数内的一种指针。
+
+4. this指针不需要定义，直接使用即可。
+
+this指针的用途：
+
+- 当形参和成员变量同名时，可用this指针来区分。
+- 在类的非静态成员函数中返回对象本身，可使用return * this。
+
+```c++
+#include <iostream>
+using namespace std;
+
+class Person
+{
+public:
+    Person(int age)
+    {
+        this->age = age;  
+                          //如果这里是 age = age；那么编译器会将这两个age和上面的形参age当做同一个age，因此age并没有赋值                    
+    }
+    
+    //如果用值的方式返回，Person PersonAddAge(Person& p){}，它返回的是本体拷贝的对象p'，而不是本体p                                     
+    Person& PersonAddAge(Person& p) //要返回本体的时候，要用引用的方式返回
+    {
+        this->age += p.age;
+        return *this;
+    }
+    int age; 
+};
+
+int main()
+{
+
+    Person p1(10);
+    Person p2(10);
+
+    //链式编程思想
+    p2.PersonAddAge(p1).PersonAddAge(p1).PersonAddAge(p1);
+
+    cout << "p2的年龄为：" << p2.age << endl;
+
+    std::cin.get();
+
+    return 0;
+}
+
+```
+
+### 符号重载
+
+1. 运算符重载：对已有的运算符重新进行定义，赋予其另一种功能，以适应不同的数据类型。
+
+2. 对于内置的数据类型的表达式的运算符是不可能改变的。
+
+#### 加号运算符重载
+
+```c++
+Person operator+(Person &p1, Person &p2)
+{
+    Person temp;
+    temp.m_A = p1.m_A + p2.m_A;
+    temp.m_B = p1.m_B + p2.m_B;
+    return temp;
+}
+```
+
+#### 左移运算符重载
+
+```c++
+#include <iostream>
+using namespace std;
+
+//左移运算符
+class Person
+{   
+private:
+    int m_A;
+    int m_B;
+};
+//如果返回类型为void，那么就无法无限追加，也没有办法在后面添加换行符
+ostream & operator<<(ostream &cout, Person &p)   
+{
+    cout << "m_A= " << p.m_A << " m_B=" << p.m_B;
+    return cout;
+}
+
+int main()
+{
+    Person p(10,10);
+
+    cout << p << " hello world" << endl;
+    std::cin.get();
+    return 0;
+}
+
+```
+
+### 继承
+
+范例:
+
+```c++
+#include <iostream>
+using namespace std;
+class Ball
+{
+public:
+  int diameter;
+  void hit()
+    {
+      std::cout<<"ball has been hited"<<std::endl;
+    }
+  
+  void print()
+    {
+      std::cout<<"this is a ball"<<std::endl;
+    }
+};
+
+
+class Football:public Ball
+{
+  public:
+    int color[3];
+
+}
+
+```
+
+#### 三种继承改变权限
+
+1. 继承的语法：class 子类：继承方式 父类
+
+2. 继承方式一共有三种：
+
+- 公共继承
+- 保护继承
+- 私有继承
+
+3. 不同的继承方式，父类中的变量被继承后，权限相应的得到了改变，如下图所示。
+
+![2023-08-09-11-18-47](https://cdn.jsdelivr.net/gh/pleb631/ImgManager@main/img/2023-08-09-11-18-47.png)
+
+#### 继承后同名函数的处理
+
+1. 子类对象可以直接访问到子类中同名成员。
+2. 子类对象加作用域可以访问到父类同名成员。
+3. 当子类与父类拥有同名的成员函数，子类会隐藏父类中所有同名成员函数(有参、无参)，加作用域才可以访问到父类中同名函数。
+4. 静态函数下,子类和分类不会共用同一份数据
+
+```c++
+//同名成员属性处理方式
+void test01()
+{
+    Son s;
+    cout << "Son 下 m_A=" << s.m_A << endl;
+    //如果通过子类对象访问到父类中同名成员，需要加作用域
+    cout << "Base 下 m_A=" << s.Base::m_A << endl;  
+
+}
+```
+
+#### 多继承语法
+
+1. C++运行一个类继承多个类。
+2. 语法：`class 子类：继承方式 父类1，继承方式 父类2，.....`
+3. 多继承可能会引发父类中有同名成员出现，需要加作用域区分。
+4. C++实际开发中不建议用多继承。
+
+#### 菱形继承
+
+菱形继承概念:
+
+1. 两个派生类继承同一个基类
+2. 又有某个类同时继承两个派生类
+3. 这种继承被称为菱形继承
+
+### 多态、虚函数
+
+动态多态满足条件
+
+1. 有继承关系
+2. 子类重写父类的虚函数
+
+```c++
+#include <iostream>
+using namespace std;
+
+class Animal
+{
+public:
+    virtual void speak()
+    {
+        cout << "动物在说话" << endl;
+    }
+};
+
+//猫类
+class Cat:public Animal
+{
+public:
+    //重写 函数返回值类型、函数名、参数列表都完全相同才叫重写
+    void speak()   //子类virtual可写可不写，也可以写 virtual void speak()
+    {
+        cout << "小猫在说话" << endl;
+    }
+};
+
+//狗类
+class Dog:public Animal
+{
+public:
+    virtual void speak()
+    {
+        cout << "小狗在说话" << endl;
+    }
+};
+
+
+void doSpeak(Animal &animal)  // Animal & animal = cat
+{
+    animal.speak();
+}
+
+int main()
+{
+    Cat cat;
+    doSpeak(cat);
+
+    Dog dog;
+    doSpeak(dog);
+}
+
+```
+
+#### 纯虚函数和抽象类
+
+1. 在多态中，通常父类中虚函数的实现时毫无意义的，主要都是调用子类重写的内容。因此，可以将虚函数改为纯虚函数。
+2. 纯虚函数语法：`virtual 返回值类型 函数名 (参数列表) = 0;`
+3. 当类中有了纯虚函数，这个类也称为抽象类。
+
+④ 抽象类特点：
+
+1. 无法实例化对象
+2. 子类必须重写抽象类中的纯虚函数，否则也属于抽象类。
+
+```c++
+#include <iostream>
+using namespace std;
+
+//纯虚函数和抽象类
+class Base
+{
+public:
+    virtual void func() = 0;
+};
+
+class Son : public Base
+{
+public:
+    virtual void func()
+    {
+        cout << "func函数调用" << endl;
+     }
+};
+
+```
+
+### 隐式转换和显式转换
+
+explicit：该构造函数是显示的。
+
+implicit：该构造函数是隐式的（默认）
+
+其用处是修饰类构造函数
+
+如果是显示的会被阻止，在编译时无法自动转为对象。
+
+如果时隐私的会被放行。
+
+```c++
+#include <iostream>
+using namespace std;
+class Cat
+{
+public :
+ Cat(int num):n(num){}  // 默认为 implicit
+private:
+ int n;
+};
+class Mouse
+{
+public :
+ explicit Mouse(int num):n(num){}
+private:
+ int n;
+};
+ 
+int main()
+{
+ Cat    t1 = 12; // 编译通过12会自动转为Cat对象赋值到构造函数
+ Mouse  t2(13);  // 编译通过，
+ Mouse  t3 = 14; // 在编译时，这个地方会报错，因为这个时显示的，因此不能直接转为Test2对象
+  
+ return 0;
+}
+```
