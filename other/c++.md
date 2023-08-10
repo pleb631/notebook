@@ -1,4 +1,4 @@
-[TOC]
+[toc]
 
 ## main函数
 
@@ -33,8 +33,8 @@ int main() {
 
 ## 变量
 
-| 类型          | 含义           | 最小尺寸                       |
-| ------------- | -------------- | ------------------------------ |
+| 类型            | 含义           | 最小尺寸                       |
+| --------------- | -------------- | ------------------------------ |
 | `bool`        | 布尔类型       | 8bits                          |
 | `char`        | 字符           | 8bits                          |
 | `wchar_t`     | 宽字符         | 16bits                         |
@@ -111,8 +111,8 @@ int main() {
 
 ## 字符串和字面量
 
-c++的基本写法是`char *name ="string"`,或者用数组`char name[10]={'s','t','r','i','n','g','\0'}`
-这种语法下，不可以使用`+`来尝试连接字符串，因为两个地址不可以相加，应使用`strcat(a,b);`的函数进行连接。
+c++的基本写法是 `char *name ="string"`,或者用数组 `char name[10]={'s','t','r','i','n','g','\0'}`
+这种语法下，不可以使用 `+`来尝试连接字符串，因为两个地址不可以相加，应使用 `strcat(a,b);`的函数进行连接。
 
 特殊语法
 
@@ -125,7 +125,7 @@ const char* name2 = R"(asd
 
 ```
 
-合适的方法是用string库,`string name="string"`,这里面涉及`const char *`的隐式转换
+合适的方法是用string库,`string name="string"`,这里面涉及 `const char *`的隐式转换
 此时,可以使用以下语法
 
 ```c++
@@ -281,7 +281,7 @@ public:
     如果你不写，编译器会自动创建一个，但是里面是空语句
     Person()
     {
-        
+      
     }
     */
 };
@@ -345,7 +345,7 @@ void test()
 
 int main()
 {
-    
+  
     test01();   // 析构释放时机在test01运行完前，test函数运行完后，里面的对象就被释放了,方便观测
     /*
     方式二：     //创建对象的时候，自动调用构造函数
@@ -366,13 +366,13 @@ int main()
 
 1. 静态成员变量
 
-- 所有对象共享同一份数据  
-- 在编译阶段分配内存  
+- 所有对象共享同一份数据
+- 在编译阶段分配内存
 - 类内声明，类外初始化
 
-2. 静态成员函数  
+2. 静态成员函数
 
-- 所有对象共享同一个函数  
+- 所有对象共享同一个函数
 - 静态成员函数只能访问静态成员变量
 
 3. 调用静态成员函数有两种方法：
@@ -391,7 +391,7 @@ public:
     int m_B;
       static void func()
     {
-        m_A = 100; //静态成员函数可以访问静态成员变量，这个数据是共享的，只有一份，所以不需要区分哪个对象的。                                
+        m_A = 100; //静态成员函数可以访问静态成员变量，这个数据是共享的，只有一份，所以不需要区分哪个对象的。                              
         //m_B = 200; //静态成员函数不可以访问非静态成员变量，无法区分到底是哪个对象的m_B属性，非静态成员变量属于特定的对象上面
         std::cout << "static void func调用" << std::endl;
     }
@@ -452,11 +452,8 @@ public:
 ### this指针
 
 1. 每一个非静态成员函数只会诞生一份函数实例，也就是说多个同类型的对象会公用一块代码。
-
 2. C++通过提供特殊的对象指针，this指针指向被调用的成员函数所属的对象。
-
 3. this指针是隐含每一个非静态成员函数内的一种指针。
-
 4. this指针不需要定义，直接使用即可。
 
 this指针的用途：
@@ -474,10 +471,10 @@ public:
     Person(int age)
     {
         this->age = age;  
-                          //如果这里是 age = age；那么编译器会将这两个age和上面的形参age当做同一个age，因此age并没有赋值                    
+                          //如果这里是 age = age；那么编译器会将这两个age和上面的形参age当做同一个age，因此age并没有赋值                  
     }
-    
-    //如果用值的方式返回，Person PersonAddAge(Person& p){}，它返回的是本体拷贝的对象p'，而不是本体p                                     
+  
+    //如果用值的方式返回，Person PersonAddAge(Person& p){}，它返回的是本体拷贝的对象p'，而不是本体p                                   
     Person& PersonAddAge(Person& p) //要返回本体的时候，要用引用的方式返回
     {
         this->age += p.age;
@@ -507,7 +504,6 @@ int main()
 ### 符号重载
 
 1. 运算符重载：对已有的运算符重新进行定义，赋予其另一种功能，以适应不同的数据类型。
-
 2. 对于内置的数据类型的表达式的运算符是不可能改变的。
 
 #### 加号运算符重载
@@ -588,7 +584,6 @@ class Football:public Ball
 #### 三种继承改变权限
 
 1. 继承的语法：class 子类：继承方式 父类
-
 2. 继承方式一共有三种：
 
 - 公共继承
@@ -635,10 +630,17 @@ void test01()
 
 ### 多态、虚函数
 
-动态多态满足条件
+静态的多态：函数重载,看起来调用同一个函数却有不同的行为。静态：原理是编译时实现。
+动态的多态：一个父类的引用或指针去调用同一个函数，传递不同的对象，会调用不同的函数。动态：原理是运行时实现。
 
-1. 有继承关系
-2. 子类重写父类的虚函数
+在继承中要构成多态两个条件：
+
+1. 必须通过基类的指针或者引用调用虚函数。
+2. 被调用的函数必须是虚函数，且派生类必须对基类的虚函数进行重写。
+
+虚函数：即被virtual修饰的类成员函数称为虚函数。一旦定义了虚函数，该基类的派生类中同名函数也自动成为了虚函数。也就是说在派生类中有一个和基类同名的函数，只要基类加了virtual修饰，派生类不加virtual修饰也是虚函数。虚函数只能是类中的一个成员函数，不能是静态成员或普通函数。
+
+如下面代码中，doSpeak函数入口是基类，但是可以输入派生类，且因为虚函数的覆写，可以产生不同的结果
 
 ```c++
 #include <iostream>
@@ -658,7 +660,7 @@ class Cat:public Animal
 {
 public:
     //重写 函数返回值类型、函数名、参数列表都完全相同才叫重写
-    void speak()   //子类virtual可写可不写，也可以写 virtual void speak()
+    void speak()   override//子类virtual,override可写可不写，也可以写 virtual void speak()
     {
         cout << "小猫在说话" << endl;
     }
@@ -668,7 +670,7 @@ public:
 class Dog:public Animal
 {
 public:
-    virtual void speak()
+    virtual void speak() override
     {
         cout << "小狗在说话" << endl;
     }
@@ -764,12 +766,492 @@ int main()
 }
 ```
 
+### 拷贝赋值函数
+
+c++默认提供一个拷贝构造函数，拷贝构造函数的函数签名对同样的类对象的常引用const &。它的作用是内存复制，将other对象的内存浅层拷贝进这些成员变量。形如以下:
+
+```c++
+Entity(const Entity& other)//拷贝构造函数
+ {
+    memcpy(this,&other,sizeof(other));
+ }
+
+```
+
+如下代码，a和b是两个独立的变量，它们有不同的内存地址，若将b=3则a仍然是2。在Vector2类中是同样的原理，c.x仍然会是2。若要在堆中使用new关键字来进行分配则复制了指针，e和f两个指针本质上有相同的值(内存地址)，但是如果访问这个内存地址并设为某个值，则会同时影响e和f。
+
+```c++
+#include<iostream>
+struct Vector2
+{
+ float x, y;
+};
+
+int main()
+{
+ int a = 5;
+ int b = a;
+
+ Vector2 c = { 2,3 };
+ Vector2 d = c;
+ d.x = 5;
+
+ Vector2* e = new Vector2();
+ Vector2* f = e;
+ f->x = 2;
+ std::cout << f->x<<std::endl;
+ std::cout << e->x << std::endl;
+ std::cin.get();
+}
+/*输出
+2
+2
+*/
+```
+
+使用C++原始特性写一个字符串类，在有new关键字和指针变量，应自己覆写拷贝函数、析构函数进行深拷贝。不然，两个实例中的指针会都指向同一块内寸，之后在调用析构函数时程序就会崩溃。
+
+使用标准的std::cout来打印字符串，需要重载左移字符串。将运算符的重载函数作为这个类的友元，就可以从函数中访问m_Buffer
+
+```c++
+#include<iostream>
+
+class String
+{
+private:
+ char* m_Buffer;
+ unsigned int m_Size;
+public:
+ String(const char* string)
+ {
+  m_Size = strlen(string);
+  m_Buffer = new char[m_Size+1];//+1是为了复制'\0'
+  memcpy(m_Buffer, string, m_Size+1);
+ }
+
+ ~String()
+ {
+  delete[] m_Buffer;
+ }
+
+ friend std::ostream& operator<<(std::ostream& stream, const String& string);//友元
+};
+
+std::ostream& operator<<(std::ostream& stream, const String& string)//重载
+{
+ stream << string.m_Buffer;
+ return stream;
+}
+
+
+int main()
+{
+ String string = "Cherno";
+ std::cout << string << std::endl;
+
+ std::cin.get();
+}
+
+
+```
 
 ## new
+
 new其实就是告诉计算机开辟一段新的空间，但是和一般的声明不同的是，new开辟的空间在堆上，而一般声明的变量存放在栈上。通常来说，当在局部函数中new出一段新的空间，该段空间在局部函数调用结束后仍然能够使用，可以用来向主函数传递参数。另外需要注意的是，new的使用格式，new出来的是一段空间的首地址。所以一般需要用指针来存放这段地址
 
 下面两段代码在功能上的区别是前者进行了初始化，后者只分配了空间
+
 ```c++
+
 Entity* e = new Entity()；
 Entity* e = (Entity*)malloc(sizeof(Entity))；
+```
+
+## 栈作用域生存期
+
+ 栈可以被认为是一种数据结构，可以在上面堆叠一些东西。每次在c++中进入一个作用域都是在push栈帧，它不一定非得是将数据push进一个栈帧。可以想象把一本书放入书堆上，在此作用域内（这本书内）声明的变量就像是在书里写东西，一旦作用域结束，将这本书从书堆中拿出来，书中栈里创造的所有对象就会消失。
+
+如果我们想在堆上创建一个类，然后想在离开作用域时销毁它。下面代码我们不用new来创建Entity而是用ScopedPtr，一旦我们超出作用域它就会被销毁，因为ScopedPtr类的对象是在栈上分配的。当e被自动删除时，在析构函数中会delete这个被包装的Entity指针。即使用new来做堆分配。
+
+```c++
+#include <iostream>
+#include <string>
+
+using namespace std;
+
+class Entity
+{
+public:
+    Entity()
+    {
+        cout << "initial" << endl;
+
+    }
+    ~Entity()
+    {
+        cout << "del" << endl;
+
+    }
+};
+class ptr
+{
+private:
+    Entity* p;
+public:
+    ptr(Entity* e) :
+        p(e) {}
+    ~ptr()
+    {
+        delete p;
+    }
+
+};
+int main()
+{
+    {
+        ptr p(new Entity);
+    }
+    cin.get();
+    return 0;
+}
+```
+
+## 智能指针
+
+智能指针是实现分配内存、释放内存这一过程自动化的一种方式。若使用智能指针，当我们调用new时不需要调用delete，甚至不需要调用new。智能指针本质上是一个原始指针的包装，当创建一个智能指针，它会调用new并为其分配内存，基于这个智能指针的内存会在某一时刻自动释放
+
+### unique_ptr
+
+ unique_ptr是作用域指针，超出作用域时它会被销毁，然后调用delete。我们不能复制一个unique_ptr，因为如果复制一个unique_ptr会有两个指针，两个unique_ptr指向同一个内存块。如果其中一个死了，它会释放那段内存，而另一个unique_ptr指针就会指向被释放的内存。
+要访问智能指针，首先要包括memory头文件。如果想要在特定的作用域下(两个大括号)创建一个unique_ptr来分配Entity，可以调用构造函数然后输入new Entity()。
+
+```c++
+//std::unique_ptr<Entity> entity=new Entity();报错，因为unique_ptr是显式的
+std::unique_ptr<Entity> entity(new Entity());
+entity->Print();//想要调用一个函数只需要通过剪头操作符来访问
+```
+
+一个更好的方法是把entity赋值给std::make_unique，主要是因为异常安全。如果构造函数抛出异常，使用make_unique(C++14)会保证最终得到的不是没有引用的悬空指针，从而造成内存泄漏。
+
+```c++
+std::unique_ptr<Entity> entity = std::make_unique<Entity>();
+entity->Print();
+```
+
+查看unique_ptr的定义发现拷贝构造函数和拷贝构造操作符实际上被删除了。
+![2023-08-10-13-50-00](https://cdn.jsdelivr.net/gh/pleb631/ImgManager@main/img/2023-08-10-13-50-00.png)
+
+### shared_ptr
+
+shared_ptr是共享指针，它实现的方式实际上取决于编译器和在编译器中使用的标准库。shared_ptr的工作方式是通过引用计数，引用计数基本上是一种方法，可以跟踪我们的指针有多少个引用，一旦引用计数达到0，它就会被删除。在unique_ptr中不直接调用new的原因是因为异常安全，但是在shared_ptr中有所不同。shared_ptr需要分配另一块内存，叫做控制块，用来存储引用计数。如果创建一个new Entity然后将其传递给shared_ptr构造函数，它必须做两次内存分配：先做一次new Entity的分配，然后是shared_ptr的控制内存块的分配。若使用make_unique就可以把它们组合起来。
+
+```c++
+std::shared_ptr<Entity> entity = std::make_shared<Entity>();
+```
+
+这里有两个作用域，在外面的作用域中有了e0，里面的作用域中有了sharedEntity，然后把e0赋值给sharedEntity。在27行设置断点按F5运行，再按F10发现Entity被创建了。当里面的作用域死亡时，sharedEntity就会死亡，但是e0还存活并且持有对该Entity的引用，所以这里没有调用析构函数。只有当代码进行到更外层的作用域时，引用都消失，Entity才会被删除。
+![2023-08-10-13-51-57](https://cdn.jsdelivr.net/gh/pleb631/ImgManager@main/img/2023-08-10-13-51-57.png)
+
+### weak_ptr
+
+weak_ptr被称为弱指针，可以和shared_ptr一起使用。它只是像声明其他东西一样声明，可以给它赋值为sharedEntity。这里和之前复制sharedEntity所做的一样，但是这里不会增加引用计数。当我们将一个shared_ptr赋值给另外一个shared_ptr时它理会增加引用计数。但是当把一个shared_ptr赋值给一个weak_ptr时不会增加引用计数。如果不想要Entity的所有权，例如在排序一个Entity列表时不关心它们是否有效，只需要存储一个它们的引用就可以了。我们可能会问weak_ptr底层对象是否还存活，但它不会保持底层对象存活，因为它不会增加引用计数。
+
+```c++
+std::weak_ptr<Entity> entity;
+```
+
+## 箭头运算符
+
+可以使用箭头操作符来获取内存中某个成员变量的偏移量。假设有一个Vector3结构体有三个浮点数分量xyz，若想要找出这个变量在内存中的偏移量，例如x偏移量是0，y是4，z是8。
+
+```c++
+#include<iostream>
+#include<string>
+
+struct Vector3
+{
+ float x, y, z;
+
+};
+
+int main()
+{
+ int offse_x = (int)&((Vector3*)0)->x; 
+ //int offse_x = (int)&((Vector3*)nullptr)->x;
+ int offse_y = (int)&((Vector3*)0)->y; 
+ //int offse_y = (int)&((Vector3*)nullptr)->y;
+ int offse_z = (int)&((Vector3*)0)->z; 
+ //int offse_z = (int)&((Vector3*)nullptr)->z;
+ std::cout << offse_x << std::endl;
+ std::cout << offse_y << std::endl;
+ std::cout << offse_z << std::endl;
+
+
+ std::cin.get();
+}
+```
+
+## 重载
+
+待补
+
+## 动态数组(std::vector)
+
+ C++提供给我们一个叫做Vector的类，这个Vector在std命名空间中，它应该被称为ArrayList，本质上是一个动态数组(不是向量)。在创建动态数组时(Vector)，它没有固定大小(可以给一个特定大小来初始化)。创建Vector后每次往里面添加一个元素，Vector的数组大小会增长。当添加的元素超过Vector数组的大小时，它会在内存中创建一个比第一个大的新数组，把所有东西都复制到这里，然后删除旧的那个。
+
+```c++
+#include<iostream>
+#include<string>
+#include<vector>
+
+struct Vertex
+{
+ float x, y, z;
+};
+
+//输出运算符的重载
+std::ostream& operator<<(std::ostream& stream, const Vertex& vertex)
+{
+ stream << vertex.x << "," << vertex.y << "," << vertex.z;
+
+ return stream;
+}
+
+int main()
+{
+ std::vector<Vertex> vertices;
+ std::cin.get();
+}
+
+
+```
+
+注意这里并没有存储一堆vertex指针，实际上只是把vertex存储在一条直线(在一段内存)上。如果是vertex对象则它的内存分配将是一条线上的，而动态数组是内存连续的数组，这意味着它在内存中不是碎片，内容都在一条高速缓存线上。那么如何向vector中添加一些东西，只需要输入vertices.push_back();。因为vector是一个完整的类，所以知道它的大小(vertices.size())。
+
+```c++
+int main()
+{
+ std::vector<Vertex> vertices;
+ vertices.push_back({ 1,2,3 });
+ vertices.push_back({ 4,5,6 });
+ 
+ for (int i = 0; i < vertices.size(); i++)
+ {
+  std::cout << vertices[i] << std::endl;
+ }
+    // for (Vertex& v: vertices)
+ // {
+ //  std::cout << v << std::endl;
+//  }
+
+vertices.clear();//清空
+ std::cin.get();
+}
+```
+
+以下代码打印六次"Copied!"
+
+```c++
+
+
+#include<iostream>
+#include<string>
+#include<vector>
+
+struct Vertex
+{
+ float x, y, z;
+
+ Vertex(float x, float y, float z)
+  : x(x), y(y), z(z) {}
+
+    Vertex(const Vertex& vertex)//若是写简单的拷贝构造函数可以不需要初始化成员列表
+  : x(vertex.x), y(vertex.y), z(vertex.z)
+ {
+  std::cout << "Copied!" << std::endl;
+ }
+
+};
+
+int main()
+{
+ std::vector<Vertex> vertices;
+ vertices.push_back(Vertex(1,2,3));
+ vertices.push_back(Vertex(4,5,6));
+ vertices.push_back(Vertex(7,8,9));
+
+ std::cin.get();
+}
+
+
+```
+
+首先，这是因为每次`vertices.push_back(Vertex(1,2,3));`相当于先创建了一个Vertex，然后把这个Vertex复制给vector，正确的方式是使用`emplace_back`,创建元素后直接移动给vector
+
+```c++
+
+vertices.emplace_back(1,2,3)
+```
+
+其次vector每次增加元素后都会开辟新内存，然后把旧内存的内容复制过去，所以这边反复创建了新元素，正确的做法是在添加元素前预先申请足够的空间
+
+```c++
+ vertices.reverse(3)//申请了三个空间
+```
+
+## C++中如何处理多返回值
+
+本文是ChernoP52视频的学习笔记。  
+  若有一个函数需要返回两个字符串，有很多不同的方法可以实现。但在C++的默认情况下不能返回两种类型。若一个函数需要返回两个或多个相同类型的变量，则可以返回vector或数组。
+
+### 结构体
+
+  若有个函数叫ParseShader需要返回两个字符串。可以选择的解决方法是：创建一个叫做ShadweProgramSource的结构体，它只包含这两个字符串。若还想返回一个整数或其他不同类型的东西，可以把它添加到结构体中并返回它。
+
+```
+struct ShaderProgramSource
+{
+std::string VertexSource;
+std::string FragmentSource;
+int a;
+}
+static ShaderProgramSource ParseShader(const std::string& filepath)
+{
+
+}
+return {vs,fs};
+```
+
+### 数组
+
+  C++也提供了其他不同的处理方式。一种简单的方法就是返回一个数组，我们可以返回一个数组就像返回一个std::string\*指针。这是一个2个元素的数组，我们可以传入VertexSource或者FragmentSource。
+
+```c++
+static std::string* ParseShader(const std::string& filepath)
+{
+
+}
+return new std::string[]{vs,fs};
+```
+
+由于使用new导致了堆分配的发生，所以要以下设置。
+
+```c++
+std::string* sources=ParseShader(filepath);
+```
+
+  还可以返回一个std::array，类型是string，大小是2。
+
+```c++
+#include <array>
+static std::array<std::string,2> ParseShader(const std::string& filepath)
+{
+
+}
+return std::array<std::string,2> (vs,fs);
+```
+
+  或者
+
+```c++
+std::array<std::string,2>results;
+results[0]=vs;
+results[1]=fs;
+return results;
+```
+
+### vector
+
+  若返回两种以上则可以使用vector。它和array的区别是array在栈上创建，而vector会把它的底层存储在堆上，所以std::array会更快。
+
+```c++
+#include<vector>
+static std::vector<std::string> ParseShader(const std::string& filepath)
+{
+
+}
+std::vector<std::string>results;
+results[0]=vs;
+results[1]=fs;
+return results;
+```
+
+### tuple
+
+  vector和array只有在类型相同的情况下才有效。若类型会发生变化有两种方式，一种叫做tuple(元组)的东西，另一个叫做pair。tuple基本上是一个类，它可以包含x个变量但它不关心类型。tuple在functional里面，utitly提供了make\_tuple这样的工具。
+
+```c++
+#include<utitly>
+#include<functional>
+static std::tuple<std::string,std::string,int> ParseShader(const std::string& filepath)//增添int
+{
+
+}
+return std::make_pair(vs,fs);
+std::tuple<std::string,std::string> sources=ParseShader(filepath);
+//auto sources=ParseShader("res/shaders/Basic.shader");
+```
+
+  从tuple里获取数据需要使用std::get，
+
+```c++
+std::string vs=std::get<0>(sources);
+```
+
+### pair
+
+  在这个例子中有两个返回值，所以可以返回一个std::pair。它与tuple的区别是返回值是2个字符串，也可以使用std::get或者sources.first，sources.second。
+
+```c++
+static std::pair<std::string,std::string> ParseShader(const std::string& filepath)
+{
+
+}
+```
+
+由于并不能知道第一个变量和第二个变量是什么，所以还是建议使用[struct结构体]
+
+## 模板
+
+```c++
+template <typename 形参名, typename 形参名...>     //模板头（模板说明）
+
+返回值类型  函数名（参数列表）                   //函数定义
+
+{
+
+        函数体;
+
+}
+```
+
+1. template是声明模板的关键字，告诉编译器开始泛型编程。
+
+2. 尖括号<>中的typename是定义形参的关键字，用来说明其后的形参名为类型参数（模板形参。Typename（建议用）可以用class关键字代替，两者没有区别。
+
+3. 模板形参（类属参数）不能为空（俗成约定用一个大写英文字母表示），且在函数定义部分的参数列表中至少出现一次。与函数形参类似，可以用在函数定义的各个位置：返回值、形参列表和函数体。
+
+4. 函数定义部分：与普通函数定义方式相同，只是参数列表中的数据类型要使用尖括号<>中的模板形参名来说明。当然也可以使用一般的类型参数。
+
+
+```c++
+#include<iostream>
+#include<string>
+
+template<typename T,int N>
+
+class Array
+{
+private:
+ int T[N];
+public:
+ int Getsize() const { return N; }
+};
+
+int main()
+{
+ Array<int,4> array;
+ std::cin.get();
+}
+
 ```
