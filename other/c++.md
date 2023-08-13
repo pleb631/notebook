@@ -281,7 +281,7 @@ public:
     如果你不写，编译器会自动创建一个，但是里面是空语句
     Person()
     {
-      
+    
     }
     */
 };
@@ -391,7 +391,7 @@ public:
     int m_B;
       static void func()
     {
-        m_A = 100; //静态成员函数可以访问静态成员变量，这个数据是共享的，只有一份，所以不需要区分哪个对象的。                              
+        m_A = 100; //静态成员函数可以访问静态成员变量，这个数据是共享的，只有一份，所以不需要区分哪个对象的。                            
         //m_B = 200; //静态成员函数不可以访问非静态成员变量，无法区分到底是哪个对象的m_B属性，非静态成员变量属于特定的对象上面
         std::cout << "static void func调用" << std::endl;
     }
@@ -471,10 +471,10 @@ public:
     Person(int age)
     {
         this->age = age;  
-                          //如果这里是 age = age；那么编译器会将这两个age和上面的形参age当做同一个age，因此age并没有赋值                  
+                          //如果这里是 age = age；那么编译器会将这两个age和上面的形参age当做同一个age，因此age并没有赋值                
     }
   
-    //如果用值的方式返回，Person PersonAddAge(Person& p){}，它返回的是本体拷贝的对象p'，而不是本体p                                   
+    //如果用值的方式返回，Person PersonAddAge(Person& p){}，它返回的是本体拷贝的对象p'，而不是本体p                                 
     Person& PersonAddAge(Person& p) //要返回本体的时候，要用引用的方式返回
     {
         this->age += p.age;
@@ -961,11 +961,19 @@ std::weak_ptr<Entity> entity;
 ```
 
 ## 箭头运算符
+
 <<<<<<< HEAD
 
 =======
+
 >>>>>>> 9cc837a255b128768da7d43a0cfa527cd65ddf77
-可以使用箭头操作符来获取内存中某个成员变量的偏移量。假设有一个Vector3结构体有三个浮点数分量xyz，若想要找出这个变量在内存中的偏移量，例如x偏移量是0，y是4，z是8。
+>>>>>>> 可以使用箭头操作符来获取内存中某个成员变量的偏移量。假设有一个Vector3结构体有三个浮点数分量xyz，若想要找出这个变量在内存中的偏移量，例如x偏移量是0，y是4，z是8。
+>>>>>>>
+>>>>>>
+>>>>>
+>>>>
+>>>
+>>
 
 ```c++
 #include<iostream>
@@ -1090,7 +1098,7 @@ int main()
 
 ```
 
-首先，这是因为每次`vertices.push_back(Vertex(1,2,3));`相当于先创建了一个Vertex，然后把这个Vertex复制给vector，正确的方式是使用`emplace_back`,创建元素后直接移动给vector
+首先，这是因为每次 `vertices.push_back(Vertex(1,2,3));`相当于先创建了一个Vertex，然后把这个Vertex复制给vector，正确的方式是使用 `emplace_back`,创建元素后直接移动给vector
 
 ```c++
 
@@ -1105,7 +1113,7 @@ vertices.emplace_back(1,2,3)
 
 ## C++中如何处理多返回值
 
-本文是ChernoP52视频的学习笔记。  
+本文是ChernoP52视频的学习笔记。
   若有一个函数需要返回两个字符串，有很多不同的方法可以实现。但在C++的默认情况下不能返回两种类型。若一个函数需要返回两个或多个相同类型的变量，则可以返回vector或数组。
 
 ### 结构体
@@ -1230,13 +1238,75 @@ template <typename 形参名, typename 形参名...>     //模板头（模板说
 ```
 
 1. template是声明模板的关键字，告诉编译器开始泛型编程。
-
 2. 尖括号<>中的typename是定义形参的关键字，用来说明其后的形参名为类型参数（模板形参。Typename（建议用）可以用class关键字代替，两者没有区别。
-
 3. 模板形参（类属参数）不能为空（俗成约定用一个大写英文字母表示），且在函数定义部分的参数列表中至少出现一次。与函数形参类似，可以用在函数定义的各个位置：返回值、形参列表和函数体。
-
 4. 函数定义部分：与普通函数定义方式相同，只是参数列表中的数据类型要使用尖括号<>中的模板形参名来说明。当然也可以使用一般的类型参数。
 
+```c++
+#include<iostream>
+#include<string>
+
+template<typename T>//typename也可以写成class
+
+void Print(T value)
+{
+ std::cout << value << std::endl;
+}
+
+int main()
+{
+ Print(5);//T替换为int
+ Print("Hello");
+ Print(5.5f);
+ std::cin.get();
+}
+
+```
+
+这里看上去是显示地指定类型，其实这个类型是**隐式**地从实际参数中得到的。我们还可以调用Print使用尖括号指定类型。
+
+```c++
+Print<int>(5);
+
+```
+
+若我们不写任何东西，完全没有使用Print函数那么它就没有真正存在过。这个Print函数只是一个模板，只有当调用时才会被实际创建。
+
+我们也可以不用类型作为模板参数，作用在类上而不是函数上。我们创建一个在栈上的Array类，里面的数组大小是在编译时确定的，不能直接输入一个变量size之类。
+
+```c++
+class Array
+{
+private:
+ int m_Array[size];
+};
+
+```
+
+因为这是一个栈分配的数组，所以在编译时就需要知道它。显然我们可以使用动态分配栈内存(alloca)或者其他，但我们只想在栈上创建一个普通的C语言风格的数组。因此size值要在编译时就要知道，而模板会在编译期被评估处理。所以正好将类转换成一个模板，但不用typename作为模板参数。我们可以使用int然后将数量命名为N，这里就不用size而是改成N，最后的public函数返回这个数组的大小。
+
+```c++
+#include<iostream>
+#include<string>
+
+template<int N>
+
+class Array
+{
+private:
+ int m_Array[N];
+public:
+ int Getsize() const { return N; }
+};
+
+int main()
+{
+ std::cin.get();
+}
+
+```
+
+若不是显示地指定int，想让这个类型是可变的。因此希望能够在编译时指定这个数组实际包含的类型，可以添加另一个模板参数，在数字面前添加这个参数。
 
 ```c++
 #include<iostream>
@@ -1258,4 +1328,285 @@ int main()
  std::cin.get();
 }
 
+```
 
+## size_t,size_type, typedef和decltype
+
+1. typedef
+   系统默认的所有基本类型都可以利用 `typedef` 关键字来重新定义类型名
+
+   ```c++
+   typedef double my_double;
+   //以下两句的效果是一样的
+   double a;
+   my_double a;
+
+   ```
+
+2. decltype
+   decltype的作用是**选择并返回操作数的数据类型**
+
+   ```c++
+   int A;
+   //以下两句的效果是一样的
+   int B;
+   decltype(A) B;
+   ```
+
+3. size_t 和 size_type
+
+   - size_t and size_type是为了独立于及其设备而定义的类型；比如在这个电脑上int为2字  节，另一台上电脑是4字节，所以经常使用size_t和size_type而不是 `int unsigned`可以    让程序有更好的移植性。
+     size_t是一种全局类型，它的定义如下
+
+     ```c++
+     typedef unsigned int size_t
+     ```
+
+   - size_type属于容器概念,本质上是一样的,但是size_t是在全局命名空间里，size_type在string里（`string::size_type`）或vector命名空间里（`vector::size_type`）,在使用STL中表明容器长度的时候，我们一般用size_type。
+
+## 初始化
+
+### 聚合初始化
+
+聚合初始化是针对数组或者类类型（通常为结构或者联合）的一种列表初始化形式。类类型（常为 struct 或 union）必须符合下面条件：
+
+- 没有私有或者受保护非静态数据成员
+- 没有用户声明的构造函数
+- 没有用户提供的构造函数（允许显式预置或弃置的构造函数）
+- 没有用户提供、继承或 explicit 构造函数（允许显式预置或弃置的构造数）
+- 没有用户声明或者继承的构造函数
+- 没有虚、私有或受保护 (C++17 起)基类
+- 没有虚拟成员函数
+- 无默认成员初始化器(C++11 起)(C++14 前)
+
+#### 语法
+
+```c++
+
+T object = {arg1, arg2, ...};
+T object {arg1, arg2, ...};
+T object (arg1, arg2, ...);//c++ 20起
+```
+
+## 宏
+
+宏提供了一种机制，能够使你在编译期替换代码中的符号或者语句。当你的代码中存在大量相似的、重复的代码时，使用宏可以极大的减少代码量，便于书写。
+
+```c++
+#include<iostream>
+
+//发生在编译器的预处理阶段
+#define WAIT std::cin.get() //注意无需分号
+
+int main()
+{
+ WAIT;
+}
+
+```
+
+宏还可以发送参数
+
+```c++
+#include<iostream>
+
+#define LOG(x) std::cout << x << std::endl
+
+int main()
+{
+ LOG("Hello");
+ std::cin.get();
+}
+
+```
+
+在实际工作中，常常在release版本中去掉所有的日志代码，但是在debug版本中保留。我们可以通过宏做到这一点。首先要修改项目属性。
+![2023-08-12-17-33-11](https://cdn.jsdelivr.net/gh/pleb631/ImgManager@main/img/2023-08-12-17-33-11.png)
+![2023-08-12-17-33-25](https://cdn.jsdelivr.net/gh/pleb631/ImgManager@main/img/2023-08-12-17-33-25.png)
+
+```c++
+#include<iostream>
+
+#if 1//可以置0把下面代码禁用掉
+
+
+#if PR_DEBUG == 1
+#define LOG(x) std::cout << x << std::endl
+#elif defined(PR_RELEASE)  //defined是检测函数，检测预定义是否存在
+#define LOG(x)
+#endif
+
+#endif
+
+
+int main()
+{
+ LOG("Hello");
+ std::cin.get();
+}
+
+```
+
+还可以使用反斜杠来写多行的宏，因为宏必须在同一行。
+
+```c++
+#include<iostream>
+
+#define MAIN int main() \
+{\
+   std::cin.get();\
+}
+
+MAIN
+
+```
+
+## 函数指针、lambda
+
+### 函数指针
+
+如果在程序中定义了一个函数，那么在编译时系统就会为这个函数代码分配一段存储空间，这段存储空间的首地址称为这个函数的地址。而且函数名表示的就是这个地址。既然是地址我们就可以定义一个指针变量来存放，这个指针变量就叫作函数指针变量，简称函数指针。
+
+函数指针的类型是
+
+```c++
+T (*) (T1 x,);
+```
+
+函数指针的定义方式为：
+
+> 函数返回值类型 (* 指针变量名) (函数参数列表);
+
+“函数返回值类型”表示该指针变量可以指向具有什么返回值类型的函数；“函数参数列表”表示该指针变量可以指向具有什么参数列表的函数。这个参数列表中只需要写函数的参数类型即可。
+
+示例：
+
+```c++
+int Func(int x);   /*声明一个函数*/
+
+//
+int (*p) (int x);  /*定义一个函数指针*/
+p = Func;          /*将Func函数的首地址赋给指针变量p*/
+
+//typedef
+typedef int (*pfuna)(int);
+pfuna p=Func;
+
+//using 
+using pfuna = float(*)(int, float);
+pfuna  p=Func
+
+//auto
+auto fa = Func;
+```
+
+我们所做的是将function作为一个变量名进行调用，将函数参数化
+
+```c++
+#include<iostream>
+#include<vector>
+
+void PrintValue(int value)
+{
+ std::cout << " Value:" << value << std::endl;
+}
+
+void ForEach(const std::vector<int>& values, void(*func)(int))
+{
+ for (int value : values)
+  func(value);
+}
+
+int main()
+{
+ std::vector<int> values = { 1,5,4,2,3 };
+
+ ForEach(values, PrintValue);//vector中的每个元素都执行PrintValue
+ 
+ std::cin.get();
+}
+
+```
+
+### lambda
+
+lambda的本质是一个普通函数，但不像普通函数一样做声明。它是我们的代码在过程中生成的，用完即弃的函数。
+
+```c++
+#include<iostream>
+#include<vector>
+
+
+void ForEach(const std::vector<int>& values, void(*func)(int))
+{
+ for (int value : values)
+  func(value);
+}
+
+int main()
+{
+ std::vector<int> values = { 1,5,4,2,3 };
+
+ ForEach(values, [](int value) {std::cout << " Value:" << value << std::endl;});
+
+ std::cin.get();
+}
+
+
+```
+
+> 这里的[]叫做捕获方式，lambda可以把上下文变量以值或引用的方式捕获，在body中直接使用。int value是我们的参数，后面就和PrintValue函数体一样了。
+  [] 什么也不捕获;
+  [=] 按值的方式捕获所有变量 ;
+  [&] 按引用的方式捕获所有变量;
+  [=, &a] 除了变量a之外，按值的方式捕获所有局部变量，变量a  使用引用的方式来捕获。这里可以按引用捕获多个，例如 [=, &  a, &b,&c]。这里注意，如果前面加了=，后面加的具体的参数必  须以引用的方式来捕获，否则会报错;  
+  [&, a] 除了变量a之外，按引用的方式捕获所有局部变量，变量  a使用值的方式来捕获。这里后面的参数也可以多个，例如 [&,   a, b, c]。这里注意，如果前面加了&，后面加的具体的参数必  须以值的方式来捕获;  
+  [a, &b] 以值的方式捕获a，引用的方式捕获b，也可以捕获多个;
+  [this] 在成员函数中，也可以直接捕获this指针，其实在成员  函数中，[=]和[&]也会捕获this指针。
+
+```c++
+int x = 1; int y = 2;
+auto plus = [=] (int a, int b) -> int { return x + y + a + b; };
+int c = plus(1, 2);
+//把x，y按值捕获
+```
+
+可以把lambda赋值给一个auto类型变量，然后将lambda变量传入函数。
+
+```c++
+int main()
+{
+ std::vector<int> values = { 1,5,4,2,3 };
+ 
+ auto lambda = [](int value) {std::cout << " Value:" << value << std::endl;};
+
+ ForEach(values, lambda);
+ 
+ std::cin.get();
+}
+
+```
+
+当我们试图传入某些变量时，不管是通过值还是引用来捕获变量，这里的ForEach都会出错，因为我们正在使用原始函数指针。若转变成std::function，返回void，有一个int参数叫做func就可以了。
+![2023-08-13-15-02-43](https://cdn.jsdelivr.net/gh/pleb631/ImgManager@main/img/2023-08-13-15-02-43.png)
+我们有一个可选的修饰符mutable，它允许函数体修改通过拷贝传递捕获的参数。若我们在lambda中给a赋值会报错，需要写上mutable。
+![2023-08-13-15-04-11](https://cdn.jsdelivr.net/gh/pleb631/ImgManager@main/img/2023-08-13-15-04-11.png)
+
+还可以写一个lambda接受vector的整数元素，遍历这个vector找到比3大的整数，然后返回它的迭代器，也就是满足条件的第一个元素。
+
+```c++
+#include<iostream>
+#include<vector>
+#include<algorithm>
+
+int main()
+{
+ std::vector<int> values = { 1,5,4,2,3 };
+
+ auto it = std::find_if(values.begin(), values.end(), [](int value) {return value > 3;});
+
+ std::cout << *it << std::endl;
+ 
+ std::cin.get();
+}
+```
