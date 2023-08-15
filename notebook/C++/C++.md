@@ -1,1351 +1,1620 @@
-[TOC]
-# 第二章 变量和基本类型
-### 基本内置类型
+[toc]
 
-**基本算数类型**：
+## main函数
 
-| 类型 | 含义 | 最小尺寸|
-|---|---|---|
-| `bool` | 布尔类型  | 8bits |
-| `char`| 字符 | 8bits |
-| `wchar_t` | 宽字符 | 16bits |
-| `char16_t` | Unicode字符 | 16bits |
-| `char32_t` | Unicode字符 | 32bits |
-| `short` | 短整型 | 16bits |
-| `int` | 整型 | 16bits (在32位机器中是32bits) |
-| `long` | 长整型 | 32bits |
-| `long long` | 长整型 | 64bits （是在C++11中新定义的） |
-| `float` | 单精度浮点数 | 6位有效数字 |
-| `double` | 双精度浮点数 | 10位有效数字 |
-| `long double` | 扩展精度浮点数 | 10位有效数字 |
+入门c++代码如下，main函数是一个程序的入口，每个程序都必须有这么一个函数，并且有且只有一个。
 
+```c++
+#include<iostream>
+using namespace std;
 
-### 类型转换
+int main() {
 
-- 非布尔型赋给布尔型，初始值为0则结果为false，否则为true。
-- 布尔型赋给非布尔型，初始值为false结果为0，初始值为true结果为1。
+    std::cout << "hello C++" << endl;
+    std::cin.get();//pause
+    //system("pause"); 不同系统可能用不了
 
-### 字面值常量
+    return 0;
+}
+```
 
-- 一个形如`42`的值被称作**字面值常量**（literal）。
-  - 整型和浮点型字面值。
-  - 字符和字符串字面值。
-    - 使用空格连接，继承自C。
-    - 字符字面值：单引号， `'a'`
-    - 字符串字面值：双引号， `"Hello World"`
-    - 分多行书写字符串。
-      ```c++
-      std:cout<<"wow, a really, really long string"
-                "literal that spans two lines" <<std::endl;
-      ```
-  - 转义序列。`\n`、`\t`等。
-  - 布尔字面值。`true`，`false`。
-  - 指针字面值。`nullptr`
+## 预处理、编译、汇编、链接
 
-> 字符串型实际上时常量字符构成的数组，结尾处以`'\0'`结束，所以字符串类型实际上长度比内容多1。
+![2023-08-05-15-48-57](https://cdn.jsdelivr.net/gh/pleb631/ImgManager@main/img/2023-08-05-15-48-57.png)
+
+- 预处理
+  预处理，顾名思义就是编译前的一些准备工作。预编译把一些  #define的宏定义完成文本替换，然后将#include的文件里的内容**复制**到.cpp文件里，如果.h文件里还有.h文件，就递归展开。在预处理这一步，代码注释直接被忽略，不会进入到后续的处理中，所以注释在程序中不会执行。生成文件 `main.i`
+- 编译
+  编译把我们写的代码转为汇编代码，它的工作是检查词法和语法规则，所以，如果程序没有词法或则语法错误，那么不管逻辑是怎样错误的，都不会报错。编译不是指程序从源文件到二进制程序的全部过程，而是指将经过预处理之后的程序转换成特定汇编代码(assembly code)的过程。生成文件 `main.s`
+- 汇编
+  汇编过程将上一步的汇编代码(main.s)转换成机器    (machine code)，这一步产生的文件叫做目标文件 `main o`，是二进制格式。生成最终的可执行文件(Executable file)。
+- 链接
+  链接（Link）其实就是一个“打包”的过程，汇编只会对单个cpp文件进行分开处理，还需要标准库、动态链接库和其他cpp文件等结合起来，生成最终的可执行文件(Executable file)。
 
 ## 变量
 
-### 变量定义（define）
+| 类型            | 含义           | 最小尺寸                       |
+| --------------- | -------------- | ------------------------------ |
+| `bool`        | 布尔类型       | 8bits                          |
+| `char`        | 字符           | 8bits                          |
+| `wchar_t`     | 宽字符         | 16bits                         |
+| `char16_t`    | Unicode字符    | 16bits                         |
+| `char32_t`    | Unicode字符    | 32bits                         |
+| `short`       | 短整型         | 16bits                         |
+| `int`         | 整型           | 16bits (在32位机器中是32bits)  |
+| `long`        | 长整型         | 32bits                         |
+| `long long`   | 长整型         | 64bits （是在C++11中新定义的） |
+| `float`       | 单精度浮点数   | 6位有效数字                    |
+| `double`      | 双精度浮点数   | 10位有效数字                   |
+| `long double` | 扩展精度浮点数 | 10位有效数字                   |
 
-- **定义形式**：类型说明符（type specifier） + 一个或多个变量名组成的列表。如`int sum = 0, value, units_sold = 0;`
-- **初始化**（initialize）：对象在创建时获得了一个特定的值。
-  - **初始化不是赋值！**：
-  - 初始化 = 创建变量 + 赋予初始值
-  - 赋值 = 擦除对象的当前值 + 用新值代替
-  - **列表初始化**：使用花括号`{}`，如`int units_sold{0};`
-  - 默认初始化：定义时没有指定初始值会被默认初始化；**在函数体内部的内置类型变量将不会被初始化**。
-  - 建议初始化每一个内置类型的变量。
+## 指针、引用
 
-### 变量的**声明**（declaration） vs **定义**（define）
-  - 为了支持分离式编译，`C++`将声明和定义区分开。**声明**使得名字为程序所知。**定义**负责创建与名字关联的实体。
-  - **extern**：只是说明变量定义在其他地方。
-  - 只声明而不定义： 在变量名前添加关键字 `extern`，如`extern int i;`。但如果包含了初始值，就变成了定义：`extern double pi = 3.14;`
-  - 变量只能被定义一次，但是可以多次声明。定义只出现在一个文件中，其他文件使用该变量时需要对其声明。
-- 名字的**作用域**（namescope）`{}`
-  - **第一次使用变量时再定义它**。
-  - 嵌套的作用域
-    - 同时存在全局和局部变量时，已定义局部变量的作用域中可用`::reused`显式访问全局变量reused。
-    - **但是用到全局变量时，尽量不适用重名的局部变量。**
+指针是存储内存地址的变量，引用是指针的语法糖，两者会转为同一汇编代码
+
+```c++
+//声明
+int *p1,*p2;//p1和p2是指向int对象的指针
+double *dp1, *dp2;//dp1和dp2是指向double对象的指针
+//定义
+int a = 1;
+int *p = &a;//P中存放变量a的地址，或者说p是指向a的指针
+*p = 3;//pi的指向没有改变，但a的值发生了改变
+int &p1=a; //创建引用p1,必须赋值
+//引用初始化后不能被改变，指针可以改变所指的对象
+//不存在指向空值的引用，但是存在指向空值的指针。
+
+//空指针
+int *p1 = nullptr;
+int *p2 = 0;
+int *p3 = NULL;//三种方法等价
+
+
+```
+
+范例
+
+```c++
+#include<iostream>
+using namespace std;
+
+
+int Log(int *num)
+{
+    std::cout <<*num;
+    return 0;
+}
+
+int main() {
+
+    int num = 1;
+    int* p = #
+    int& p1 = num;
+    Log(p);
+    Log(&num);
+    Log(&p1);
+    std::cout <<std::endl;
+    num=num+1;
+    *p=*p+1;
+    p1=p1+1;
+    std::cout <<num;
+    std::cout <<*p;
+    std::cout <<p1;
+    std::cin.get();//pause
+
+    return 0;
+}
+//输出结果：
+//111
+//444
+```
+
+## 字符串和字面量
+
+c++的基本写法是 `char *name ="string"`,或者用数组 `char name[10]={'s','t','r','i','n','g','\0'}`
+这种语法下，不可以使用 `+`来尝试连接字符串，因为两个地址不可以相加，应使用 `strcat(a,b);`的函数进行连接。
+
+特殊语法
+
+```c++
+//进行换行打印
+const char* name1 = "asd\n"
+        "asd\n";
+const char* name2 = R"(asd
+        asd)";
+
+```
+
+合适的方法是用string库,`string name="string"`,这里面涉及 `const char *`的隐式转换
+此时,可以使用以下语法
+
+```c++
+
+string a = string("asd")+"asd";
+string b = "asd"s+"asd";
+//string b = "asd"+"asd";//无效语法
+
+```
+
+## 枚举(enum)
+
+枚举类型(enumeration)：是C++中的一种派生数据类型，它是由用户定义的若干枚举常量的集合。
+`Enum 枚举类型名 {变量值列表}；`
+
+```c++
+enum Weekday{ SUM,MON,TUE,WED,THU,FRSAT };     //定义枚举类型
+//SUM = 0;   //SUM是枚举类型，此语句非法
+Weekday day1=WED, day2= SAT;
+if (day1 > day2)
+    cout << day1;
+else
+    cout << day2;
+cin.get();
+
+
+```
+
+- 枚举元素具有默认值，依次为：0，1，2，3。。。
+- 声明时可以另行定义枚举元素的值
+- `Enum Weekday {SUM=7,MON=1,TUE,WED,THU,FRI,SAT}`; //后面从TUE依次为23456
+- 枚举值可以进行关系运算
+- 整数值不能直接赋值给枚举变量，如需将整数值给枚举类型，需要进行强制转换
+
+## 结构体(struct)
+
+结构体，通俗讲就像是打包封装，把一些变量和函数封装在内部，通过一定方法访问修改内部变量。与class在技术上的区别是struct默认public，class默认private
+
 ```c++
 #include <iostream>
 using namespace std;
+#include <string>
+//自定义数据类型，一些类型的集合组成一个类型
+//语法 struct 类型名称 { 成员列表 }
+struct Student
+{
+    //成员列表
+    string name;
+    int age;
+    int score;
+    char other[20];
+    void Log1(){cout <<score;}
+};
+
+int main()
+{
+    Student s1;
+    Student s2 = { "李四",19,80 };
+    //给s1属性赋值，通过点.访问结构体变量中的属性
+    s1.age = 18;
+    s1.score = 100;
+
+    cout << "age1：" << s1.age <<endl;
+    cout << "score1：" << s2.score <<endl;
+
+    std::cin.get();//pause
+
+    return 0;
+
+}
+```
+
+## 类(class)
+
+与结构体类似,class默认private
+
+范例
+
+```c++
+
+#include <iostream>
+using namespace std;
+
+const double PI = 3.14;
+class Circle
+{
+    public:
+        int m_r;
+        double calculateZC()
+        {
+            return 2 * PI * m_r;
+        }
+};   
+
+int main()
+{
+    Circle c1;
+    c1.m_r = 10;
+    cout << "圆的周长为：" << c1.calculateZC() << endl;
+
+   std::cin.get();//pause
   
-int a = 42;     // a 具有全局作用域
-
-int main() {
-  cout << a << endl;    // 42
-
-  int a = 10;           // 新建局部变量 a，覆盖了全局变量 a
-  cout << a << endl;    // 这里使用的是局部变量 a，输出 10
-
-  for(int a = 0; a != 1; ++a) {
-    cout << a << endl;
-  }
-
-  cout << a << endl;    // 输出 10
-  cout << ::a << endl;  // 作用域操作符，显式地访问全局变量 a，输出 42
-  return 0;
+    return 0;
 }
 
 ```
 
+### 封装权限
 
-## 左值和右值
+公共权限 public,类内可以访问成员,类外可以访问成员
 
-- **左值**（l-value）**可以**出现在赋值语句的左边或者右边，比如变量；
-- **右值**（r-value）**只能**出现在赋值语句的右边，比如常量。
+保护权限 protected,类内可以访问成员,类外不可以访问成员 子类可以访问父类中的保护内容
 
+私有权限 private,类内可以访问权限,类外不可以访问成员 子类不可以访问父类中的私有内容
 
-## 复合类型
+### 构造函数
 
-### 引用
+构造函数：主要作用在于创建对象时为对象的成员属性赋值，构造函数由编译器自动调用，无须手动调用。
+构造函数语法：类名 () {}
 
-> 一般说的引用是指的左值引用
-- **引用**：引用是一个对象的别名，引用类型引用（refer to）另外一种类型。如`int &refVal = val;`。
-- 引用必须初始化。
-- 引用和它的初始值是**绑定bind**在一起的，而**不是拷贝**。一旦定义就不能更改绑定为其他的对象
-
-### 指针
-
-> int *p;      //**指向int型对象**的指针
-
-- 是一种 `"指向（point to）"`另外一种类型的复合类型。
-
-- **定义**指针类型： `int *ip1;`，**从右向左读有助于阅读**，`ip1`是指向`int`类型的指针。
-
-- 指针存放某个对象的**地址**。
-
-- 获取对象的地址： `int i=42; int *p = &i;`。 `&`是**取地址符**。
-
-- 指针的类型与所指向的对象类型必须一致（均为同一类型int、double等）
-
-- 指针的值的四种状态：
-  - 1.指向一个对象；
-  - 2.指向紧邻对象的下一个位置；
-  - 3.空指针；
-  - 4.无效指针。
-  - >**对无效指针的操作均会引发错误，第二种和第三种虽为有效的，但理论上是不被允许的**
-  
-- 指针访问对象： `cout << *p;`输出p指针所指对象的数据， `*`是**解引用符**。
-
-- 空指针不指向任何对象。使用`int *p=nullptr;`来使用空指针。
-
-- > 指针和引用的区别：引用本身并非一个对象，引用定义后就不能绑定到其他的对象了；指针并没有此限制，相当于变量一样使用。
-
-- > 赋值语句永远改变的是**左侧**的对象。
-
-- `void*`指针可以存放**任意**对象的地址。因无类型，仅操作内存空间，对所存对象无法访问。
-
-- 其他指针类型必须要与所指对象**严格匹配**。
-
-- 两个指针相减的类型是`ptrdiff_t`。
-
-- 建议：初始化所有指针。
-
-- `int* p1, p2;//*是对p1的修饰，所以p2还是int型`
-
-## const限定符
-
-- 动机：希望定义一些不能被改变值的变量。
-
-### 初始化和const
-- const对象**必须初始化**，且**不能被改变**。
-- const变量默认不能被其他文件访问，非要访问，必须在指定const定义之前加extern。要想在多个文件中使用const变量共享，定义和声明都加const关键字即可。
-
-### const的引用
-
-- **reference to const**（对常量的引用）：指向const对象的引用，如 `const int ival=1; const int &refVal = ival;`，可以读取但不能修改`refVal`。
-- **临时量**（temporary）对象：当编译器需要一个空间来暂存表达式的求值结果时，临时创建的一个未命名的对象。
-- 对临时量的引用是非法行为。
-
-### 指针和const
-
-const默认作用于其左边的东西，否则作用于其右边的东西：**const applies to the thing left of it. If there is nothing on the left then it applies to the thing right of it**.  
-  
-例如，`const int*` const只有右边有东西，所以const修饰int成为常量整型，然后*再作用于常量整型。所以这是**a pointer to a constant integer**（指向一个整型，不可通过该指针改变其指向的内容，但可改变指针本身所指向的地址）  
-
-`int const *`再看这个，const左边有东西，所以const作用于int，*再作用于int const所以这还是 **a pointer to a constant integer**（同上）
-
-`int* const` 这个const的左边是*，所以const作用于指针（不可改变指向的地址），所以这是**a constant pointer to an integer**，可以通过指针改变其所指向的内容但只能指向该地址，不可指向别的地址。  
-
-`const int* const`这里有两个const。左边的const 的左边没东西，右边有int那么此const修饰int。右边的const作用于*使得指针本身变成const（不可改变指向地址），那么这个是**a constant pointer to a constant integer**，不可改变指针本身所指向的地址也不可通过指针改变其指向的内容。  
-
-`int const * const`这里也出现了两个const，左边都有东西，那么左边的const作用于int，右边的const作用于*，于是这个还是是**a constant pointer to a constant integerint**
-
-`const * const *`，照葫芦画瓢，**a pointer to a constant pointer to a constant integer**，其实就是指向上边那个的东西的指针。  
-
-`int const * const * const`上边的指针本身变成const，**a constant pointer to a constant pointer to a constant integer**。
-
-### 顶层const
-
-- `顶层const`：指针本身是个常量。
-- `底层const`：指针指向的对象是个常量。拷贝时严格要求相同的底层const资格。
-
-### `constexpr`和常量表达式（▲可选）
-
-- 常量表达式：指值不会改变，且在编译过程中就能得到计算结果的表达式。
-- `C++11`新标准规定，允许将变量声明为`constexpr`类型以便由编译器来验证变量的值是否是一个常量的表达式。
-
-
-## 处理类型
-
-### 类型别名
-
-- 传统别名：使用**typedef**来定义类型的同义词。 `typedef double wages;`
-- 新标准别名：别名声明（alias declaration）： `using SI = Sales_item;`（C++11）
+1. 构造函数，没有返回值也不写void。
+2. 函数名称与类名相同。
+3. 构造函数可以有参数，因此可以重载。
+4. 程序在调用对象时候会自动调用构造，无须手动调用，而且只会调用一次。
 
 ```c++
-// 对于复合类型（指针等）不能代回原式来进行理解
-typedef char *pstring;  // pstring是char*的别名
-const pstring cstr = 0; // 指向char的常量指针
-// 如改写为const char *cstr = 0;不正确，为指向const char的指针
+#include <iostream>
+#include <string>
 
-// 辅助理解（可代回后加括号）
-// const pstring cstr = 0;代回后const (char *) cstr = 0;
-// const char *cstr = 0;即为(const char *) cstr = 0;
-```
+class Person
+{
 
-### auto类型说明符 c++11
+public:  
+  int x;
+  string y;
 
-- **auto**类型说明符：让编译器**自动推断类型**。
-- 一条声明语句只能有一个数据类型，所以一个auto声明多个变量时只能相同的变量类型(包括复杂类型&和*)。`auto sz = 0, pi =3.14//错误`
-- `int i = 0, &r = i; auto a = r;` 推断`a`的类型是`int`。
-- 会忽略`顶层const`。
-- `const int ci = 1; const auto f = ci;`推断类型是`int`，如果希望是顶层const需要自己加`const`
+     // 内部赋值方式
+    Person(int x1)
+    { 
+      x = x1;
+      std::cout << "Person 构造函数1的调用" << endl;
+    }
 
-### decltype类型指示符
+    // 初始化列表方式
+    Person(int x1,string y1):
+      x(x1),
+      y(y1)
+    { 
+      std::cout << "Person 构造函数2的调用" << endl;
+    }
 
-- 从表达式的类型推断出要定义的变量的类型。
-- **decltype**：选择并返回操作数的**数据类型**。
-- `decltype(f()) sum = x;` 推断`sum`的类型是函数`f`的返回类型。
-- 不会忽略`顶层const`。
-- 如果对变量加括号，编译器会将其认为是一个表达式，如int i-->(i),则decltype((i))得到结果为int&引用。
-- 赋值是会产生引用的一类典型表达式，引用的类型就是左值的类型。也就是说，如果 i 是 int，则表达式 i=x 的类型是 int&。
-- `C++11`
-- 只想知道类型而不需要定义赋值变量
+    /*
+    如果你不写，编译器会自动创建一个，但是里面是空语句
+    Person()
+    {
+    
+    }
+    */
+};
 
-## 自定义数据结构
+int main()
+{
+    Person x_entiy(2);
+    /*=》等价写法
+    Person x_entiy=2；//显示法
+    Person x_entiy = Person(2) //隐式转换法
+    */
+    Person y_entiy(1,"asd");
+    std::cout << y_entiy.y<<endl;
+    std::cout << x_entiy.x<<endl;
 
-### struct
-
-> 尽量不要吧类定义和对象定义放在一起。如`struct Student{} xiaoming,xiaofang;`
-- 类可以以关键字`struct`开始，紧跟类名和类体。
-- 类数据成员：类体定义类的成员。
-- `C++11`：可以为类数据成员提供一个**类内初始值**（in-class initializer）。
-
-### 编写自己的头文件
-
-- 头文件通常包含哪些只能被定义一次的实体：类、`const`和`constexpr`变量。
-
-预处理器概述：
-
-- **预处理器**（preprocessor）：确保头文件多次包含仍能安全工作。
-- 当预处理器看到`#include`标记时，会用指定的头文件内容代替`#include`
-- **头文件保护符**（header guard）：头文件保护符依赖于预处理变量的状态：已定义和未定义。
-  - `#indef`已定义时为真
-  - `#inndef`未定义时为真
-  - 头文件保护符的名称需要唯一，且保持全部大写。养成良好习惯，不论是否该头文件被包含，要加保护符。
-
-```c++
-#ifndef SALES_DATA_H  //SALES_DATA_H未定义时为真
-#define SALES_DATA_H
-strct Sale_data{
-    ...
+    std::cin.get();
+    return 0;
 }
-#endif
+
+/*输出
+Person 构造函数1的调用
+Person 构造函数2的调用
+asd
+2
+*/
 ```
 
+### 析构函数
 
-# 第三章 字符串、向量和数组
+析构函数语法：~类名(){}
 
-## using声明
-- 使用某个命名空间：例如 `using std::cin`表示使用命名空间`std`中的名字`cin`。
-- 头文件中不应该包含`using`声明。这样使用了该头文件的源码也会使用这个声明，会带来风险。
+1. 析构函数，没有返回值也不写void。
+2. 函数名称与类名相同，在名称前加上符号。
+3. 析构函数不可以有参数，因此不可以发生重载。
+4. 程序在对象销毁前会自动调用析构，无须手动调用，而且只会调用一次。
 
-## string
-- 标准库类型`string`表示可变长的字符序列。
-- `#include <string>`，然后 `using std::string;`
-- **string对象**：注意，不同于字符串字面值。
+```c++
+#include <iostream>
+using namespace std;
+#include <string>
+
+class Person
+{
+public:  //无论是构造函数还是析构函数都是在public作用域下
+    Person()
+    {
+        cout << "Person 构造函数的调用" << endl;
+    }
+    ~Person()
+    {
+        cout << "Person 析构函数的调用" << endl;
+    }
+};
+
+//构造和析构都是必须有的实现，如果我们自己不提供，编译器会提供一个空实现
+void test()
+{
+    Person p;  //创建对象的时候，自动调用构造函数
+               //这个对象p是一个局部变量，是在栈上的数据，test01执行完，释放这个对象
+}
+
+int main()
+{
   
-### 定义和初始化string对象
+    test01();   // 析构释放时机在test01运行完前，test函数运行完后，里面的对象就被释放了,方便观测
+    /*
+    方式二：     //创建对象的时候，自动调用构造函数
+    Person p;   //只有main函数结束完前，对象要释放掉了，才会调用析构函数，不方便观测
+    */
 
-初始化`string`对象的方式：
+    std::cin.get();
+    return 0;
 
-| 方式 | 解释 |
-| -- | -- |
-| `string s1` | 默认初始化，`s1`是个空字符串 |
-| `string s2(s1)` | `s2`是`s1`的副本 |
-| `string s2 = s1` | 等价于`s2(s1)`，`s2`是`s1`的副本 |
-| `string s3("value")` | `s3`是字面值“value”的副本，除了字面值最后的那个空字符外 |
-| `string s3 = "value"` | 等价于`s3("value")`，`s3`是字面值"value"的副本 |
-| `string s4(n, 'c')` | 把`s4`初始化为由连续`n`个字符`c`组成的串 |
-
-- 拷贝初始化（copy initialization）：使用等号`=`将一个已有的对象拷贝到正在创建的对象。
-- 直接初始化（direct initialization）：通过括号给对象赋值。
-
-### string对象上的操作
-
-`string`的操作：
-
-| 操作 | 解释 |
-|-----|-----|
-| `cout << s` | 将`s`写到输出流`cout`当中，返回`cout` |
-| `cin >> s` | 从`cin`中读取字符串赋给`s`，字符串以空白分割，返回`is`,不能读入空格，以空格，制表符，回车符作为结束标志 |
-| `getline(cin, s)` | 从`is`中读取一行赋给`s`，返回`is`,可以读入空格和制表符，以回车符作为结束的标志 |
-| `s.empty()` | `s`为空返回`true`，否则返回`false` |
-| `s.size()` | 返回`s`中字符的个数 |
-| `s[n]` | 返回`s`中第`n`个字符的引用，位置`n`从0计起 |
-| `s1+s2` | 返回`s1`和`s2`连接后的结果 |
-| `s1=s2` | 用`s2`的副本代替`s1`中原来的字符 |
-| `s1==s2` | 如果`s1`和`s2`中所含的字符完全一样，则它们相等；`string`对象的相等性判断对字母的大小写敏感 |
-| `s1!=s2` | 同上 |
-| `<`, `<=`, `>`, `>=` | 利用字符在字典中的顺序进行比较，且对字母的大小写敏感（对第一个不相同的位置进行比较） |
-
-- string io：
-    - 执行读操作`>>`：忽略掉开头的空白（包括空格、换行符和制表符），直到遇到下一处空白为止。
-    - `getline`：读取一整行，**包括空白符**。
-- `s.size()`返回的时`string::size_type`类型，记住是一个**无符号**类型的值，不要和`int`混用
-- `s1+s2`使用时，保证至少一侧是string类型。`string s1 = "hello" + "world" // 错误，两侧均为字符串字面值`
-- **字符串字面值和string是不同的类型。**
-
-### 处理string对象中的字符
-
-- **ctype.h vs. cctype**：C++修改了c的标准库，名称为去掉`.h`，前面加`c`。
-  > 如c++版本为`cctype`，c版本为`ctype.h`
-  - **尽量使用c++版本的头文件**，即`cctype`
-
-`cctype`头文件中定义了一组标准函数：
-
-| 函数 | 解释 |
-|-----|-----|
-| `isalnum(c)` | 当`c`是字母或数字时为真 |
-| `isalpha(c)` | 当`c`是字母时为真 |
-| `iscntrl(c)` | 当`c`是控制字符时为真 |
-| `isdigit(c)` | 当`c`是数字时为真 |
-| `isgraph(c)` | 当`c`不是空格但可以打印时为真 |
-| `islower(c)` | 当`c`是小写字母时为真 |
-| `isprint(c)` | 当`c`是可打印字符时为真 |
-| `ispunct(c)` | 当`c`是标点符号时为真 |
-| `isspace(c)` | 当`c`是空白时为真（空格、横向制表符、纵向制表符、回车符、换行符、进纸符） |
-| `isupper(c)` | 当`c`是大写字母时为真 |
-| `isxdigit(c)` | 当`c`是十六进制数字时为真 |
-| `tolower(c)` | 当`c`是大写字母，输出对应的小写字母；否则原样输出`c` |
-| `toupper(c)` | 当`c`是小写字母，输出对应的大写字母；否则原样输出`c` |
-
-- 遍历字符串：使用**范围for**（range for）语句： `for (auto c: str)`，或者 `for (auto &c: str)`使用引用直接改变字符串中的字符。 （C++11）
-- `str[x]`,[]输入参数为`string::size_type`类型，给出`int`整型也会自动转化为该类型
-
-## vector
-- vector是一个**容器**，也是一个类模板；
-- `#include <vector>` 然后 `using std::vector;`
-- 容器：包含其他对象。
-- 类模板：本身不是类，但可以**实例化instantiation**出一个类。 `vector`是一个模板， `vector<int>`是一个类型。
-- 通过将类型放在类模板名称后面的**尖括号**中来指定**类型**，如`vector<int> ivec`。
-
-### 定义和初始化vector对象
-
-初始化`vector`对象的方法
-
-| 方法 | 解释 |
-|-----|-----|
-| `vector<T> v1` | `v1`是一个空`vector`，它潜在的元素是`T`类型的，执行默认初始化 |
-| `vector<T> v2(v1)` | `v2`中包含有`v1`所有元素的副本 |
-| `vector<T> v2 = v1` | 等价于`v2(v1)`，`v2`中包含`v1`所有元素的副本 |
-| `vector<T> v3(n, val)` | `v3`包含了n个重复的元素，每个元素的值都是`val` |
-| `vector<T> v4(n)` | `v4`包含了n个重复地执行了值初始化的对象 |
-| `vector<T> v5{a, b, c...}` | `v5`包含了初始值个数的元素，每个元素被赋予相应的初始值 |
-| `vector<T> v5={a, b, c...}` | 等价于`v5{a, b, c...}` |
-
-- 列表初始化： `vector<string> v{"a", "an", "the"};` （C++11）
-
-### 向vector对象中添加元素
-
-- `v.push_back(e)` 在尾部增加元素。
-  
-### 其他vector操作
-
-`vector`支持的操作：
-
-| 操作 | 解释 |
-|-----|-----|
-| `v.emtpy()` | 如果`v`不含有任何元素，返回真；否则返回假 |
-| `v.size()` |  返回`v`中元素的个数|
-| `v.push_back(t)` | 向`v`的尾端添加一个值为`t`的元素 |
-| `v[n]` | 返回`v`中第`n`个位置上元素的**引用** |
-| `v1 = v2` | 用`v2`中的元素拷贝替换`v1`中的元素  |
-| `v1 = {a,b,c...}` | 用列表中元素的拷贝替换`v1`中的元素 |
-| `v1 == v2` | `v1`和`v2`相等当且仅当它们的元素数量相同且对应位置的元素值都相同 |
-| `v1 != v2` | 同上 |
-| `<`,`<=`,`>`, `>=` | 以字典顺序进行比较 |
-
-- 范围`for`语句内不应该改变其遍历序列的大小。
-- `vector`对象（以及`string`对象）的下标运算符，只能对确知已存在的元素执行下标操作，不能用于添加元素。
-
-## 迭代器iterator
-
-- 所有标准库容器都可以使用迭代器。
-- 类似于指针类型，迭代器也提供了对对象的间接访问。
-
-### 使用迭代器
-
-- `vector<int>::iterator iter`。
-- `auto b = v.begin();`返回指向第一个元素的迭代器。
-- `auto e = v.end();`返回指向最后一个元素的下一个（哨兵，尾后,one past the end）的迭代器（off the end）。
-- 如果容器为空， `begin()`和 `end()`返回的是同一个迭代器，都是尾后迭代器。
-- 使用解引用符`*`访问迭代器指向的元素。
-- 养成使用迭代器和`!=`的习惯（泛型编程）。
-- **容器**：可以包含其他对象；但所有的对象必须类型相同。
-- **迭代器（iterator）**：每种标准容器都有自己的迭代器。`C++`倾向于用迭代器而不是下标遍历元素。
-- **const_iterator**：只能读取容器内元素不能改变。
-- **箭头运算符**： 解引用 + 成员访问，`it->mem`等价于 `(*it).mem`
-- **谨记**：但凡是使用了**迭代器**的循环体，都**不要**向迭代器所属的容器**添加元素**。
-
-标准容器迭代器的运算符:
-
-| 运算符 | 解释 |
-|-----|-----|
-| `*iter` | 返回迭代器`iter`所指向的**元素的引用** |
-| `iter->mem` | 等价于`(*iter).mem` |
-| `++iter` | 令`iter`指示容器中的下一个元素 |
-| `--iter` | 令`iter`指示容器中的上一个元素 |
-| `iter1 == iter2` | 判断两个迭代器是否相等 |
-
-### 迭代器运算
-
-`vector`和`string`迭代器支持的运算：
-
-| 运算符 | 解释 |
-|-----|-----|
-| `iter + n` | 迭代器加上一个整数值仍得到一个迭代器，迭代器指示的新位置和原来相比向前移动了若干个元素。结果迭代器或者指示容器内的一个元素，或者指示容器尾元素的下一位置。 |
-| `iter - n` | 迭代器减去一个整数仍得到一个迭代器，迭代器指示的新位置比原来向后移动了若干个元素。结果迭代器或者指向容器内的一个元素，或者指示容器尾元素的下一位置。 |
-| `iter1 += n` | 迭代器加法的复合赋值语句，将`iter1`加n的结果赋给`iter1` |
-| `iter1 -= n` | 迭代器减法的复合赋值语句，将`iter2`减n的加过赋给`iter1` |
-| `iter1 - iter2` | 两个迭代器相减的结果是它们之间的距离，也就是说，将运算符右侧的迭代器向前移动差值个元素后得到左侧的迭代器。参与运算的两个迭代器必须指向的是同一个容器中的元素或者尾元素的下一位置。 |
-| `>`、`>=`、`<`、`<=` | 迭代器的关系运算符，如果某迭代器 |
-
-- **difference_type**：保证足够大以存储任何两个迭代器对象间的距离，可正可负。
-
-## 数组
-
-- 相当于vector的低级版，**长度固定**。
-
-### 定义和初始化内置数组
-
-- 初始化：`char input_buffer[buffer_size];`，长度必须是const表达式，或者不写，让编译器自己推断。
-- 数组不允许直接赋值给另一个数组。
-
-### 访问数组元素
-
-- 数组下标的类型：`size_t` 。
-- 字符数组的特殊性：结尾处有一个空字符，如 `char a[] = "hello";` 。
-- 用数组初始化 `vector`： `int a[] = {1,2,3,4,5}; vector<int> v(begin(a), end(a));` 。
-
-### 数组和指针
-
-- 使用数组时，编译器一般会把它转换成指针。
-- 标准库类型限定使用的下标必须是无符号类型，而内置的下标可以处理负值。 
-- **指针访问数组**：在表达式中使用数组名时，名字会自动转换成指向数组的第一个元素的指针。
-
-## C风格字符串
-
-- 从C继承来的字符串。
-- 用空字符结束（`\0`）。
-- 对大多数应用来说，使用标准库 `string`比使用C风格字符串更安全、更高效。
-- 获取 `string` 中的 `cstring` ： `const char *str = s.c_str();` 。
-
-C标准库String函数，定义在`<cstring>` 中：
-
-| 函数 | 介绍 |
-|-----|-----|
-| `strlen(p)` | 返回`p`的长度，空字符不计算在内 |
-| `strcmp(p1, p2)` | 比较`p1`和`p2`的相等性。如果`p1==p2`，返回0；如果`p1>p2`，返回一个正值；如果`p1<p2`，返回一个负值。 |
-| `strcat(p1, p2)` | 将`p2`附加到`p1`之后，返回`p1` |
-| `strcpy(p1, p2)` | 将`p2`拷贝给`p1`，返回`p1` |
-
- **尽量使用vector和迭代器，少用数组**
-## 多维数组
-
-- **多维数组的初始化**： `int ia[3][4] = {{0,1,2,3}, ...}`。
-- 使用范围for语句时，除了最内层的循环外，其他所有循环的控制变量都应该是**引用**类型。
-
-## 指针vs引用
-
-- 引用总是指向某个对象，定义引用时没有初始化是错的。
-- 给引用赋值，修改的是该引用所关联的对象的值，而不是让引用和另一个对象相关联。
-
-## 指向指针的指针
-
-- 定义： `int **ppi = &pi;`
-- 解引用：`**ppi`
-
-## 动态数组
-
-- 使用 `new`和 `delete`表达和c中`malloc`和`free`类似的功能，即在堆（自由存储区）中分配存储空间。
-- 定义： `int *pia = new int[10];` 10可以被一个变量替代。
-- 释放： `delete [] pia;`，注意不要忘记`[]`。
-
-
-# 第四章 表达式
-
-## 表达式基础
-
-- **运算对象转换**：小整数类型会被提升为较大的整数类型
-- **重载运算符**：当运算符作用在类类型的运算对象时，用户可以自行定义其含义。
-- **左值和右值**：
-    - C中原意：左值**可以**在表达式左边，右值不能。
-    - `C++`：当一个对象被用作**右值**的时候，用的是对象的**值**（内容）；
-    - 被用做**左值**时，用的是对象的**身份**（在内存中的位置）。
-- **求值顺序**：`int i = f1() + f2()`
-  - 先计算`f1() + f2()`,再计算`int i = f1() + f2()`。但是f1和f2的计算**先后不确定**
-  - 但是，如果f1、f2都对同一对象进行了修改，因为顺序不确定，所以会编译出错，显示未定义
-
-## 算术运算符
-
-- **溢出**：当计算的结果超出该类型所能表示的范围时就会产生溢出。
-- **bool类型不应该参与计算**
-  ```cpp
-  bool b=true;
-  bool b2=-b;   //仍然为true
-  //b为true，提升为对应int=1，-b=-1
-  //b2=-1≠0，所以b2仍未true
-  ```
-- 取余运算m%n，结果符号与m相同
-
-## 逻辑运算符
-
-- **短路求值**：逻辑与运算符和逻辑或运算符都是先求左侧运算对象的值再求右侧运算对象的值，当且仅当左侧运算对象无法确定表达式的结果时才会计算右侧运算对象的值。**先左再右**
-- 小技巧，声明为引用类型可以避免对元素的拷贝，如下，如string特别大时可以节省大量时间。
-```cpp
-vector<string> text;
-for(const auto &s: text){
-  cout<<s;
 }
 ```
 
-## 赋值运算符
+### 静态成员
 
-- 赋值运算的**返回结果时它的左侧运算对象**，且是一个左值。类型也就是左侧对象的类型。
-- 如果赋值运算的左右侧运算对象类型不同，则右侧运算对象将转换成左侧运算对象的类型。
-- 赋值运算符满足**右结合律**，这点和其他二元运算符不一样。 `ival = jval = 0;`等价于`ival = (jval = 0);`
-- 赋值运算优先级比较低，使用其当条件时应该加括号。
-- 复合赋值运算符，**复合运算符只求值一次**，普通运算符求值两次。（对性能有一点点点点影响）
-  任意复合运算符op等价于`a = a op b;`
+① 静态成员就是在成员变量和成员函数前加上关键字static，称为静态成员。
 
-## 递增递减运算符
+② 静态成员分为：
 
-* 前置版本`j = ++i`，先加一后赋值
-* 后置版本`j = i++`，先赋值后加一
+1. 静态成员变量
 
-**优先使用前置**版本，后置多一步储存原始值。（除非需要变化前的值）
+- 所有对象共享同一份数据
+- 在编译阶段分配内存
+- 类内声明，类外初始化
 
-### 混用解引用和递增运算符
+2. 静态成员函数
 
-`*iter++`等价于`*(iter++)`，递增优先级较高
+- 所有对象共享同一个函数
+- 静态成员函数只能访问静态成员变量
 
-```c++
-auto iter = vi.begin();
-while (iter!=vi.end()&&*iter>=0)
-	cout<<*iter++<<endl;	// 输出当前值，指针向前移1
-```
+3. 调用静态成员函数有两种方法：
 
-> **简介是一种美德**，追求简洁能降低程序出错可能性
-
-## 成员访问运算符
-
-`ptr->mem`等价于`(*ptr).mem`
-
-注意`.`运算符优先级大于`*`，所以记得加括号
-
-## 条件运算符
-
-- 条件运算符（`?:`）允许我们把简单的`if-else`逻辑嵌入到单个表达式中去，按照如下形式：`cond? expr1: expr2`
-
-- 可以嵌套使用，**右结合律**，从右向左顺序组合
-
-  - ```c++
-    finalgrade = (grade > 90) ? "high pass"
-        : (grade < 60) ? "fail" : "pass";
-    //等价于
-    finalgrade = (grade > 90) ? "high pass"
-        : （(grade < 60) ? "fail" : "pass"）;
-    ```
-
-- 输出表达式使用条件运算符记得加括号，条件运算符优先级太低。
-
-## 位运算符
-
-用于检查和设置二进制位的功能。
-
-- 位运算符是作用于**整数类型**的运算对象。
-- 二进制位向左移（`<<`）或者向右移（`>>`），移出边界外的位就被舍弃掉了。
-- 位取反（`~`）（逐位求反）、与（`&`）、或（`|`）、异或（`^`）
-
-有符号数负值可能移位后变号，所以强烈建议**位运算符仅用于无符号数**。
-
-应用：
+- 通过对象调用
+- 通过类名调用
 
 ```c++
-unsigned long quiz1 = 0;    // 每一位代表一个学生是否通过考试
-1UL << 12;  // 代表第12个学生通过
-quiz1 |= (1UL << 12);   // 将第12个学生置为已通过
-quiz1 &= ~(1UL << 12);  // 将第12个学生修改为未通过
-bool stu12 = quiz1 & (1UL << 12);   // 判断第12个学生是否通过
+#include<iostream>
+using namespace std;
+
+class Person
+{
+public:
+    static int m_A;
+    int m_B;
+      static void func()
+    {
+        m_A = 100; //静态成员函数可以访问静态成员变量，这个数据是共享的，只有一份，所以不需要区分哪个对象的。                            
+        //m_B = 200; //静态成员函数不可以访问非静态成员变量，无法区分到底是哪个对象的m_B属性，非静态成员变量属于特定的对象上面
+        std::cout << "static void func调用" << std::endl;
+    }
+};
+//类外初始化
+int Person::m_A = 100;
+int main()
+{
+    Person p;
+    std::cout << p.m_A << endl;
+
+    Person p2;
+    p2.m_A = 200;
+
+    //100 ? 200，共享同一份数据，所以p.m_A为200
+    std::cout << p.m_A << endl;
+      //通过类名进行访问
+    std::cout << Person::m_A << endl;
+    std::cin.get();
+}
+/*输出
+100
+200
+200
+*/
 ```
 
-> 位运算符使用较少，但是重载cout、cin大家都用过
+### const修饰成员函数、mutable
 
-位运算符满足左结合律，优先级介于中间，使用时尽量加括号。
+常函数：
 
-## sizeof运算符
+1. 成员函数后加const后我们称这个函数为常函数。
+2. 常函数内不可以修改成员属性。
+3. 成员属性声明时加关键字mutable后，在常函数中依然可以修改，mutable主要用于debug。
 
-- 返回一条表达式或一个类型名字所占的**字节数**。
-- 返回的类型是 `size_t`的常量表达式。
-- `sizeof`并不实际计算其运算对象的值。
-- 两种形式：
-  1. `sizeof (type)`，给出类型名
-  2. `sizeof expr`，给出表达式
-- 可用sizeof返回数组的大小
+常对象：
+
+1. 声明对象前加const称该对象为常对象。
+2. 常对象只能调用常函数。
 
 ```c++
-int ia[10];
-// sizeof(ia)返回整个数组所占空间的大小
-// sizeof(ia)/sizeof(*ia)返回数组的大小
-constexpr size_t sz = sizeof(ia)/sizeof(*ia);
-int arr[sz];
+class TestClass
+{
+public:
+ mutable int count = 0;
+ int count1 = 0;
+ void print() const
+ {
+  std::cout << count << std::endl;
+  ++count;
+  //++count1;//报错
+ }
+
+};
+
 ```
 
-## 逗号运算符
+### this指针
 
-从左向右依次求值。
+1. 每一个非静态成员函数只会诞生一份函数实例，也就是说多个同类型的对象会公用一块代码。
+2. C++通过提供特殊的对象指针，this指针指向被调用的成员函数所属的对象。
+3. this指针是隐含每一个非静态成员函数内的一种指针。
+4. this指针不需要定义，直接使用即可。
 
-左侧求值结果丢弃，逗号运算符**结果是右侧表达式**的值。
+this指针的用途：
 
-## 类型转换
+- 当形参和成员变量同名时，可用this指针来区分。
+- 在类的非静态成员函数中返回对象本身，可使用return * this。
 
-### 隐式类型转换
+```c++
+#include <iostream>
+using namespace std;
 
-> 设计为尽可能避免损失精度，即转换为更精细类型。
+class Person
+{
+public:
+    Person(int age)
+    {
+        this->age = age;  
+                          //如果这里是 age = age；那么编译器会将这两个age和上面的形参age当做同一个age，因此age并没有赋值                
+    }
+  
+    //如果用值的方式返回，Person PersonAddAge(Person& p){}，它返回的是本体拷贝的对象p'，而不是本体p                                 
+    Person& PersonAddAge(Person& p) //要返回本体的时候，要用引用的方式返回
+    {
+        this->age += p.age;
+        return *this;
+    }
+    int age; 
+};
 
-- 比 `int`类型小的整数值先提升为较大的整数类型。
-- 条件中，非布尔转换成布尔。
-- 初始化中，初始值转换成变量的类型。
-- 算术运算或者关系运算的运算对象有多种类型，要转换成同一种类型。
-- 函数调用时也会有转换。
+int main()
+{
 
-#### 算术转换
+    Person p1(10);
+    Person p2(10);
 
-##### 整型提升
+    //链式编程思想
+    p2.PersonAddAge(p1).PersonAddAge(p1).PersonAddAge(p1);
 
-* 常见的char、bool、short能存在int就会转换成int，否则提升为`unsigned int`
-* `wchar_t,char16_t,char32_t`提升为整型中`int,long,long long ……`最小的，且能容纳原类型所有可能值的类型。
+    cout << "p2的年龄为：" << p2.age << endl;
 
+    std::cin.get();
 
-
-### 显式类型转换（尽量避免）
-
-- **static_cast**：任何明确定义的类型转换，只要不包含底层const，都可以使用。 `double slope = static_cast<double>(j);`
-
-- **dynamic_cast**：支持运行时类型识别。
-
-- **const_cast**：只能改变运算对象的底层const，一般可用于去除const性质。 `const char *pc; char *p = const_cast<char*>(pc)`
-
-  > 只有其可以改变常量属性
-
-- **reinterpret_cast**：通常为运算对象的位模式提供低层次上的重新解释。
-
-#### 旧式强制类型转换
-
-`type expr`
-
-
-# 第五章 语句
-
-## 简单语句
-
-- **表达式语句**：一个表达式末尾加上分号，就变成了表达式语句。
-- **空语句**：只有一个单独的分号。
-- **复合语句（块）**：用花括号 `{}`包裹起来的语句和声明的序列。一个块就是一个作用域。
-
-## 条件语句
-
-- **悬垂else**（dangling else）：用来描述在嵌套的`if else`语句中，如果`if`比`else`多时如何处理的问题。C++使用的方法是`else`匹配最近没有配对的`if`。
-
-## 迭代语句
-
-- **while**：当不确定到底要迭代多少次时，使用 `while`循环比较合适，比如读取输入的内容。
-- **for**： `for`语句可以省略掉 `init-statement`， `condition`和 `expression`的任何一个；**甚至全部**。
-- **范围for**： `for (declaration: expression) statement`
-
-## 跳转语句
-
-- **break**：`break`语句负责终止离它最近的`while`、`do while`、`for`或者`switch`语句，并从这些语句之后的第一条语句开始继续执行。
-- **continue**：终止最近的循环中的当前迭代并立即开始下一次迭代。只能在`while`、`do while`、`for`循环的内部。
-
-## try语句块和异常处理
-
-- **throw表达式**：异常检测部分使用 `throw`表达式来表示它遇到了无法处理的问题。我们说 `throw`引发 `raise`了异常。
-- **try语句块**：以 `try`关键词开始，以一个或多个 `catch`字句结束。 `try`语句块中的代码抛出的异常通常会被某个 `catch`捕获并处理。 `catch`子句也被称为**异常处理代码**。
-- **异常类**：用于在 `throw`表达式和相关的 `catch`子句之间传递异常的具体信息。
-
-
-# 第六章 函数
-
-## 函数基础
-
-- **函数定义**：包括返回类型、函数名字和0个或者多个**形参**（parameter）组成的列表和函数体。
-- **调用运算符**：调用运算符的形式是一对圆括号 `()`，作用于一个表达式，该表达式是函数或者指向函数的指针。
-- 圆括号内是用逗号隔开的**实参**（argument）列表。
-- 函数调用过程：
-  - 1.主调函数（calling function）的执行被中断。
-  - 2.被调函数（called function）开始执行。
-- **形参和实参**：形参和实参的**个数**和**类型**必须匹配上。
-- **返回类型**： `void`表示函数不返回任何值。函数的返回类型不能是数组类型或者函数类型，但可以是指向数组或者函数的指针。
-- **名字**：名字的作用于是程序文本的一部分，名字在其中可见。
-
-### 局部对象
-
-- **生命周期**：对象的生命周期是程序执行过程中该对象存在的一段时间。
-- **局部变量**（local variable）：形参和函数体内部定义的变量统称为局部变量。它对函数而言是局部的，对函数外部而言是**隐藏**的。
-- **自动对象**：只存在于块执行期间的对象。当块的执行结束后，它的值就变成**未定义**的了。
-- **局部静态对象**： `static`类型的局部变量，生命周期贯穿函数调用前后。
-
-### 函数声明
-
-- **函数声明**：函数的声明和定义唯一的区别是声明无需函数体，用一个分号替代。函数声明主要用于描述函数的接口，也称**函数原型**。
-- **在头文件中进行函数声明**：建议变量在头文件中声明；在源文件中定义。
-- **分离编译**： `CC a.cc b.cc`直接编译生成可执行文件；`CC -c a.cc b.cc`编译生成对象代码`a.o b.o`； `CC a.o b.o`编译生成可执行文件。
-
-## 参数传递
-
-- 形参初始化的机理和变量初始化一样。
-- **引用传递**（passed by reference）：又称传引用调用（called by reference），指**形参是引用类型**，引用形参是它对应的实参的别名。
-- **值传递**（passed by value）：又称传值调用（called by value），指实参的值是通过**拷贝**传递给形参。
-
-### 传值参数
-
-- 当初始化一个非引用类型的变量时，初始值被拷贝给变量。
-- 函数对形参做的所有操作都不会影响实参。
-- **指针形参**：常用在C中，`C++`建议使用引用类型的形参代替指针。
-
-### 传引用参数
-
-- 通过使用引用形参，允许函数改变一个或多个实参的值。
-- 引用形参直接关联到绑定的对象，而非对象的副本。
-- 使用引用形参可以用于**返回额外的信息**。
-- 经常用引用形参来避免不必要的复制。
-- `void swap(int &v1, int &v2)`
-- 如果无需改变引用形参的值，最好将其声明为常量引用。
-
-### const形参和实参
-
-- 形参的顶层`const`被忽略。`void func(const int i);`调用时既可以传入`const int`也可以传入`int`。
-- 我们可以使用非常量初始化一个底层`const`对象，但是反过来不行。
-- 在函数中，不能改变实参的**局部副本**。
-- 尽量使用常量引用。
-
-### 数组形参
-
-- 当我们为函数传递一个数组时，实际上传递的是指向数组首元素的指针。
-- 要注意数组的实际长度，不能越界。
-
-### main处理命令行选项
-
-- `int main(int argc, char *argv[]){...}`
-- 第一个形参代表参数的个数；第二个形参是参数C风格字符串数组。
-
-### 可变形参
-
-`initializer_list`提供的操作（`C++11`）：
-
-| 操作 | 解释 |
-|-----|-----|
-| `initializer_list<T> lst;` | 默认初始化；`T`类型元素的空列表 |
-| `initializer_list<T> lst{a,b,c...};` | `lst`的元素数量和初始值一样多；`lst`的元素是对应初始值的副本；列表中的元素是`const`。 |
-| `lst2(lst)` | 拷贝或赋值一个`initializer_list`对象不会拷贝列表中的元素；拷贝后，原始列表和副本共享元素。 |
-| `lst2 = lst` | 同上 |
-| `lst.size()` | 列表中的元素数量 |
-| `lst.begin()` | 返回指向`lst`中首元素的指针 |
-| `lst.end()` | 返回指向`lst`中微元素下一位置的指针 |
-
-`initializer_list`使用demo：
-
-```cpp
-void err_msg(ErrCode e, initializer_list<string> il){
-    cout << e.msg << endl;
-    for (auto bed = il.begin(); beg != il.end(); ++ beg)
-        cout << *beg << " ";
-    cout << endl;
+    return 0;
 }
 
-err_msg(ErrCode(0), {"functionX", "okay});
 ```
 
-- 所有实参类型相同，可以使用 `initializer_list`的标准库类型。
-- 实参类型不同，可以使用`可变参数模板`。
-- 省略形参符： `...`，便于`C++`访问某些C代码，这些C代码使用了 `varargs`的C标准功能。
+### 符号重载
 
-## 返回类型和return语句
+1. 运算符重载：对已有的运算符重新进行定义，赋予其另一种功能，以适应不同的数据类型。
+2. 对于内置的数据类型的表达式的运算符是不可能改变的。
 
-### 无返回值函数
+#### 加号运算符重载
 
-没有返回值的 `return`语句只能用在返回类型是 `void`的函数中，返回 `void`的函数不要求非得有 `return`语句。
+```c++
+Person operator+(Person &p1, Person &p2)
+{
+    Person temp;
+    temp.m_A = p1.m_A + p2.m_A;
+    temp.m_B = p1.m_B + p2.m_B;
+    return temp;
+}
+```
 
-### 有返回值函数
+#### 左移运算符重载
 
-- `return`语句的返回值的类型必须和函数的返回类型相同，或者能够**隐式地**转换成函数的返回类型。
-- 值的返回：返回的值用于初始化调用点的一个**临时量**，该临时量就是函数调用的结果。
-- **不要返回局部对象的引用或指针**。
-- **引用返回左值**：函数的返回类型决定函数调用是否是左值。调用一个返回引用的函数得到左值；其他返回类型得到右值。
-- **列表初始化返回值**：函数可以返回花括号包围的值的列表。（`C++11`）
-- **主函数main的返回值**：如果结尾没有`return`，编译器将隐式地插入一条返回0的`return`语句。返回0代表执行成功。
+```c++
+#include <iostream>
+using namespace std;
 
-### 返回数组指针
+//左移运算符
+class Person
+{   
+private:
+    int m_A;
+    int m_B;
+};
+//如果返回类型为void，那么就无法无限追加，也没有办法在后面添加换行符
+ostream & operator<<(ostream &cout, Person &p)   
+{
+    cout << "m_A= " << p.m_A << " m_B=" << p.m_B;
+    return cout;
+}
 
-- `Type (*function (parameter_list))[dimension]`
-- 使用类型别名： `typedef int arrT[10];` 或者 `using arrT = int[10;]`，然后 `arrT* func() {...}`
-- 使用 `decltype`： `decltype(odd) *arrPtr(int i) {...}`
-- **尾置返回类型**： 在形参列表后面以一个`->`开始：`auto func(int i) -> int(*)[10]`（`C++11`）
+int main()
+{
+    Person p(10,10);
 
-## 函数重载
+    cout << p << " hello world" << endl;
+    std::cin.get();
+    return 0;
+}
 
-- **重载**：如果同一作用域内几个函数名字相同但形参列表不同，我们称之为重载（overload）函数。
-- `main`函数不能重载。
-- **重载和const形参**：
-  - 一个有顶层const的形参和没有它的函数无法区分。 `Record lookup(Phone* const)`和 `Record lookup(Phone*)`无法区分。
-  - 相反，是否有某个底层const形参可以区分。 `Record lookup(Account*)`和 `Record lookup(const Account*)`可以区分。
-- **重载和作用域**：若在内层作用域中声明名字，它将隐藏外层作用域中声明的同名实体，在不同的作用域中无法重载函数名。
+```
+
+### 继承
+
+范例:
+
+```c++
+#include <iostream>
+using namespace std;
+class Ball
+{
+public:
+  int diameter;
+  void hit()
+    {
+      std::cout<<"ball has been hited"<<std::endl;
+    }
+  
+  void print()
+    {
+      std::cout<<"this is a ball"<<std::endl;
+    }
+};
+
+
+class Football:public Ball
+{
+  public:
+    int color[3];
+
+}
+
+```
+
+#### 三种继承改变权限
+
+1. 继承的语法：class 子类：继承方式 父类
+2. 继承方式一共有三种：
+
+- 公共继承
+- 保护继承
+- 私有继承
+
+3. 不同的继承方式，父类中的变量被继承后，权限相应的得到了改变，如下图所示。
+
+![2023-08-09-11-18-47](https://cdn.jsdelivr.net/gh/pleb631/ImgManager@main/img/2023-08-09-11-18-47.png)
+
+#### 继承后同名函数的处理
+
+1. 子类对象可以直接访问到子类中同名成员。
+2. 子类对象加作用域可以访问到父类同名成员。
+3. 当子类与父类拥有同名的成员函数，子类会隐藏父类中所有同名成员函数(有参、无参)，加作用域才可以访问到父类中同名函数。
+4. 静态函数下,子类和分类不会共用同一份数据
+
+```c++
+//同名成员属性处理方式
+void test01()
+{
+    Son s;
+    cout << "Son 下 m_A=" << s.m_A << endl;
+    //如果通过子类对象访问到父类中同名成员，需要加作用域
+    cout << "Base 下 m_A=" << s.Base::m_A << endl;  
+
+}
+```
+
+#### 多继承语法
+
+1. C++运行一个类继承多个类。
+2. 语法：`class 子类：继承方式 父类1，继承方式 父类2，.....`
+3. 多继承可能会引发父类中有同名成员出现，需要加作用域区分。
+4. C++实际开发中不建议用多继承。
+
+#### 菱形继承
+
+菱形继承概念:
+
+1. 两个派生类继承同一个基类
+2. 又有某个类同时继承两个派生类
+3. 这种继承被称为菱形继承
+
+### 多态、虚函数
+
+静态的多态：函数重载,看起来调用同一个函数却有不同的行为。静态：原理是编译时实现。
+动态的多态：一个父类的引用或指针去调用同一个函数，传递不同的对象，会调用不同的函数。动态：原理是运行时实现。
+
+在继承中要构成多态两个条件：
+
+1. 必须通过基类的指针或者引用调用虚函数。
+2. 被调用的函数必须是虚函数，且派生类必须对基类的虚函数进行重写。
+
+虚函数：即被virtual修饰的类成员函数称为虚函数。一旦定义了虚函数，该基类的派生类中同名函数也自动成为了虚函数。也就是说在派生类中有一个和基类同名的函数，只要基类加了virtual修饰，派生类不加virtual修饰也是虚函数。虚函数只能是类中的一个成员函数，不能是静态成员或普通函数。
+
+如下面代码中，doSpeak函数入口是基类，但是可以输入派生类，且因为虚函数的覆写，可以产生不同的结果
+
+```c++
+#include <iostream>
+using namespace std;
+
+class Animal
+{
+public:
+    virtual void speak()
+    {
+        cout << "动物在说话" << endl;
+    }
+};
+
+//猫类
+class Cat:public Animal
+{
+public:
+    //重写 函数返回值类型、函数名、参数列表都完全相同才叫重写
+    void speak()   override//子类virtual,override可写可不写，也可以写 virtual void speak()
+    {
+        cout << "小猫在说话" << endl;
+    }
+};
+
+//狗类
+class Dog:public Animal
+{
+public:
+    virtual void speak() override
+    {
+        cout << "小狗在说话" << endl;
+    }
+};
+
+
+void doSpeak(Animal &animal)  // Animal & animal = cat
+{
+    animal.speak();
+}
+
+int main()
+{
+    Cat cat;
+    doSpeak(cat);
+
+    Dog dog;
+    doSpeak(dog);
+}
+
+```
+
+#### 纯虚函数和抽象类
+
+1. 在多态中，通常父类中虚函数的实现时毫无意义的，主要都是调用子类重写的内容。因此，可以将虚函数改为纯虚函数。
+2. 纯虚函数语法：`virtual 返回值类型 函数名 (参数列表) = 0;`
+3. 当类中有了纯虚函数，这个类也称为抽象类。
+
+④ 抽象类特点：
+
+1. 无法实例化对象
+2. 子类必须重写抽象类中的纯虚函数，否则也属于抽象类。
+
+```c++
+#include <iostream>
+using namespace std;
+
+//纯虚函数和抽象类
+class Base
+{
+public:
+    virtual void func() = 0;
+};
+
+class Son : public Base
+{
+public:
+    virtual void func()
+    {
+        cout << "func函数调用" << endl;
+     }
+};
+
+```
+
+### 隐式转换和显式转换
+
+explicit：该构造函数是显示的。
+
+implicit：该构造函数是隐式的（默认）
+
+其用处是修饰类构造函数
+
+如果是显示的会被阻止，在编译时无法自动转为对象。
+
+如果时隐私的会被放行。
+
+```c++
+#include <iostream>
+using namespace std;
+class Cat
+{
+public :
+ Cat(int num):n(num){}  // 默认为 implicit
+private:
+ int n;
+};
+class Mouse
+{
+public :
+ explicit Mouse(int num):n(num){}
+private:
+ int n;
+};
+ 
+int main()
+{
+ Cat    t1 = 12; // 编译通过12会自动转为Cat对象赋值到构造函数
+ Mouse  t2(13);  // 编译通过，
+ Mouse  t3 = 14; // 在编译时，这个地方会报错，因为这个时显示的，因此不能直接转为Test2对象
+  
+ return 0;
+}
+```
+
+### 拷贝赋值函数
+
+c++默认提供一个拷贝构造函数，拷贝构造函数的函数签名对同样的类对象的常引用const &。它的作用是内存复制，将other对象的内存浅层拷贝进这些成员变量。形如以下:
+
+```c++
+Entity(const Entity& other)//拷贝构造函数
+ {
+    memcpy(this,&other,sizeof(other));
+ }
+
+```
+
+如下代码，a和b是两个独立的变量，它们有不同的内存地址，若将b=3则a仍然是2。在Vector2类中是同样的原理，c.x仍然会是2。若要在堆中使用new关键字来进行分配则复制了指针，e和f两个指针本质上有相同的值(内存地址)，但是如果访问这个内存地址并设为某个值，则会同时影响e和f。
+
+```c++
+#include<iostream>
+struct Vector2
+{
+ float x, y;
+};
+
+int main()
+{
+ int a = 5;
+ int b = a;
+
+ Vector2 c = { 2,3 };
+ Vector2 d = c;
+ d.x = 5;
+
+ Vector2* e = new Vector2();
+ Vector2* f = e;
+ f->x = 2;
+ std::cout << f->x<<std::endl;
+ std::cout << e->x << std::endl;
+ std::cin.get();
+}
+/*输出
+2
+2
+*/
+```
+
+使用C++原始特性写一个字符串类，在有new关键字和指针变量，应自己覆写拷贝函数、析构函数进行深拷贝。不然，两个实例中的指针会都指向同一块内寸，之后在调用析构函数时程序就会崩溃。
+
+使用标准的std::cout来打印字符串，需要重载左移字符串。将运算符的重载函数作为这个类的友元，就可以从函数中访问m_Buffer
+
+```c++
+#include<iostream>
+
+class String
+{
+private:
+ char* m_Buffer;
+ unsigned int m_Size;
+public:
+ String(const char* string)
+ {
+  m_Size = strlen(string);
+  m_Buffer = new char[m_Size+1];//+1是为了复制'\0'
+  memcpy(m_Buffer, string, m_Size+1);
+ }
+
+ ~String()
+ {
+  delete[] m_Buffer;
+ }
+
+ friend std::ostream& operator<<(std::ostream& stream, const String& string);//友元
+};
+
+std::ostream& operator<<(std::ostream& stream, const String& string)//重载
+{
+ stream << string.m_Buffer;
+ return stream;
+}
+
+
+int main()
+{
+ String string = "Cherno";
+ std::cout << string << std::endl;
+
+ std::cin.get();
+}
+
+
+```
+
+## new
+
+new其实就是告诉计算机开辟一段新的空间，但是和一般的声明不同的是，new开辟的空间在堆上，而一般声明的变量存放在栈上。通常来说，当在局部函数中new出一段新的空间，该段空间在局部函数调用结束后仍然能够使用，可以用来向主函数传递参数。另外需要注意的是，new的使用格式，new出来的是一段空间的首地址。所以一般需要用指针来存放这段地址
+
+下面两段代码在功能上的区别是前者进行了初始化，后者只分配了空间
+
+```c++
+
+Entity* e = new Entity()；
+Entity* e = (Entity*)malloc(sizeof(Entity))；
+```
+
+## 栈作用域生存期
+
+ 栈可以被认为是一种数据结构，可以在上面堆叠一些东西。每次在c++中进入一个作用域都是在push栈帧，它不一定非得是将数据push进一个栈帧。可以想象把一本书放入书堆上，在此作用域内（这本书内）声明的变量就像是在书里写东西，一旦作用域结束，将这本书从书堆中拿出来，书中栈里创造的所有对象就会消失。
+
+如果我们想在堆上创建一个类，然后想在离开作用域时销毁它。下面代码我们不用new来创建Entity而是用ScopedPtr，一旦我们超出作用域它就会被销毁，因为ScopedPtr类的对象是在栈上分配的。当e被自动删除时，在析构函数中会delete这个被包装的Entity指针。即使用new来做堆分配。
+
+```c++
+#include <iostream>
+#include <string>
+
+using namespace std;
+
+class Entity
+{
+public:
+    Entity()
+    {
+        cout << "initial" << endl;
+
+    }
+    ~Entity()
+    {
+        cout << "del" << endl;
+
+    }
+};
+class ptr
+{
+private:
+    Entity* p;
+public:
+    ptr(Entity* e) :
+        p(e) {}
+    ~ptr()
+    {
+        delete p;
+    }
+
+};
+int main()
+{
+    {
+        ptr p(new Entity);
+    }
+    cin.get();
+    return 0;
+}
+```
+
+## 箭头运算符
+
+<<<<<<< HEAD
+
+=======
+
+>>>>>>> 9cc837a255b128768da7d43a0cfa527cd65ddf77
+>>>>>>> 可以使用箭头操作符来获取内存中某个成员变量的偏移量。假设有一个Vector3结构体有三个浮点数分量xyz，若想要找出这个变量在内存中的偏移量，例如x偏移量是0，y是4，z是8。
+>>>>>>>
+>>>>>>
+>>>>>
+>>>>
+>>>
+>>
+
+```c++
+#include<iostream>
+#include<string>
+
+struct Vector3
+{
+ float x, y, z;
+
+};
+
+int main()
+{
+ int offse_x = (int)&((Vector3*)0)->x; 
+ //int offse_x = (int)&((Vector3*)nullptr)->x;
+ int offse_y = (int)&((Vector3*)0)->y; 
+ //int offse_y = (int)&((Vector3*)nullptr)->y;
+ int offse_z = (int)&((Vector3*)0)->z; 
+ //int offse_z = (int)&((Vector3*)nullptr)->z;
+ std::cout << offse_x << std::endl;
+ std::cout << offse_y << std::endl;
+ std::cout << offse_z << std::endl;
+
+
+ std::cin.get();
+}
+<<<<<<< HEAD
+```
+
+## 重载
+
+待补
+
+## 动态数组(std::vector)
+
+ C++提供给我们一个叫做Vector的类，这个Vector在std命名空间中，它应该被称为ArrayList，本质上是一个动态数组(不是向量)。在创建动态数组时(Vector)，它没有固定大小(可以给一个特定大小来初始化)。创建Vector后每次往里面添加一个元素，Vector的数组大小会增长。当添加的元素超过Vector数组的大小时，它会在内存中创建一个比第一个大的新数组，把所有东西都复制到这里，然后删除旧的那个。
+
+```c++
+#include<iostream>
+#include<string>
+#include<vector>
+
+struct Vertex
+{
+ float x, y, z;
+};
+
+//输出运算符的重载
+std::ostream& operator<<(std::ostream& stream, const Vertex& vertex)
+{
+ stream << vertex.x << "," << vertex.y << "," << vertex.z;
+
+ return stream;
+}
+
+int main()
+{
+ std::vector<Vertex> vertices;
+ std::cin.get();
+}
+
+
+```
+
+注意这里并没有存储一堆vertex指针，实际上只是把vertex存储在一条直线(在一段内存)上。如果是vertex对象则它的内存分配将是一条线上的，而动态数组是内存连续的数组，这意味着它在内存中不是碎片，内容都在一条高速缓存线上。那么如何向vector中添加一些东西，只需要输入vertices.push_back();。因为vector是一个完整的类，所以知道它的大小(vertices.size())。
+
+```c++
+int main()
+{
+ std::vector<Vertex> vertices;
+ vertices.push_back({ 1,2,3 });
+ vertices.push_back({ 4,5,6 });
+ 
+ for (int i = 0; i < vertices.size(); i++)
+ {
+  std::cout << vertices[i] << std::endl;
+ }
+    // for (Vertex& v: vertices)
+ // {
+ //  std::cout << v << std::endl;
+//  }
+
+vertices.clear();//清空
+ std::cin.get();
+}
+```
+
+以下代码打印六次"Copied!"
+
+```c++
+
+
+#include<iostream>
+#include<string>
+#include<vector>
+
+struct Vertex
+{
+ float x, y, z;
+
+ Vertex(float x, float y, float z)
+  : x(x), y(y), z(z) {}
+
+    Vertex(const Vertex& vertex)//若是写简单的拷贝构造函数可以不需要初始化成员列表
+  : x(vertex.x), y(vertex.y), z(vertex.z)
+ {
+  std::cout << "Copied!" << std::endl;
+ }
+
+};
+
+int main()
+{
+ std::vector<Vertex> vertices;
+ vertices.push_back(Vertex(1,2,3));
+ vertices.push_back(Vertex(4,5,6));
+ vertices.push_back(Vertex(7,8,9));
+
+ std::cin.get();
+}
+
+
+```
+
+首先，这是因为每次 `vertices.push_back(Vertex(1,2,3));`相当于先创建了一个Vertex，然后把这个Vertex复制给vector，正确的方式是使用 `emplace_back`,创建元素后直接移动给vector
+
+```c++
+
+vertices.emplace_back(1,2,3)
+```
+
+其次vector每次增加元素后都会开辟新内存，然后把旧内存的内容复制过去，所以这边反复创建了新元素，正确的做法是在添加元素前预先申请足够的空间
+
+```c++
+ vertices.reverse(3)//申请了三个空间
+```
+
+## C++中如何处理多返回值
+
+本文是ChernoP52视频的学习笔记。
+  若有一个函数需要返回两个字符串，有很多不同的方法可以实现。但在C++的默认情况下不能返回两种类型。若一个函数需要返回两个或多个相同类型的变量，则可以返回vector或数组。
+
+### 结构体
+
+  若有个函数叫ParseShader需要返回两个字符串。可以选择的解决方法是：创建一个叫做ShadweProgramSource的结构体，它只包含这两个字符串。若还想返回一个整数或其他不同类型的东西，可以把它添加到结构体中并返回它。
+
+```
+struct ShaderProgramSource
+{
+std::string VertexSource;
+std::string FragmentSource;
+int a;
+}
+static ShaderProgramSource ParseShader(const std::string& filepath)
+{
+
+}
+return {vs,fs};
+```
+
+### 数组
+
+  C++也提供了其他不同的处理方式。一种简单的方法就是返回一个数组，我们可以返回一个数组就像返回一个std::string\*指针。这是一个2个元素的数组，我们可以传入VertexSource或者FragmentSource。
+
+```c++
+static std::string* ParseShader(const std::string& filepath)
+{
+
+}
+return new std::string[]{vs,fs};
+```
+
+由于使用new导致了堆分配的发生，所以要以下设置。
+
+```c++
+std::string* sources=ParseShader(filepath);
+```
+
+  还可以返回一个std::array，类型是string，大小是2。
+
+```c++
+#include <array>
+static std::array<std::string,2> ParseShader(const std::string& filepath)
+{
+
+}
+return std::array<std::string,2> (vs,fs);
+```
+
+  或者
+
+```c++
+std::array<std::string,2>results;
+results[0]=vs;
+results[1]=fs;
+return results;
+```
+
+### vector
+
+  若返回两种以上则可以使用vector。它和array的区别是array在栈上创建，而vector会把它的底层存储在堆上，所以std::array会更快。
+
+```c++
+#include<vector>
+static std::vector<std::string> ParseShader(const std::string& filepath)
+{
+
+}
+std::vector<std::string>results;
+results[0]=vs;
+results[1]=fs;
+return results;
+```
+
+### tuple
+
+  vector和array只有在类型相同的情况下才有效。若类型会发生变化有两种方式，一种叫做tuple(元组)的东西，另一个叫做pair。tuple基本上是一个类，它可以包含x个变量但它不关心类型。tuple在functional里面，utitly提供了make\_tuple这样的工具。
+
+```c++
+#include<utitly>
+#include<functional>
+static std::tuple<std::string,std::string,int> ParseShader(const std::string& filepath)//增添int
+{
+
+}
+return std::make_pair(vs,fs);
+std::tuple<std::string,std::string> sources=ParseShader(filepath);
+//auto sources=ParseShader("res/shaders/Basic.shader");
+```
+
+  从tuple里获取数据需要使用std::get，
+
+```c++
+std::string vs=std::get<0>(sources);
+```
+
+### pair
+
+  在这个例子中有两个返回值，所以可以返回一个std::pair。它与tuple的区别是返回值是2个字符串，也可以使用std::get或者sources.first，sources.second。
+
+```c++
+static std::pair<std::string,std::string> ParseShader(const std::string& filepath)
+{
+
+}
+```
+
+由于并不能知道第一个变量和第二个变量是什么，所以还是建议使用[struct结构体]
+
+## 模板
+
+```c++
+template <typename 形参名, typename 形参名...>     //模板头（模板说明）
+
+返回值类型  函数名（参数列表）                   //函数定义
+
+{
+
+        函数体;
+
+}
+```
+
+1. template是声明模板的关键字，告诉编译器开始泛型编程。
+2. 尖括号<>中的typename是定义形参的关键字，用来说明其后的形参名为类型参数（模板形参。Typename（建议用）可以用class关键字代替，两者没有区别。
+3. 模板形参（类属参数）不能为空（俗成约定用一个大写英文字母表示），且在函数定义部分的参数列表中至少出现一次。与函数形参类似，可以用在函数定义的各个位置：返回值、形参列表和函数体。
+4. 函数定义部分：与普通函数定义方式相同，只是参数列表中的数据类型要使用尖括号<>中的模板形参名来说明。当然也可以使用一般的类型参数。
+
+```c++
+#include<iostream>
+#include<string>
+
+template<typename T>//typename也可以写成class
+
+void Print(T value)
+{
+ std::cout << value << std::endl;
+}
+
+int main()
+{
+ Print(5);//T替换为int
+ Print("Hello");
+ Print(5.5f);
+ std::cin.get();
+}
+
+```
+
+这里看上去是显示地指定类型，其实这个类型是**隐式**地从实际参数中得到的。我们还可以调用Print使用尖括号指定类型。
+
+```c++
+Print<int>(5);
+
+```
+
+若我们不写任何东西，完全没有使用Print函数那么它就没有真正存在过。这个Print函数只是一个模板，只有当调用时才会被实际创建。
+
+我们也可以不用类型作为模板参数，作用在类上而不是函数上。我们创建一个在栈上的Array类，里面的数组大小是在编译时确定的，不能直接输入一个变量size之类。
+
+```c++
+class Array
+{
+private:
+ int m_Array[size];
+};
+
+```
+
+因为这是一个栈分配的数组，所以在编译时就需要知道它。显然我们可以使用动态分配栈内存(alloca)或者其他，但我们只想在栈上创建一个普通的C语言风格的数组。因此size值要在编译时就要知道，而模板会在编译期被评估处理。所以正好将类转换成一个模板，但不用typename作为模板参数。我们可以使用int然后将数量命名为N，这里就不用size而是改成N，最后的public函数返回这个数组的大小。
+
+```c++
+#include<iostream>
+#include<string>
+
+template<int N>
+
+class Array
+{
+private:
+ int m_Array[N];
+public:
+ int Getsize() const { return N; }
+};
+
+int main()
+{
+ std::cin.get();
+}
+
+```
+
+若不是显示地指定int，想让这个类型是可变的。因此希望能够在编译时指定这个数组实际包含的类型，可以添加另一个模板参数，在数字面前添加这个参数。
+
+```c++
+#include<iostream>
+#include<string>
+
+template<typename T,int N>
+
+class Array
+{
+private:
+ int T[N];
+public:
+ int Getsize() const { return N; }
+};
+
+int main()
+{
+ Array<int,4> array;
+ std::cin.get();
+}
+
+```
+
+## size_t,size_type, typedef和decltype
+
+1. typedef
+   系统默认的所有基本类型都可以利用 `typedef` 关键字来重新定义类型名
+
+   ```c++
+   typedef double my_double;
+   //以下两句的效果是一样的
+   double a;
+   my_double a;
+
+   ```
+
+2. decltype
+   decltype的作用是**选择并返回操作数的数据类型**
+
+   ```c++
+   int A;
+   //以下两句的效果是一样的
+   int B;
+   decltype(A) B;
+   ```
+
+3. size_t 和 size_type
+
+   - size_t and size_type是为了独立于及其设备而定义的类型；比如在这个电脑上int为2字  节，另一台上电脑是4字节，所以经常使用size_t和size_type而不是 `int unsigned`可以    让程序有更好的移植性。
+     size_t是一种全局类型，它的定义如下
+
+     ```c++
+     typedef unsigned int size_t
+     ```
+
+   - size_type属于容器概念,本质上是一样的,但是size_t是在全局命名空间里，size_type在string里（`string::size_type`）或vector命名空间里（`vector::size_type`）,在使用STL中表明容器长度的时候，我们一般用size_type。
+
+## 初始化
+
+### 聚合初始化
+
+聚合初始化是针对数组或者类类型（通常为结构或者联合）的一种列表初始化形式。类类型（常为 struct 或 union）必须符合下面条件：
+
+- 没有私有或者受保护非静态数据成员
+- 没有用户声明的构造函数
+- 没有用户提供的构造函数（允许显式预置或弃置的构造函数）
+- 没有用户提供、继承或 explicit 构造函数（允许显式预置或弃置的构造数）
+- 没有用户声明或者继承的构造函数
+- 没有虚、私有或受保护 (C++17 起)基类
+- 没有虚拟成员函数
+- 无默认成员初始化器(C++11 起)(C++14 前)
+
+#### 语法
+
+```c++
+
+T object = {arg1, arg2, ...};
+T object {arg1, arg2, ...};
+T object (arg1, arg2, ...);//c++ 20起
+```
+
+
 
 ## 特殊用途语言特性
 
-### 默认实参
 
-- `string screen(sz ht = 24, sz wid = 80, char backgrnd = ' ');`
-- 一旦某个形参被赋予了默认值，那么它之后的形参都必须要有默认值。
+### 宏
 
+宏提供了一种机制，能够使你在编译期替换代码中的符号或者语句。当你的代码中存在大量相似的、重复的代码时，使用宏可以极大的减少代码量，便于书写。
+
+```c++
+#include<iostream>
+
+//发生在编译器的预处理阶段
+#define WAIT std::cin.get() //注意无需分号
+
+int main()
+{
+ WAIT;
+}
+
+```
+
+宏还可以发送参数
+
+```c++
+#include<iostream>
+
+#define LOG(x) std::cout << x << std::endl
+
+int main()
+{
+ LOG("Hello");
+ std::cin.get();
+}
+
+```
+
+在实际工作中，常常在release版本中去掉所有的日志代码，但是在debug版本中保留。我们可以通过宏做到这一点。首先要修改项目属性。
+![2023-08-12-17-33-11](https://cdn.jsdelivr.net/gh/pleb631/ImgManager@main/img/2023-08-12-17-33-11.png)
+![2023-08-12-17-33-25](https://cdn.jsdelivr.net/gh/pleb631/ImgManager@main/img/2023-08-12-17-33-25.png)
+
+```c++
+#include<iostream>
+
+#if 1//可以置0把下面代码禁用掉
+
+
+#if PR_DEBUG == 1
+#define LOG(x) std::cout << x << std::endl
+#elif defined(PR_RELEASE)  //defined是检测函数，检测预定义是否存在
+#define LOG(x)
+#endif
+
+#endif
+
+
+int main()
+{
+ LOG("Hello");
+ std::cin.get();
+}
+
+```
+
+还可以使用反斜杠来写多行的宏，因为宏必须在同一行。
+
+```c++
+#include<iostream>
+
+#define MAIN int main() \
+{\
+   std::cin.get();\
+}
+
+MAIN
+
+```
 ### 内联（inline）函数
 
 - 普通函数的缺点：调用函数比求解等价表达式要慢得多。
 - `inline`函数可以避免函数调用的开销，可以让编译器在编译时**内联地展开**该函数。
 - `inline`函数应该在头文件中定义。
 
-### constexpr函数
+### 函数指针
 
-- 指能用于常量表达式的函数。
-- `constexpr int new_sz() {return 42;}`
-- 函数的返回类型及所有形参类型都要是字面值类型。
-- `constexpr`函数应该在头文件中定义。
+如果在程序中定义了一个函数，那么在编译时系统就会为这个函数代码分配一段存储空间，这段存储空间的首地址称为这个函数的地址。而且函数名表示的就是这个地址。既然是地址我们就可以定义一个指针变量来存放，这个指针变量就叫作函数指针变量，简称函数指针。
 
-### 调试帮助
+函数指针的类型是
 
-- `assert`预处理宏（preprocessor macro）：`assert(expr);`
+```c++
+T (*) (T1 x,);
+```
 
-开关调试状态：
+函数指针的定义方式为：
 
-`CC -D NDEBUG main.c`可以定义这个变量`NDEBUG`。
+> 函数返回值类型 (* 指针变量名) (函数参数列表);
 
-```cpp
-void print(){
-    #ifndef NDEBUG
-        cerr << __func__ << "..." << endl;
-    #endif
+“函数返回值类型”表示该指针变量可以指向具有什么返回值类型的函数；“函数参数列表”表示该指针变量可以指向具有什么参数列表的函数。这个参数列表中只需要写函数的参数类型即可。
+
+示例：
+
+```c++
+int Func(int x);   /*声明一个函数*/
+
+//
+int (*p) (int x);  /*定义一个函数指针*/
+p = Func;          /*将Func函数的首地址赋给指针变量p*/
+
+//typedef
+typedef int (*pfuna)(int);
+pfuna p=Func;
+
+//using 
+using pfuna = float(*)(int, float);
+pfuna  p=Func
+
+//auto
+auto fa = Func;
+```
+
+我们所做的是将function作为一个变量名进行调用，将函数参数化
+
+```c++
+#include<iostream>
+#include<vector>
+
+void PrintValue(int value)
+{
+ std::cout << " Value:" << value << std::endl;
+}
+
+void ForEach(const std::vector<int>& values, void(*func)(int))
+{
+ for (int value : values)
+  func(value);
+}
+
+int main()
+{
+ std::vector<int> values = { 1,5,4,2,3 };
+
+ ForEach(values, PrintValue);//vector中的每个元素都执行PrintValue
+ 
+ std::cin.get();
+}
+
+```
+
+### lambda
+
+lambda的本质是一个普通函数，但不像普通函数一样做声明。它是我们的代码在过程中生成的，用完即弃的函数。
+
+```c++
+#include<iostream>
+#include<vector>
+
+
+void ForEach(const std::vector<int>& values, void(*func)(int))
+{
+ for (int value : values)
+  func(value);
+}
+
+int main()
+{
+ std::vector<int> values = { 1,5,4,2,3 };
+
+ ForEach(values, [](int value) {std::cout << " Value:" << value << std::endl;});
+
+ std::cin.get();
+}
+
+
+```
+
+> 这里的[]叫做捕获方式，lambda可以把上下文变量以值或引用的方式捕获，在body中直接使用。int value是我们的参数，后面就和PrintValue函数体一样了。
+  [] 什么也不捕获;
+  [=] 按值的方式捕获所有变量 ;
+  [&] 按引用的方式捕获所有变量;
+  [=, &a] 除了变量a之外，按值的方式捕获所有局部变量，变量a  使用引用的方式来捕获。这里可以按引用捕获多个，例如 [=, &  a, &b,&c]。这里注意，如果前面加了=，后面加的具体的参数必  须以引用的方式来捕获，否则会报错;  
+  [&, a] 除了变量a之外，按引用的方式捕获所有局部变量，变量  a使用值的方式来捕获。这里后面的参数也可以多个，例如 [&,   a, b, c]。这里注意，如果前面加了&，后面加的具体的参数必  须以值的方式来捕获;  
+  [a, &b] 以值的方式捕获a，引用的方式捕获b，也可以捕获多个;
+  [this] 在成员函数中，也可以直接捕获this指针，其实在成员  函数中，[=]和[&]也会捕获this指针。
+
+```c++
+int x = 1; int y = 2;
+auto plus = [=] (int a, int b) -> int { return x + y + a + b; };
+int c = plus(1, 2);
+//把x，y按值捕获
+```
+
+可以把lambda赋值给一个auto类型变量，然后将lambda变量传入函数。
+
+```c++
+int main()
+{
+ std::vector<int> values = { 1,5,4,2,3 };
+ 
+ auto lambda = [](int value) {std::cout << " Value:" << value << std::endl;};
+
+ ForEach(values, lambda);
+ 
+ std::cin.get();
+}
+
+```
+
+当我们试图传入某些变量时，不管是通过值还是引用来捕获变量，这里的ForEach都会出错，因为我们正在使用原始函数指针。若转变成std::function，返回void，有一个int参数叫做func就可以了。
+![2023-08-13-15-02-43](https://cdn.jsdelivr.net/gh/pleb631/ImgManager@main/img/2023-08-13-15-02-43.png)
+我们有一个可选的修饰符mutable，它允许函数体修改通过拷贝传递捕获的参数。若我们在lambda中给a赋值会报错，需要写上mutable。
+![2023-08-13-15-04-11](https://cdn.jsdelivr.net/gh/pleb631/ImgManager@main/img/2023-08-13-15-04-11.png)
+
+还可以写一个lambda接受vector的整数元素，遍历这个vector找到比3大的整数，然后返回它的迭代器，也就是满足条件的第一个元素。
+
+```c++
+#include<iostream>
+#include<vector>
+#include<algorithm>
+
+int main()
+{
+ std::vector<int> values = { 1,5,4,2,3 };
+
+ auto it = std::find_if(values.begin(), values.end(), [](int value) {return value > 3;});
+
+ std::cout << *it << std::endl;
+ 
+ std::cin.get();
 }
 ```
 
-## 函数匹配
+### 智能指针
 
-- 重载函数匹配的**三个步骤**：1.候选函数；2.可行函数；3.寻找最佳匹配。
-- **候选函数**：选定本次调用对应的重载函数集，集合中的函数称为候选函数（candidate function）。
-- **可行函数**：考察本次调用提供的实参，选出可以被这组实参调用的函数，新选出的函数称为可行函数（viable function）。
-- **寻找最佳匹配**：基本思想：实参类型和形参类型越接近，它们匹配地越好。
+智能指针是实现分配内存、释放内存这一过程自动化的一种方式。若使用智能指针，当我们调用new时不需要调用delete，甚至不需要调用new。智能指针本质上是一个原始指针的包装，当创建一个智能指针，它会调用new并为其分配内存，基于这个智能指针的内存会在某一时刻自动释放
 
-## 函数指针
+#### unique_ptr
 
-- **函数指针**：是指向函数的指针。
-- `bool (*pf)(const string &, const string &);` 注：两端的括号不可少。
-- **函数指针形参**：
-  - 形参中使用函数定义或者函数指针定义效果一样。
-  - 使用类型别名或者`decltype`。
-- **返回指向函数的指针**：1.类型别名；2.尾置返回类型。
+ unique_ptr是作用域指针，超出作用域时它会被销毁，然后调用delete。我们不能复制一个unique_ptr，因为如果复制一个unique_ptr会有两个指针，两个unique_ptr指向同一个内存块。如果其中一个死了，它会释放那段内存，而另一个unique_ptr指针就会指向被释放的内存。
+要访问智能指针，首先要包括memory头文件。如果想要在特定的作用域下(两个大括号)创建一个unique_ptr来分配Entity，可以调用构造函数然后输入new Entity()。
 
-# 第七章 类 （Class）
+```c++
+//std::unique_ptr<Entity> entity=new Entity();报错，因为unique_ptr是显式的
+std::unique_ptr<Entity> entity(new Entity());
+entity->Print();//想要调用一个函数只需要通过剪头操作符来访问
+```
 
-## 定义抽象数据类型
+一个更好的方法是把entity赋值给std::make_unique，主要是因为异常安全。如果构造函数抛出异常，使用make_unique(C++14)会保证最终得到的不是没有引用的悬空指针，从而造成内存泄漏。
 
-- **类背后的基本思想**：**数据抽象**（data abstraction）和**封装**（encapsulation）。
-- 数据抽象是一种依赖于**接口**（interface）和**实现**（implementation）分离的编程技术。
+```c++
+std::unique_ptr<Entity> entity = std::make_unique<Entity>();
+entity->Print();
+```
 
-### 类成员 （Member）
+查看unique_ptr的定义发现拷贝构造函数和拷贝构造操作符实际上被删除了。
+![2023-08-10-13-50-00](https://cdn.jsdelivr.net/gh/pleb631/ImgManager@main/img/2023-08-10-13-50-00.png)
 
-- 必须在类的内部声明，不能在其他地方增加成员。
-- 成员可以是数据，函数，类型别名。
+#### shared_ptr
 
-### 类的成员函数
+shared_ptr是共享指针，它实现的方式实际上取决于编译器和在编译器中使用的标准库。shared_ptr的工作方式是通过引用计数，引用计数基本上是一种方法，可以跟踪我们的指针有多少个引用，一旦引用计数达到0，它就会被删除。在unique_ptr中不直接调用new的原因是因为异常安全，但是在shared_ptr中有所不同。shared_ptr需要分配另一块内存，叫做控制块，用来存储引用计数。如果创建一个new Entity然后将其传递给shared_ptr构造函数，它必须做两次内存分配：先做一次new Entity的分配，然后是shared_ptr的控制内存块的分配。若使用make_unique就可以把它们组合起来。
 
-- 成员函数的**声明**必须在类的内部。
-- 成员函数的**定义**既可以在类的内部也可以在外部。
-- 使用点运算符 `.` 调用成员函数。
-- 必须对任何`const`或引用类型成员以及没有默认构造函数的类类型的任何成员使用初始化式。
-- `ConstRef::ConstRef(int ii): i(ii), ci(i), ri(ii) { }`
-- 默认实参： `Sales_item(const std::string &book): isbn(book), units_sold(0), revenue(0.0) { }`
-- `*this`：
-  - 每个成员函数都有一个额外的，隐含的形参`this`。
-  - `this`总是指向当前对象，因此`this`是一个常量指针。
-  - 形参表后面的`const`，改变了隐含的`this`形参的类型，如 `bool same_isbn(const Sales_item &rhs) const`，这种函数称为“常量成员函数”（`this`指向的当前对象是常量）。
-  - `return *this;`可以让成员函数连续调用。
-  - 普通的非`const`成员函数：`this`是指向类类型的`const`指针（可以改变`this`所指向的值，不能改变`this`保存的地址）。
-  - `const`成员函数：`this`是指向const类类型的`const`指针（既不能改变`this`所指向的值，也不能改变`this`保存的地址）。
+```c++
+std::shared_ptr<Entity> entity = std::make_shared<Entity>();
+```
 
-### 非成员函数
+这里有两个作用域，在外面的作用域中有了e0，里面的作用域中有了sharedEntity，然后把e0赋值给sharedEntity。在27行设置断点按F5运行，再按F10发现Entity被创建了。当里面的作用域死亡时，sharedEntity就会死亡，但是e0还存活并且持有对该Entity的引用，所以这里没有调用析构函数。只有当代码进行到更外层的作用域时，引用都消失，Entity才会被删除。
+![2023-08-10-13-51-57](https://cdn.jsdelivr.net/gh/pleb631/ImgManager@main/img/2023-08-10-13-51-57.png)
 
-- 和类相关的非成员函数，定义和声明都应该在类的外部。
+#### weak_ptr
 
-### 类的构造函数
+weak_ptr被称为弱指针，可以和shared_ptr一起使用。它只是像声明其他东西一样声明，可以给它赋值为sharedEntity。这里和之前复制sharedEntity所做的一样，但是这里不会增加引用计数。当我们将一个shared_ptr赋值给另外一个shared_ptr时它理会增加引用计数。但是当把一个shared_ptr赋值给一个weak_ptr时不会增加引用计数。如果不想要Entity的所有权，例如在排序一个Entity列表时不关心它们是否有效，只需要存储一个它们的引用就可以了。我们可能会问weak_ptr底层对象是否还存活，但它不会保持底层对象存活，因为它不会增加引用计数。
 
-- 类通过一个或者几个特殊的成员函数来控制其对象的初始化过程，这些函数叫做**构造函数**。
-- 构造函数是特殊的成员函数。
-- 构造函数放在类的`public`部分。
-- 与类同名的成员函数。
-- `Sales_item(): units_sold(0), revenue(0.0) { }`
-- `=default`要求编译器合成默认的构造函数。(`C++11`)
-- 初始化列表：冒号和花括号之间的代码： `Sales_item(): units_sold(0), revenue(0.0) { }`
-
-## 访问控制与封装
-
-- **访问说明符**（access specifiers）：
-  - `public`：定义在 `public`后面的成员在整个程序内可以被访问； `public`成员定义类的接口。
-  - `private`：定义在 `private`后面的成员可以被类的成员函数访问，但不能被使用该类的代码访问； `private`隐藏了类的实现细节。
-- 使用 `class`或者 `struct`：都可以被用于定义一个类。唯一的却别在于访问权限。
-  - 使用 `class`：在第一个访问说明符之前的成员是 `priavte`的。
-  - 使用 `struct`：在第一个访问说明符之前的成员是 `public`的。
-
-### 友元
-
-- 允许特定的**非成员函数**访问一个类的**私有成员**.
-- 友元的声明以关键字 `friend`开始。 `friend Sales_data add(const Sales_data&, const Sales_data&);`表示非成员函数`add`可以访问类的非公有成员。
-- 通常将友元声明成组地放在**类定义的开始或者结尾**。
-- 类之间的友元：
-  - 如果一个类指定了友元类，则友元类的成员函数可以访问此类包括非公有成员在内的所有成员。
-
-### 封装的益处
-
-- 确保用户的代码不会无意间破坏封装对象的状态。
-- 被封装的类的具体实现细节可以随时改变，而无需调整用户级别的代码。
-
-## 类的其他特性
-
-- 成员函数作为内联函数 `inline`：
-  - 在类的内部，常有一些规模较小的函数适合于被声明成内联函数。
-  - **定义**在类内部的函数是**自动内联**的。
-  - 在类外部定义的成员函数，也可以在声明时显式地加上 `inline`。
-- **可变数据成员** （mutable data member）：
-  - `mutable size_t access_ctr;`
-  - 永远不会是`const`，即使它是`const`对象的成员。
-- **类类型**：
-  - 每个类定义了唯一的类型。
-
-## 类的作用域
-
-- 每个类都会定义它自己的作用域。在类的作用域之外，普通的数据和函数成员只能由引用、对象、指针使用成员访问运算符来访问。
-- 函数的**返回类型**通常在函数名前面，因此当成员函数定义在类的外部时，返回类型中使用的名字都位于类的作用域之外。
-- 如果成员使用了外层作用域中的某个名字，而该名字代表一种**类型**，则类不能在之后重新定义该名字。
-- 类中的**类型名定义**都要放在一开始。
-
-## 构造函数再探
-
-- 构造函数初始值列表：
-  - 类似`python`使用赋值的方式有时候不行，比如`const`或者引用类型的数据，只能初始化，不能赋值。（注意初始化和赋值的区别）
-  - 最好让构造函数初始值的顺序和成员声明的顺序保持一致。
-  - 如果一个构造函数为所有参数都提供了默认参数，那么它实际上也定义了默认的构造函数。
-
-### 委托构造函数 （delegating constructor, `C++11`）
-
-- 委托构造函数将自己的职责委托给了其他构造函数。
-- `Sale_data(): Sale_data("", 0, 0) {}`
-
-### 隐式的类型转换
-
-- 如果构造函数**只接受一个实参**，则它实际上定义了转换为此类类型的**隐式转换机制**。这种构造函数又叫**转换构造函数**（converting constructor）。
-- 编译器只会自动地执行`仅一步`类型转换。
-- 抑制构造函数定义的隐式转换：
-  - 将构造函数声明为`explicit`加以阻止。
-  - `explicit`构造函数只能用于直接初始化，不能用于拷贝形式的初始化。
-
-### 聚合类 （aggregate class）
-
-- 满足以下所有条件：
-  - 所有成员都是`public`的。
-  - 没有定义任何构造函数。
-  - 没有类内初始值。
-  - 没有基类，也没有`virtual`函数。
-- 可以使用一个花括号括起来的成员初始值列表，初始值的顺序必须和声明的顺序一致。
-
-### 字面值常量类
-
-- `constexpr`函数的参数和返回值必须是字面值。
-- **字面值类型**：除了算术类型、引用和指针外，某些类也是字面值类型。
-- 数据成员都是字面值类型的聚合类是字面值常量类。
-- 如果不是聚合类，则必须满足下面所有条件：
-  - 数据成员都必须是字面值类型。
-  - 类必须至少含有一个`constexpr`构造函数。
-  - 如果一个数据成员含有类内部初始值，则内置类型成员的初始值必须是一条常量表达式；或者如果成员属于某种类类型，则初始值必须使用成员自己的`constexpr`构造函数。
-  - 类必须使用析构函数的默认定义，该成员负责销毁类的对象。
-
-## 类的静态成员
-
-- 非`static`数据成员存在于类类型的每个对象中。
-- `static`数据成员独立于该类的任意对象而存在。
-- 每个`static`数据成员是与类关联的对象，并不与该类的对象相关联。
-- 声明：
-  - 声明之前加上关键词`static`。
-- 使用：
-  - 使用**作用域运算符**`::`直接访问静态成员:`r = Account::rate();`
-  - 也可以使用对象访问：`r = ac.rate();`
-- 定义：
-  - 在类外部定义时不用加`static`。
-- 初始化：
-  - 通常不在类的内部初始化，而是在定义时进行初始化，如 `double Account::interestRate = initRate();`
-  - 如果一定要在类内部定义，则要求必须是字面值常量类型的`constexpr`。
-  
-
-# 第九章 顺序容器
-
-## 顺序容器概述
-
-- **顺序容器**（sequential container）：为程序员提供了控制元素存储和访问顺序的能力。这种顺序不依赖于元素的值，而是与元素加入容器时的位置相对应。
-
-### 顺序容器类型
-
-| 容器类型 | 介绍 |
-|-----|-----|
-| `vector` | 可变大小数组。支持快速随机访问。在尾部之外的位置插入或删除元素可能很慢。 |
-| `deque` | 双端队列。支持快速随机访问。在头尾位置插入/删除速度很快。 |
-| `list` | 双向链表。只支持双向顺序访问。在`list`中任何位置进行插入/删除操作速度都很快。 |
-| `forward_list` | 单向链表。只支持单向顺序访问。在链表任何位置进行插入/删除操作速度都很快。 |
-| `array` | 固定大小数组。支持快速随机访问。不能添加或者删除元素。 |
-| `string` | 与`vector`相似的容器，但专门用于保存字符。随机访问块。在尾部插入/删除速度快。 |
-
-- 除了固定大小的`array`外，其他容器都提供高效、灵活的内存管理。
-- `forward_list`和`array`是新C++标准增加的类型。
-- 通常使用`vector`是最好的选择，除非你有很好的理由选择其他容器。
-- 新标准库的容器比旧版的快得多。
-
-## 容器操作
-
-### 类型
-
-| 操作 | 解释 |
-|-----|-----|
-| `iterator` | 此容器类型的迭代器类型 |
-| `const_iterator` | 可以读取元素但不能修改元素的迭代器类型 |
-| `size_type` | 无符号整数类型，足够保存此种容器类型最大可能的大小 |
-| `difference_type` | 带符号整数类型，足够保存两个迭代器之间的距离 |
-| `value_type` | 元素类型 |
-| `reference` | 元素的左值类型；和`value_type &`含义相同 |
-| `const_reference` | 元素的`const`左值类型，即`const value_type &` |
-
-### 构造函数
-
-| 操作 | 解释 |
-|-----|-----|
-| `C c;` | 默认构造函数，构造空容器 |
-| `C c1(c2);`或`C c1 = c2;` | 构造`c2`的拷贝`c1` |
-| `C c(b, e)` | 构造`c`，将迭代器`b`和`e`指定范围内的所有元素拷贝到`c` |
-| `C c(a, b, c...)` | 列表初始化`c` |
-| `C c(n)` | 只支持顺序容器，且不包括`array`，包含`n`个元素，这些元素进行了值初始化 |
-| `C c(n, t)` | 包含`n`个初始值为`t`的元素 |
-
-- 只有顺序容器的构造函数才接受大小参数，关联容器并不支持。
-- `array`具有固定大小。
-- 和其他容器不同，默认构造的`array`是非空的。
-- 直接复制：将一个容器复制给另一个容器时，类型必须匹配：容器类型和元素类型都必须相同。
-- 使用迭代器复制：不要求容器类型相同，容器内的元素类型也可以不同。
-
-### 赋值和`swap`
-
-| 操作 | 解释 |
-|-----|-----|
-| `c1 = c2;` | 将`c1`中的元素替换成`c2`中的元素 |
-| `c1 = {a, b, c...}` | 将`c1`中的元素替换成列表中的元素（不适用于`array`） |
-| `c1.swap(c2)` | 交换`c1`和`c2`的元素 |
-| `swap(c1, c2)` | 等价于`c1.swap(c2)` |
-| `c.assign(b, e)` | 将`c`中的元素替换成迭代器`b`和`e`表示范围中的元素，`b`和`e`不能指向`c`中的元素 |
-| `c.assign(il)` | 将`c`中的元素替换成初始化列表`il`中的元素 |
-| `c.assign(n, r)` | 将`c`中的元素替换为`n`个值是`t`的元素 |
-
-- 使用非成员版本的`swap`是一个好习惯。
-- `assign`操作不适用于关联容器和`array`
-
-### 大小
-
-| 操作 | 解释 |
-|-----|-----|
-| `c.size()` | `c`中元素的数目（不支持`forward_list`） |
-| `c.max_size()` | `c`中可保存的最大元素数目 |
-| `c.empty()` | 若`c`中存储了元素，返回`false`，否则返回`true` |
-
-### 添加元素
-
-| 操作 | 解释 |
-|-----|-----|
-| `c.push_back(t)` | 在`c`尾部创建一个值为`t`的元素，返回`void` |
-| `c.emplace_back(args)` | 同上 |
-| `c.push_front(t)` | 在`c`头部创建一个值为`t`的元素，返回`void` |
-| `c.emplace_front(args)` | 同上 |
-| `c.insert(p, t)` | 在迭代器`p`指向的元素之前创建一个值是`t`的元素，返回指向新元素的迭代器 |
-| `c.emplace(p, args)` | 同上 |
-| `c.insert(p, n, t)` | 在迭代器`p`指向的元素之前插入`n`个值为`t`的元素，返回指向第一个新元素的迭代器；如果`n`是0，则返回`p` |
-| `c.insert(p, b, e)` | 将迭代器`b`和`e`范围内的元素，插入到`p`指向的元素之前；如果范围为空，则返回`p` |
-| `c.insert(p, il)` | `il`是一个花括号包围中的元素值列表，将其插入到`p`指向的元素之前；如果`il`是空，则返回`p` |
-
-- 因为这些操作会改变大小，因此不适用于`array`。
-- `forward_list`有自己专有版本的`insert`和`emplace`。
-- `forward_list`不支持`push_back`和`emplace_back`。
-- 当我们用一个对象去初始化容器或者将对象插入到容器时，实际上放入的是对象的拷贝。
-- `emplace`开头的函数是新标准引入的，这些操作是构造而不是拷贝元素。
-- 传递给`emplace`的参数必须和元素类型的构造函数相匹配。
-
-### 访问元素
-
-| 操作 | 解释 |
-|-----|-----|
-| `c.back()` | 返回`c`中尾元素的引用。若`c`为空，函数行为未定义 |
-| `c.front()` | 返回`c`中头元素的引用。若`c`为空，函数行为未定义 |
-| `c[n]` | 返回`c`中下标是`n`的元素的引用，`n`时候一个无符号证书。若`n>=c.size()`，则函数行为未定义 |
-| `c.at(n)` | 返回下标为`n`的元素引用。如果下标越界，则抛出`out_of_range`异常 |
-
-- 访问成员函数返回的是引用。
-- `at`和下标操作只适用于`string`、`vector`、`deque`、`array`。
-- `back`不适用于`forward_list`。
-- 如果希望下标是合法的，可以使用`at`函数。
-
-### 删除元素
-
-| 操作 | 解释 |
-|-----|-----|
-| `c.pop_back()` | 删除`c`中尾元素，若`c`为空，则函数行为未定义。函数返回`void` |
-| `c.pop_front()` | 删除`c`中首元素，若`c`为空，则函数行为未定义。函数返回`void` |
-| `c.erase(p)` | 删除迭代器`p`指向的元素，返回一个指向被删除元素之后的元素的迭代器，若`p`本身是尾后迭代器，则函数行为未定义 |
-| `c.erase(b, e)` | 删除迭代器`b`和`e`范围内的元素，返回指向最后一个被删元素之后元素的迭代器，若`e`本身就是尾后迭代器，则返回尾后迭代器 |
-| `c.clear()` | 删除`c`中所有元素，返回`void` |
-
-- 会改变容器大小，不适用于`array`。
-- `forward_list`有特殊版本的`erase`
-- `forward_list`不支持`pop_back`
-- `vector`和`string`不支持`pop_front`
-
-### 特殊的forwad_list操作
-
-- 链表在删除元素时需要修改前置节点的内容，双向链表会前驱的指针，但是单向链表没有保存，因此需要增加获取前置节点的方法。
-- `forward_list`定义了`before_begin`，即首前（off-the-begining）迭代器，允许我们再在首元素之前添加或删除元素。
-
-| 操作 | 解释 |
-|-----|-----|
-| `lst.before_begin()` | 返回指向链表首元素之前不存在的元素的迭代器，此迭代器不能解引用。 |
-| `lst.cbefore_begin()` | 同上，但是返回的是常量迭代器。 |
-| `lst.insert_after(p, t)` | 在迭代器`p`之后插入元素。`t`是一个对象 |
-| `lst.insert_after(p, n, t)` | 在迭代器`p`之后插入元素。`t`是一个对象，`n`是数量。若`n`是0则函数行为未定义 |
-| `lst.insert_after(p, b, e)` | 在迭代器`p`之后插入元素。由迭代器`b`和`e`指定范围。 |
-| `lst.insert_after(p, il)` | 在迭代器`p`之后插入元素。由`il`指定初始化列表。 |
-| `emplace_after(p, args)` | 使用`args`在`p`之后的位置，创建一个元素，返回一个指向这个新元素的迭代器。若`p`为尾后迭代器，则函数行为未定义。 |
-| `lst.erase_after(p)` | 删除`p`指向位置之后的元素，返回一个指向被删元素之后的元素的迭代器，若`p`指向`lst`的尾元素或者是一个尾后迭代器，则函数行为未定义。 |
-| `lst.erase_after(b, e)` | 类似上面，删除对象换成从`b`到`e`指定的范围。 |
-
-### 改变容器大小
-
-| 操作 | 解释 |
-|-----|-----|
-| `c.resize(n)` | 调整`c`的大小为`n`个元素，若`n<c.size()`，则多出的元素被丢弃。若必须添加新元素，对新元素进行值初始化 |
-| `c.resize(n, t)` | 调整`c`的大小为`n`个元素，任何新添加的元素都初始化为值`t` |
-
-### 获取迭代器
-
-| 操作 | 解释 |
-|-----|-----|
-| `c.begin()`, `c.end()` | 返回指向`c`的首元素和尾元素之后位置的迭代器 |
-| `c.cbegin()`, `c.cend()` | 返回`const_iterator` |
-
-- 以`c`开头的版本是C++11新标准引入的
-- 当不需要写访问时，应该使用`cbegin`和`cend`。
-
-### 反向容器的额外成员
-
-| 操作 | 解释 |
-|-----|-----|
-| `reverse_iterator` | 按逆序寻址元素的迭代器 |
-| `const_reverse_iterator` | 不能修改元素的逆序迭代器 |
-| `c.rbegin()`, `c.rend()` | 返回指向`c`的尾元素和首元素之前位置的迭代器 |
-| `c.crbegin()`, `c.crend()` | 返回`const_reverse_iterator` |
-
-- 不支持`forward_list`
-
-### 迭代器
-
-- 迭代器范围：`begin`到`end`，即第一个元素到最后一个元素的后面一个位置。
-- 左闭合区间：`[begin, end)`
-- 左闭合范围蕴含的编程设定：
-  - 如果`begin`和`end`相等，则范围为空。
-  - 如果二者不等，则范围至少包含一个元素，且`begin`指向该范围中的第一个元素。
-  - 可以对`begin`递增若干次，使得`begin == end`。
-
-### 容器操作可能使迭代器失效
-
-- 在向容器添加元素后：
-  - 如果容器是`vector`或`string`，且存储空间被重新分配，则指向容器的迭代器、指针、引用都会失效。
-  - 对于`deque`，插入到除首尾位置之外的任何位置都会导致指向容器的迭代器、指针、引用失效。如果在首尾位置添加元素，迭代器会失效，但指向存在元素的引用和指针不会失效。
-  - 对于`list`和`forward_list`，指向容器的迭代器、指针和引用依然有效。
-- 在从一个容器中删除元素后：
-  - 对于`list`和`forward_list`，指向容器其他位置的迭代器、引用和指针仍然有效。
-  - 对于`deque`，如果在首尾之外的任何位置删除元素，那么指向被删除元素外其他元素的迭代器、指针、引用都会失效；如果是删除`deque`的尾元素，则尾后迭代器会失效，但其他不受影响；如果删除的是`deque`的头元素，这些也不会受影响。
-  - 对于`vector`和`string`，指向被删元素之前的迭代器、引用、指针仍然有效。
-  - 注意：当我们删除元素时，尾后迭代器总是会失效。
-  - 注意：使用失效的迭代器、指针、引用是严重的运行时错误！
-  - 建议：将要求迭代器必须保持有效的程序片段最小化。
-  - 建议：不要保存`end`返回的迭代器。
-
-### 容器内元素的类型约束
-
-- 元素类型必须支持赋值运算；
-- 元素类型的对象必须可以复制。
-- 除了输入输出标准库类型外，其他所有标准库类型都是有效的容器元素类型。
-
-## vector对象是如何增长的
-
-`vector`和`string`在内存中是连续保存的，如果原先分配的内存位置已经使用完，则需要重新分配新空间，将已有元素从就位置移动到新空间中，然后添加新元素。
-
-### 管理容量的成员函数
-
-| 操作 | 解释 |
-|-----|-----|
-| `c.shrink_to_fit()` | 将`capacity()`减少到和`size()`相同大小 |
-| `c.capacity()` | 不重新分配内存空间的话，`c`可以保存多少个元素 |
-| `c.reverse(n)` | 分配至少能容纳`n`个元素的内存空间 |
-
-- `shrink_to_fit`只适用于`vector`、`string`和`deque`
-- `capacity`和`reverse`只适用于`vector`和`string`。
-
-## 额外的string操作
-
-### 构造string的其他方法
-
-| 操作 | 解释 |
-|-----|-----|
-| `string s(cp, n)` | `s`是`cp`指向的数组中前`n`个字符的拷贝，此数组 |
-| `string s(s2, pos2)` | `s`是`string s2`从下标`pos2`开始的字符的拷贝。若`pos2 > s2.size()`，则构造函数的行为未定义。 |
-| `string s(s2, pos2, len2)` | `s`是`string s2`从下标`pos2`开始的`len2`个字符的拷贝。 |
-
-- `n`,`len2`,`pos2`都是无符号值。
-
-### substr操作
-
-| 操作 | 解释 |
-|-----|-----|
-| `s.substr(pos, n)` | 返回一个`string`，包含`s`中从`pos`开始的`n`个字符的拷贝。`pos`的默认值是0，`n`的默认值是`s.size() - pos`，即拷贝从`pos`开始的所有字符。 |
-
-### 改变string的其他方法
-
-| 操作 | 解释 |
-|-----|-----|
-| `s.insert(pos, args)` | 在`pos`之前插入`args`指定的字符。`pos`可以使是下标或者迭代器。接受下标的版本返回指向`s`的引用；接受迭代器的版本返回指向第一个插入字符的迭代器。 |
-| `s.erase(pos, len)` | 删除从`pos`开始的`len`个字符，如果`len`被省略，则删除后面所有字符，返回指向`s`的引用。 |
-| `s.assign(args)` | 将`s`中的字符替换成`args`指定的字符。返回一个指向`s`的引用。 |
-| `s.append(args)` | 将`args`指定的字符追加到`s`，返回一个指向`s`的引用。 |
-| `s.replace(range, args)` | 删除`s`中范围`range`中的字符，替换成`args`指定的字符。返回一个指向`s`的引用。 |
-
-### string搜索操作
-
-- `string`类提供了6个不同的搜索函数，每个函数都有4个重载版本。
-- 每个搜索操作都返回一个`string::size_type`值，表示匹配发生位置的下标。如果搜索失败则返回一个名为`string::npos`的`static`成员（类型是`string::size_type`，初始化值是-1，也就是`string`最大的可能大小）。
-
-| 搜索操作 | 解释 |
-|-----|-----|
-| `s.find(args)` | 查找`s`中`args`第一次出现的位置 |
-| `s.rfind(args)` | 查找`s`中`args`最后一次出现的位置 |
-| `s.find_first_of(args)` | 在`s`中查找`args`中任何一个字符第一次出现的位置 |
-| `s.find_last_of(args)` | 在`s`中查找`args`中任何一个字符最后一次出现的位置 |
-| `s.find_first_not_of(args)` | 在`s`中查找第一个不在`args`中的字符 |
-| `s.find_first_not_of(args)` | 在`s`中查找最后一个不在`args`中的字符 |
-
-args必须是一下的形式之一：
-
-| `args`形式 | 解释 |
-|-----|-----|
-| `c, pos` | 从`s`中位置`pos`开始查找字符`c`。`pos`默认是0 |
-| `s2, pos` | 从`s`中位置`pos`开始查找字符串`s`。`pos`默认是0 |
-| `cp, pos` | 从`s`中位置`pos`开始查找指针`cp`指向的以空字符结尾的C风格字符串。`pos`默认是0 |
-| `cp, pos, n` | 从`s`中位置`pos`开始查找指针`cp`指向的前`n`个字符。`pos`和`n`无默认值。 |
-
-### s.compare的几种参数形式
-
-逻辑类似于C标准库的`strcmp`函数，根据`s`是等于、大于还是小于参数指定的字符串，`s.compare`返回0、正数或负数。
-
-| 参数形式 | 解释 |
-|-----|-----|
-| `s2` | 比较`s`和`s2` |
-| `pos1, n1, s2` | 比较`s`从`pos1`开始的`n1`个字符和`s2` |
-| `pos1, n1, s2, pos2, n2` | 比较`s`从`pos1`开始的`n1`个字符和`s2` |
-| `cp` | 比较`s`和`cp`指向的以空字符结尾的字符数组 |
-| `pos1, n1, cp` | 比较`s`从`pos1`开始的`n1`个字符和`cp`指向的以空字符结尾的字符数组 |
-| `pos1, n1, cp, n2` | 比较`s`从`pos1`开始的`n1`个字符和`cp`指向的地址开始`n2`个字符 |
-
-### string和数值转换
-
-| 转换 | 解释 |
-|-----|-----|
-| `to_string(val)` | 一组重载函数，返回数值`val`的`string`表示。`val`可以使任何算术类型。对每个浮点类型和`int`或更大的整型，都有相应版本的`to_string()`。和往常一样，小整型会被提升。 |
-| `stoi(s, p, b)` | 返回`s`起始子串（表示整数内容）的数值，`p`是`s`中第一个非数值字符的下标，默认是0，`b`是转换所用的基数。返回`int` |
-| `stol(s, p, b)` | 返回`long` |
-| `stoul(s, p, b)` | 返回`unsigned long` |
-| `stoll(s, p, b)` | 返回`long long` |
-| `stoull(s, p, b)` | 返回`unsigned long long` |
-| `stof(s, p)` | 返回`s`起始子串（表示浮点数内容）的数值，`p`是`s`中第一个非数值字符的下标，默认是0。返回`float` |
-| `stod(s, p)` | 返回`double` |
-| `stold(s, p)` | 返回`long double` |
-
-## 容器适配器（adapter）
-
-- 适配器是使一事物的行为类似于另一事物的行为的一种机制，例如`stack`可以使任何一种顺序容器以栈的方式工作。
-- 初始化 `deque<int> deq; stack<int> stk(deq);` 从`deq`拷贝元素到`stk`。
-- 创建适配器时，指定一个顺序容器，可以覆盖默认的基础容器： `stack<string, vector<string> > str_stk;`。
-
-### 适配器的通用操作和类型
-
-| 操作 | 解释 |
-|-----|-----|
-| `size_type` | 一种类型，须以保存当前类型的最大对象的大小 |
-| `value_type` | 元素类型 |
-| `container_type` | 实现适配器的底层容器类型 |
-| `A a;` | 创建一个名为`a`的空适配器 |
-| `A a(c)` | 创建一个名为`a`的适配器，带有容器`c`的一个拷贝 |
-| 关系运算符 | 每个适配器都支持所有关系运算符：`==`、`!=`、`<`、 `<=`、`>`、`>=`这些运算符返回底层容器的比较结果|
-| `a.empty()` | 若`a`包含任何元素，返回`false`;否则返回`true` |
-| `a.size()` | 返回`a`中的元素数目 |
-| `swap(a, b)` | 交换`a`和`b`的内容，`a`和`b`必须有相同类型，包括底层容器类型也必须相同 |
-| `a.swap(b)` | 同上 |
-
-### stack
-
-| 操作 | 解释 |
-|-----|-----|
-| `s.pop()` | 删除栈顶元素，不返回。 |
-| `s.push(item)` | 创建一个新元素，压入栈顶，该元素通过拷贝或移动`item`而来 |
-| `s.emplace(args)` | 同上，但元素由`args`来构造。 |
-| `s.top()` |  返回栈顶元素，不删除。|
-
-- 定义在`stack`头文件中。
-- `stack`默认基于`deque`实现，也可以在`list`或`vector`之上实现。
-
-### queue和priority_queue
-
-| 操作 | 解释 |
-|-----|-----|
-| `q.pop()` | 删除队首元素，但不返回。 |
-| `q.front()` | 返回队首元素的值，不删除。 |
-| `q.back()` | 返回队尾元素的值，不删除。只适用于`queue` |
-| `q.top()` | 返回具有最高优先级的元素值，不删除。 |
-| `q.push(item)` | 在队尾压入一个新元素。 |
-| `q.emplace(args)` |  |
-
-- 定义在`queue`头文件中。
-- `queue`默认基于`deque`实现，`priority_queue`默认基于`vector`实现。
-- `queue`可以在`list`或`vector`之上实现，`priority_queue`也可以用`deque`实现。
+```c++
+std::weak_ptr<Entity> entity;
+```
