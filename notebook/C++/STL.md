@@ -11,49 +11,49 @@
 
 1. 构造函数
 
-  | constructor函数名称 | 功能说明 |
-  | --- | --- |
-  | string() | 构造空的string类对象，即空字符串 |
-  | `string(const char* s)` | 用C-string来构造string对象 |
-  | `string(size_t n, char c)` | string类对象中包含n个字符c |
-  | `string(const string& s)` | 拷贝构造函数 |
+| constructor函数名称          | 功能说明                         |
+| ---------------------------- | -------------------------------- |
+| string()                     | 构造空的string类对象，即空字符串 |
+| `string(const char* s)`    | 用C-string来构造string对象       |
+| `string(size_t n, char c)` | string类对象中包含n个字符c       |
+| `string(const string& s)`  | 拷贝构造函数                     |
 
 2. string类对象的容量操作
 
-  | 函数名称 | 功能说明 |
-  | --- | --- |
-  | size | 返回字符串字符长度 |
-  | length | 返回字符串有效字符长度 |
-  | capacity | 返回空间总大小 |
-  | empty | 判断字符串是否为空串，是返回true，反之返回false |
-  | clear | 清空有效字符 |
-  | reserve | 为字符串预留空间 |
-  | resize(n,c) | 将有效字符个数改为n个，多出的空间用字符c填充 |
-  | substr(i,j)|提取第[i,j)的字符，返回值string|
-  |s.substr(pos, len)|从pos开始len个字符|
-  |s.substr(i)|从i到最后|
-  |c_str()|返回const char* ,可以配合strcpy(ptr, s.c_str());使用|
+| 函数名称           | 功能说明                                             |
+| ------------------ | ---------------------------------------------------- |
+| size               | 返回字符串字符长度                                   |
+| length             | 返回字符串有效字符长度                               |
+| capacity           | 返回空间总大小                                       |
+| empty              | 判断字符串是否为空串，是返回true，反之返回false      |
+| clear              | 清空有效字符                                         |
+| reserve            | 为字符串预留空间                                     |
+| resize(n,c)        | 将有效字符个数改为n个，多出的空间用字符c填充         |
+| substr(i,j)        | 提取第[i,j)的字符，返回值string                      |
+| s.substr(pos, len) | 从pos开始len个字符                                   |
+| s.substr(i)        | 从i到最后                                            |
+| c_str()            | 返回const char* ,可以配合strcpy(ptr, s.c_str());使用 |
 
 3. string类对象的访问及遍历操作
 
-  | 函数名称 | 功能说明 |
-  | --- | --- |
-  | operator\[\] | 返回对应位置字符，const string类对象调用 |
-  | begin + end | begin获取一个字符迭代器，end获取最后一个字符下一个位置的迭代器 |
-  | rbegin + rend | rbegin获取一个字符迭代器，rend获取最后一个字符下一个位置的迭代器 |
-  | 范围for(auto s:string) | C++支持的更简洁的for遍历模式 |
-  |operator\""s|	转换字符数组字面量为 basic_string|
+| 函数名称               | 功能说明                                                         |
+| ---------------------- | ---------------------------------------------------------------- |
+| operator\[\]           | 返回对应位置字符，const string类对象调用                         |
+| begin + end            | begin获取一个字符迭代器，end获取最后一个字符下一个位置的迭代器   |
+| rbegin + rend          | rbegin获取一个字符迭代器，rend获取最后一个字符下一个位置的迭代器 |
+| 范围for(auto s:string) | C++支持的更简洁的for遍历模式                                     |
+| operator\""s           | 转换字符数组字面量为 basic_string                                |
 
 4. 非成员函数
 
-  | 函数 | 功能说明 |
-  | --- | --- |
-  | operator+ | 返回一个相加后的字符串 |
-  | operator<< | 输出运算符重载 |
-  | operator>> | 输入运算符重载 |
-  | getline(std::cin,stringname) | 输入一行（遇到空格不停止） |
+| 函数                         | 功能说明                   |
+| ---------------------------- | -------------------------- |
+| operator+                    | 返回一个相加后的字符串     |
+| operator<<                   | 输出运算符重载             |
+| operator>>                   | 输入运算符重载             |
+| getline(std::cin,stringname) | 输入一行（遇到空格不停止） |
 
-  ```c++
+```c++
   //转译字符串 str 中的有符号整数值。
   int       stoi( const std::string& str, std::size_t* pos = 0, int base = 10 );
   long      stol( const std::string& str, std::size_t* pos = 0, int base = 10 );
@@ -72,8 +72,7 @@
   template< class T >
   std::string to_string( T value );
 
-  ```
-  
+```
 
 ## array
 
@@ -183,7 +182,6 @@ int main(){   
   T* data() noexcept;
 
   ```
-
 - 迭代器
 
   ```c++
@@ -208,7 +206,6 @@ int main(){   
   const_reverse_iterator rend() const noexcept;
   const_reverse_iterator rend() const noexcept;
   ```
-
 - 容量
 
   ```c++
@@ -221,7 +218,6 @@ int main(){   
   //返回根据系统或库实现限制的容器可保有的元素最大数量，即对于最大容器的 std::distance(begin(), end())
   constexpr size_type max_size() const noexcept;
   ```
-
 - 操作
 
   ```c++
@@ -232,7 +228,6 @@ int main(){   
   //将容器内容与 other 的内容交换。不导致迭代器和引用关联到别的容器。
   void swap( array& other ) noexcept(/* see below */);
   ```
-
 - 非成员函数
 
   ```c++
@@ -305,7 +300,6 @@ vector 上的常见操作复杂度（效率）如下：
    int num=20;double value =1.0;
    std::vector<double>    values(num, value);
    ```
-
 4. 通过存储元素类型相同的其它 vector 容器，也可以创建新 的 vector 容器，例如：
 
    ```c++
@@ -363,7 +357,6 @@ vector 上的常见操作复杂度（效率）如下：
   //构造拥有 initializer_list init 内容的容器。
   vector( std::initializer_list<T> init,const Allocator& alloc = Allocator() );
   ```
-
 - assign
 
   ```c++
@@ -380,7 +373,6 @@ vector 上的常见操作复杂度（效率）如下：
   void assign( std::initializer_list<T> ilist );
 
   ```
-
 - operator=
 
   ```c++
@@ -394,7 +386,6 @@ vector 上的常见操作复杂度（效率）如下：
   vector& operator=( std::initializer_list<T> ilist );
 
   ```
-
 - 元素访问
 
   ```c++
@@ -418,7 +409,6 @@ vector 上的常见操作复杂度（效率）如下：
   T* data() noexcept;
 
   ```
-
 - 迭代器
 
   ```c++
@@ -444,7 +434,6 @@ vector 上的常见操作复杂度（效率）如下：
   const_reverse_iterator rend() const noexcept;
 
   ```
-
 - 容量
 
   ```c++
@@ -466,7 +455,6 @@ vector 上的常见操作复杂度（效率）如下：
   //请求移除未使用的容量。它是减少 capacity() 到 size()非强制性请求,若发生重分配，则所有迭代器，包含尾后迭代器，和所有到元素的引用都被非法化
   void shrink_to_fit();
   ```
-
 - 修改
 
   ```c++
@@ -498,7 +486,7 @@ vector 上的常见操作复杂度（效率）如下：
   //直接于 pos 前插入元素到容器中。
   iterator emplace( const_iterator pos, Args&&... args );
 
-  //从容器擦除指定位置的元素。
+  //从容器擦除指定位置的元素。函数擦除的最后一个元素后跟的元素
   iterator erase( const_iterator pos );
 
   //移除范围 [first; last) 中的元素。左闭右开
@@ -628,7 +616,6 @@ vector 上的常见操作复杂度（效率）如下：
       std::unordered_map<Goo, double, decltype(hash), decltype(comp)> m8(10, hash, comp);
   }
   ```
-
 - operator=
 
   ```c++
@@ -639,10 +626,9 @@ vector 上的常见操作复杂度（效率）如下：
   unordered_map& operator=( unordered_map&& other );
 
   //以 initializer_list ilist 所标识者替换内容。
-  //    std::unordered_map<int, int> nums1 {{3, 1}, {4, 1}, {5, 9}}                              
+  //    std::unordered_map<int, int> nums1 {{3, 1}, {4, 1}, {5, 9}}                            
   unordered_map& operator=( std::initializer_list<value_type> ilist );
   ```
-
 - 特殊
 
   ```c++
@@ -655,7 +641,6 @@ vector 上的常见操作复杂度（效率）如下：
   //返回到映射到等于 key 的键的值的引用，若这种键不存在则进行插入。
   T& operator[]( const Key& key );
   ```
-
 - other
 
   ```c++
@@ -693,7 +678,6 @@ vector 上的常见操作复杂度（效率）如下：
   bool none_of( InputIt first, InputIt last, UnaryPredicate p );
 
   ```
-
   应用函数到范围中的元素
 
   ```c++
@@ -703,7 +687,6 @@ vector 上的常见操作复杂度（效率）如下：
   template< class InputIt, class UnaryFunction >
   UnaryFunction for_each( InputIt first, InputIt last, UnaryFunction f );
   ```
-
   返回满足指定判别标准的元素数
 
   ```c++
@@ -718,7 +701,6 @@ vector 上的常见操作复杂度（效率）如下：
   typename iterator_traits<InputIt>::difference_type
       count_if( InputIt first, InputIt last, UnaryPredicate p );
   ```
-
   寻找两个范围出现不同的首个位置
 
   ```c++
@@ -732,7 +714,6 @@ vector 上的常见操作复杂度（效率）如下：
   std::pair<InputIt1,InputIt2> mismatch( InputIt1 first1, InputIt1 last1,
             InputIt2 first2, BinaryPredicate p );
   ```
-
   寻找首个满足特定判别标准的元素
 
   ```c++
@@ -749,7 +730,6 @@ vector 上的常见操作复杂度（效率）如下：
   template< class InputIt, class UnaryPredicate >
   InputIt find_if_not( InputIt first, InputIt last,UnaryPredicate q );
   ```
-
   在特定范围中寻找最后出现的元素序列
 
   ```c++
@@ -764,7 +744,6 @@ vector 上的常见操作复杂度（效率）如下：
   ForwardIt1 find_end( ForwardIt1 first, ForwardIt1 last,
                    ForwardIt2 s_first, ForwardIt2 s_last, BinaryPredicate p );
   ```
-
   搜索元素集合中的任意元素
 
   ```c++
@@ -779,7 +758,6 @@ vector 上的常见操作复杂度（效率）如下：
   InputIt find_first_of( InputIt first, InputIt last,
                      ForwardIt s_first, ForwardIt s_last, BinaryPredicate p );
   ```
-
   查找首对相邻的相同（或满足给定谓词的）元素
 
   ```c++
@@ -792,7 +770,6 @@ vector 上的常见操作复杂度（效率）如下：
   template< class ForwardIt, class BinaryPredicate>
   ForwardIt adjacent_find( ForwardIt first, ForwardIt last, BinaryPredicate p );
   ```
-
   搜索一个元素范围
 
   ```c++
@@ -807,7 +784,6 @@ vector 上的常见操作复杂度（效率）如下：
   ForwardIt1 search( ForwardIt1 first, ForwardIt1 last,
                  ForwardIt2 s_first, ForwardIt2 s_last, BinaryPredicate p );
   ```
-
   在范围中搜索一定量的某个元素的连续副本
 
   ```c++
@@ -821,7 +797,6 @@ vector 上的常见操作复杂度（效率）如下：
   ForwardIt search_n( ForwardIt first, ForwardIt last, Size count, const T& value,
                    BinaryPredicate p );
   ```
-
 - 修改序列的操作
 
   将某一范围的元素复制到一个新的位置
@@ -837,7 +812,6 @@ vector 上的常见操作复杂度（效率）如下：
   OutputIt copy_if( InputIt first, InputIt last,
                 OutputIt d_first, UnaryPredicate pred );
   ```
-
   将一定数目的元素复制到一个新的位置
 
   ```c++
@@ -845,7 +819,6 @@ vector 上的常见操作复杂度（效率）如下：
   template< class InputIt, class Size, class OutputIt >
   OutputIt copy_n( InputIt first, Size count, OutputIt result );
   ```
-
   按从后往前的顺序复制一个范围内的元素
 
   ```c++
@@ -853,7 +826,6 @@ vector 上的常见操作复杂度（效率）如下：
   template< class BidirIt1, class BidirIt2 >
   BidirIt2 copy_backward( BidirIt1 first, BidirIt1 last, BidirIt2 d_last );
   ```
-
   将某一范围的元素移动到一个新的位置
 
   ```c++
@@ -866,7 +838,6 @@ vector 上的常见操作复杂度（效率）如下：
   template< class BidirIt1, class BidirIt2 >
   BidirIt2 move_backward( BidirIt1 first, BidirIt1 last, BidirIt2 d_last );
   ```
-
   将一个给定值复制赋值给一个范围内的每个元素
 
   ```c++
@@ -878,7 +849,6 @@ vector 上的常见操作复杂度（效率）如下：
   template< class OutputIt, class Size, class T >
   OutputIt fill_n( OutputIt first, Size count, const T& value );
   ```
-
   ```c++
   //std::transform 应用给定的函数到范围并存储结果于始于 d_first 的另一范围。
   // 应用一元函数 unary_op 到 [first1, last1) 所定义的范围。
@@ -890,7 +860,6 @@ vector 上的常见操作复杂度（效率）如下：
   OutputIt transform( InputIt1 first1, InputIt1 last1, InputIt2 first2,
                   OutputIt d_first, BinaryOperation binary_op );
   ```
-
   将相继的函数调用结果赋值给一个范围中的每个元素
 
   ```c++
@@ -904,7 +873,6 @@ vector 上的常见操作复杂度（效率）如下：
   template< class OutputIt, class Size, class Generator >
   OutputIt generate_n( OutputIt first, Size count, Generator g );
   ```
-
   复制一个范围的元素，忽略满足特定判别标准的元素
 
   ```c++
@@ -920,7 +888,6 @@ vector 上的常见操作复杂度（效率）如下：
 
   //通过以满足不移除的元素出现在范围起始的方式，迁移（以移动赋值的方式）范围中的元素进行移除。保持剩余元素的相对顺序，且不更改容器的物理大小。指向范围的新逻辑结尾和物理结尾之间元素的迭代器仍然可解引用，但元素自身拥有未指定值（因为可移动赋值 (MoveAssignable) 的后条件）。调用 remove 典型地后随调用容器的 erase 方法，它擦除未指定值并减小容器的物理大小，以匹配其新的逻辑大小。
   ```
-
   替换所有谓词 p 对其返回 true 的元素。
 
   ```c++
@@ -935,7 +902,6 @@ vector 上的常见操作复杂度（效率）如下：
   void replace_if( ForwardIt first, ForwardIt last,
                    UnaryPredicate p, const T& new_value );
   ```
-
   复制一个范围内的元素，并将满足特定判别标准的元素替换为另一个值
 
   ```c++
@@ -951,7 +917,6 @@ vector 上的常见操作复杂度（效率）如下：
   OutputIt replace_copy_if( InputIt first, InputIt last, OutputIt d_first,
                         UnaryPredicate p, const T& new_value );
   ```
-
   交换两个对象的值
 
   ```c++
@@ -972,7 +937,6 @@ vector 上的常见操作复杂度（效率）如下：
                       ForwardIt2 first2 );
 
   ```
-
   逆转范围中的元素顺序
 
   ```c++
@@ -984,7 +948,6 @@ vector 上的常见操作复杂度（效率）如下：
   template< class BidirIt, class OutputIt >
   OutputIt reverse_copy( BidirIt first, BidirIt last, OutputIt d_first );
   ```
-
   旋转范围中的元素顺序
 
   ```c++
@@ -998,7 +961,6 @@ vector 上的常见操作复杂度（效率）如下：
   OutputIt rotate_copy( ForwardIt first, ForwardIt n_first,
                     ForwardIt last, OutputIt d_first );
   ```
-
   随机数生成器为函数对象 r
 
   ```c++
@@ -1013,7 +975,6 @@ vector 上的常见操作复杂度（效率）如下：
   template< class RandomIt, class URBG >
   void shuffle( RandomIt first, RandomIt last, URBG&& g );
   ```
-
   移除范围内的连续重复元素
 
   ```C++
