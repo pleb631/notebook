@@ -2,16 +2,7 @@ from PIL import Image
 import numpy as np
 import cv2
 
-def pillow_to_numpy(img):
-    img_numpy = np.asarray(img)
-    if not img_numpy.flags.writeable:
-        img_numpy = np.array(img)
-    return img_numpy
 
-
-def numpy_to_pillow(img, mode=None):
-    img_pillow = Image.fromarray(img, mode=mode)
-    return img_pillow
 
 
 
@@ -92,42 +83,7 @@ def centerize(
     else:
         return dst
     
-def label_colormap(n_label=10):
-    """Label colormap.
 
-    Parameters
-    ----------
-    n_labels: int
-        Number of labels (default: 256).
-    value: float or int
-        Value scale or value of label color in HSV space.
-
-    Returns
-    -------
-    cmap: numpy.ndarray, (N, 3), numpy.uint8
-        Label id to colormap.
-
-    """
-
-    def bitget(byteval, idx):
-        shape = byteval.shape + (8,)
-        return np.unpackbits(byteval).reshape(shape)[..., -1 - idx]
-
-    i = np.arange(n_label, dtype=np.uint8)
-    r = np.full_like(i, 0)
-    g = np.full_like(i, 0)
-    b = np.full_like(i, 0)
-
-    i = np.repeat(i[:, None], 8, axis=1)
-    i = np.right_shift(i, np.arange(0, 24, 3)).astype(np.uint8)
-    j = np.arange(8)[::-1]
-    r = np.bitwise_or.reduce(np.left_shift(bitget(i, 0), j), axis=1)
-    g = np.bitwise_or.reduce(np.left_shift(bitget(i, 1), j), axis=1)
-    b = np.bitwise_or.reduce(np.left_shift(bitget(i, 2), j), axis=1)
-
-    cmap = np.stack((r, g, b), axis=1).astype(np.uint8)
-
-    return cmap
 
 
 def mask_to_bbox(masks):

@@ -1,12 +1,11 @@
 # -*- coding: UTF-8 -*-
 import os
-import abc
 import shutil
-import glob
 import json, csv, pickle, yaml
-import random
 import numpy as np
 import xml.etree.ElementTree as ET
+import cv2
+import base64
 
 
 '''
@@ -28,10 +27,10 @@ def read_json(json_path, mode='all'):
             # 把读取内容转换为python字典
             json_data = json.loads(json_file.read())
         elif mode == 'line':
-            for line in json_file.readlines():
+            for line in json_file:
                 json_line = json.loads(line)
                 json_data.append(json_line)
-    
+
     return json_data
 
 
@@ -58,112 +57,6 @@ def save_json(json_path, info, indent=4, mode='w', with_return_char=False):
     json_file.close()
 
 
-class SaveJson(metaclass=abc.ABCMeta):
-    """保存Json文件抽象类
-
-    Attributes:
-        save_json_path: str, 保存json文件路径
-        json_data: list, json文件内容
-    """
-    def __init__(self, save_json_path):
-        self.save_json_path = save_json_path
-        self.json_data = []
-
-    @abc.abstractmethod
-    def parse_info(self):
-        '''传入json文件内容
-        '''
-        pass
-
-    def save_json_data(self, mode='all'):
-        '''保存json文件
-
-        Args:
-            mode: str, 'all'代表一次性存储所有数据；'line'代表分行存储数据
-        '''
-        if mode == 'all':
-            save_json(self.save_json_path, self.json_data, 4, 'w', False)
-            # for json_line_data in self.json_data:
-            #     save_json(self.save_json_path, json_line_data, None, 'a', True)
-        elif mode == 'line':
-            json_line_data = self.json_data[0]
-            save_json(self.save_json_path, json_line_data, None, 'a', True)
-            self.json_data.pop(0)
-
-
-class SaveCocoPredJson(SaveJson):
-    """保存COCO格式预测结果文件类
-    """
-    def __init__(self, save_json_path):
-        super().__init__(save_json_path)
-
-    def parse_info(self, info):
-        '''传入json文件内容
-
-        Args:
-            info: tuple, 文件内容，格式为[{"image_id": 42, "category_id": 18, "bbox": [258.15, 41.29, 348.26, 243.78], "score": 0.236}, ...
-                                                          注意coco的bbox格式为: [xmin, ymin, w, h]！！！！！！而非[xmin, ymin, xmax, ymax]
-        '''
-        (image_id, category_id, bbox, score) = info
-        self.json_data.append({'image_id': image_id, 'category_id': category_id, 'bbox': bbox, 'score': score})
-
-
-class SavePreLabelJson(SaveJson):
-    """保存预标注结果文件类
-    """
-    def __init__(self, save_json_path):
-        super().__init__(save_json_path)
-
-    def parse_info(self, info):
-        '''传入json文件内容
-
-        Args:
-            info: tuple, 文件内容：图像路径url_image '/sample/path'
-                                标注方法datatype: detectbox为标框, dot为标点, contour为标多边形
-                                标记点data: [[x1, y1, x2, y2, comment], [x1, y1, x2, y2, comment]...]
-                                标注信息tagtype: 标注人员显示的中文信息
-                                说明comment: 标注人员自定义录入的信息
-                                检测预标注格式：datatype='detectbox', data=[x1, y1, x2, y2], tagtype='box1'
-                                关键点预标注格式：datatype='dot', data=[x1, y1, x2, y2, x3, y3, x4, y4]顺时针关键点, tagtype
-        '''
-        (url_image, datatype, data, tagtype) = info
-
-        result = []
-        for line in data:
-            result.append({"comment": line[4],  "datatype": datatype,  "data": line[:4],  "tagtype": tagtype})
-        
-        self.json_data.append({"sha1_image": "5a4e513ed6f491b86e34a8ab6826d35f7289b5df", 
-                                "result": result,
-                                "dt_checked": "2021-03-14 13:05:55",
-                                "uid_tagger": 2926, 
-                                "jid_job": 28342377, 
-                                "sid_sample": 28342377, 
-                                "url_image": url_image, 
-                                "uid_checker1": 1048})
-
-
-class SaveCustomerFlowReIDJson(SaveJson):
-    """保存Gucci客流跨境跟踪json文件类
-    """
-    def __init__(self, save_json_path):
-        super().__init__(save_json_path)
-
-    def parse_info(self, info):
-        '''传入json文件内容
-
-        Args:
-            info: tuple, 文件内容Information:[{"TrackingID": "6",
-                                                                            "ImagePath": "path", 
-                                                                            "Identity": "Client/Assistant",
-                                                                            "HeadShoulderFeature": "base64"}]
-        '''
-        (device_id, frame_index, Time, Information) = info
-        self.json_data.append({"CamSNID": device_id, 
-                                                            "FrameNum": frame_index, 
-                                                            "Time": Time, 
-                                                            "Information": Information})
-
-
 '''
 YAML文件读写
 '''
@@ -183,6 +76,32 @@ def read_yaml(yaml_path):
     return yaml_data
 
 
+
+def yaml_save(yaml_path, data, header=''):
+    """
+    Save YAML data to a file.
+
+    Args:
+        file (str, optional): File name. Default is 'data.yaml'.
+        data (dict): Data to save in YAML format.
+        header (str, optional): YAML header to add.
+
+    Returns:
+        (None): Data is saved to the specified file.
+    """
+
+    # Convert Path objects to strings
+    valid_types = int, float, str, bool, list, tuple, dict, type(None)
+    for k, v in data.items():
+        if not isinstance(v, valid_types):
+            data[k] = str(v)
+
+    # Dump data to file in YAML format
+    with open(yaml_path, 'w', errors='ignore', encoding='utf-8') as f:
+        if header:
+            f.write(header)
+        yaml.safe_dump(data, f, sort_keys=False, allow_unicode=True)
+
 '''
 CSV文件读写；EXCEL大文件用openpyxl/pandas等加载很慢，建议转成CSV再处理
 '''
@@ -197,9 +116,7 @@ def read_csv(csv_path):
     '''
     csv_file = open(csv_path, "r",encoding="UTF-8")
     reader = csv.reader(csv_file)
-    reader_data = list(reader)
-
-    return reader_data
+    return list(reader)
 
 
 def save_csv(csv_path, info, mode='w'):
@@ -230,13 +147,21 @@ def read_txt(txt_path):
         txt_data: list, txt文件内容
     '''
     txt_file = open(txt_path, "r",encoding="UTF-8")
-    txt_data = []
-    for line in txt_file.readlines():
-        txt_data.append(line.replace('\n', ''))
+    return [line.replace('\n', '') for line in txt_file]
 
-    return txt_data
+def save_txt(txt_path, info, mode='w'):
+    '''保存txt文件
 
-
+    Args:
+        txt_path: str, txt文件路径
+        info: list, txt文件内容
+        mode: str, 'w'代表覆盖写；'a'代表追加写
+    '''
+    with open(txt_path, mode) as txt_file:
+        for line in info:
+            txt_file.write(line + '\n')
+    
+    
 def read_yolo_txt(txt_path, width, height, mode='std'):
     '''读取yolo_txt文件
 
@@ -263,7 +188,7 @@ def read_yolo_txt(txt_path, width, height, mode='std'):
 
     txt_file = open(txt_path, 'r')
     txt_data = []
-    for line in txt_file.readlines():
+    for line in txt_file:
         cls_id = int(line.split(' ')[0])
         box_x = float(line.split(' ')[1]) * width
         box_y = float(line.split(' ')[2]) * height
@@ -282,21 +207,6 @@ def read_yolo_txt(txt_path, width, height, mode='std'):
     return txt_data
 
 
-def save_txt(txt_path, info, mode='w'):
-    '''保存txt文件
-
-    Args:
-        txt_path: str, txt文件路径
-        info: list, txt文件内容
-        mode: str, 'w'代表覆盖写；'a'代表追加写
-    '''
-    #os.makedirs(os.path.split(txt_path)[0], exist_ok=True)
-    
-    txt_file = open(txt_path, mode)
-    for line in info:
-        txt_file.write(line + '\n')
-    txt_file.close()
-
 
 '''
 XML文件读写
@@ -314,11 +224,8 @@ def read_xml(xml_path, mode='std'):
         xml_data: list, xml文件内容
     '''
     xml_target = ET.parse(xml_path).getroot()
-    xml_data = {}
-
     file_name = xml_target.find('filename').text
-    xml_data['file_name'] = file_name
-
+    xml_data = {'file_name': file_name}
     # for size_node in xml_target.iter('size'):
     width =  int(xml_target.find('size').find('width').text)
     height =  int(xml_target.find('size').find('height').text)
@@ -333,7 +240,7 @@ def read_xml(xml_path, mode='std'):
 
         pts = ['xmin', 'ymin', 'xmax', 'ymax']
         bndbox = []
-        for i, pt in enumerate(pts):
+        for pt in pts:
             cur_pt = int(bbox.find(pt).text)
             bndbox.append(cur_pt)
         bndbox.append(name)
@@ -341,11 +248,9 @@ def read_xml(xml_path, mode='std'):
         if mode == 'with_pred_topk':
             pred_cls = obj_node.find('pred_cls')
             classes_name = pred_cls.findall('cls_name')
-            for class_name in classes_name:
-                bndbox.append(class_name.text)
-        
+            bndbox.extend(class_name.text for class_name in classes_name)
         bndboxes.append(bndbox)
-    
+
     xml_data['bndboxes'] = bndboxes
 
     return xml_data
@@ -366,52 +271,54 @@ def save_xml(data, xml_path, width, height, classes=None, mode='std'):
     '''
     os.makedirs(os.path.dirname(xml_path), exist_ok=True)
 
-    xml_file = open(xml_path, 'w')
-    xml_file.write('<annotation>\n')
-    xml_file.write('    <folder>VOC2007</folder>\n')
-    xml_file.write('    <filename>' + os.path.basename(xml_path).replace('xml', 'jpg') + '</filename>\n')
-    xml_file.write('    <size>\n')
-    xml_file.write('        <width>' + str(width) + '</width>\n')
-    xml_file.write('        <height>' + str(height) + '</height>\n')
-    xml_file.write('        <depth>3</depth>\n')
-    xml_file.write('    </size>\n')
+    with open(xml_path, 'w') as xml_file:
+        xml_file.write('<annotation>\n')
+        xml_file.write('    <folder>VOC2007</folder>\n')
+        xml_file.write('    <filename>' + os.path.basename(xml_path).replace('xml', 'jpg') + '</filename>\n')
+        xml_file.write('    <size>\n')
+        xml_file.write(f'        <width>{str(width)}' + '</width>\n')
+        xml_file.write(f'        <height>{str(height)}' + '</height>\n')
+        xml_file.write('        <depth>3</depth>\n')
+        xml_file.write('    </size>\n')
 
-    for obj_index in range(len(data)):
+        for obj_index in range(len(data)):
             xml_file.write('    <object>\n')
             if classes is not None:
-                xml_file.write('        <name>' + classes[data[obj_index][4]] + '</name>\n')
+                xml_file.write(f'        <name>{classes[data[obj_index][4]]}' + '</name>\n')
             else:
-                xml_file.write('        <name>' + data[obj_index][4] + '</name>\n')
+                xml_file.write(f'        <name>{data[obj_index][4]}' + '</name>\n')
             xml_file.write('        <pose>Unspecified</pose>\n')
             xml_file.write('        <truncated>0</truncated>\n')
             xml_file.write('        <difficult>0</difficult>\n')
             xml_file.write('        <bndbox>\n')
-            xml_file.write('            <xmin>' + str(int(data[obj_index][0])) + '</xmin>\n')
-            xml_file.write('            <ymin>' + str(int(data[obj_index][1])) + '</ymin>\n')
-            xml_file.write('            <xmax>' + str(int(data[obj_index][2])) + '</xmax>\n')
-            xml_file.write('            <ymax>' + str(int(data[obj_index][3])) + '</ymax>\n')
+            xml_file.write(f'            <xmin>{int(data[obj_index][0])}' + '</xmin>\n')
+            xml_file.write(f'            <ymin>{int(data[obj_index][1])}' + '</ymin>\n')
+            xml_file.write(f'            <xmax>{int(data[obj_index][2])}' + '</xmax>\n')
+            xml_file.write(f'            <ymax>{int(data[obj_index][3])}' + '</ymax>\n')
             xml_file.write('        </bndbox>\n')
             if mode == 'with_pred_topk':
                 xml_file.write('        <pred_cls>\n')
                 for cls_name_index in range(5, len(data[obj_index])):
-                    xml_file.write('            <cls_name>' + str(data[obj_index][cls_name_index]) + '</cls_name>\n')
+                    xml_file.write(
+                        f'            <cls_name>{str(data[obj_index][cls_name_index])}'
+                        + '</cls_name>\n'
+                    )
                 xml_file.write('        </pred_cls>\n')
             if mode == 'with_hip_mid_keypoint':
                 xml_file.write('        <midpoint>\n')
-                xml_file.write('            <xm>' + str(data[obj_index][5]) + '</xm>\n')
-                xml_file.write('            <ym>' + str(data[obj_index][6]) + '</ym>\n')
+                xml_file.write(f'            <xm>{str(data[obj_index][5])}' + '</xm>\n')
+                xml_file.write(f'            <ym>{str(data[obj_index][6])}' + '</ym>\n')
                 xml_file.write('        </midpoint>\n')
             if mode == 'with_headshoulder_box':
                 xml_file.write('        <hsbndbox>\n')
-                xml_file.write('            <xmin>' + str(int(data[obj_index][5])) + '</xmin>\n')
-                xml_file.write('            <ymin>' + str(int(data[obj_index][6])) + '</ymin>\n')
-                xml_file.write('            <xmax>' + str(int(data[obj_index][7])) + '</xmax>\n')
-                xml_file.write('            <ymax>' + str(int(data[obj_index][8])) + '</ymax>\n')
+                xml_file.write(f'            <xmin>{int(data[obj_index][5])}' + '</xmin>\n')
+                xml_file.write(f'            <ymin>{int(data[obj_index][6])}' + '</ymin>\n')
+                xml_file.write(f'            <xmax>{int(data[obj_index][7])}' + '</xmax>\n')
+                xml_file.write(f'            <ymax>{int(data[obj_index][8])}' + '</ymax>\n')
                 xml_file.write('        </hsbndbox>\n')
             xml_file.write('    </object>\n')
 
-    xml_file.write('</annotation>')
-    xml_file.close()
+        xml_file.write('</annotation>')
 
 
 '''
@@ -430,6 +337,56 @@ def read_pkl(pkl_path):
         pkl_data = pickle.load(pkl_file)
 
     return pkl_data
+
+def save_pkl(pkl_path, pkl_data):
+    '''保存pkl文件
+
+    Args:
+        pkl_path: str, pickle文件路径
+        pkl_data: list, txt文件内容
+    '''
+    with open(pkl_path, 'wb') as pkl_file:
+        pickle.dump(pkl_data, pkl_file)
+
+def get_files(root_path,suffix=('.jpg', '.png', '.jpeg')):
+    res = []
+    for root, dirs, files in os.walk(root_path, followlinks=True):
+        res.extend(os.path.join(root, f) for f in files if f.endswith(suffix))
+    return res
+
+
+def get_image_list(image_path):
+    """Get image list"""
+    valid_suffix = [
+        '.JPEG', '.jpeg', '.JPG', '.jpg', '.BMP', '.bmp', '.PNG', '.png'
+    ]
+    image_list = []
+    image_dir = None
+    if os.path.isfile(image_path):
+        image_dir = None
+        if os.path.splitext(image_path)[-1] in valid_suffix:
+            image_list.append(image_path)
+        else:
+            image_dir = os.path.dirname(image_path)
+            with open(image_path, 'r') as f:
+                image_list.extend(os.path.join(image_dir, line) for line in f)
+    elif os.path.isdir(image_path):
+        image_dir = image_path
+        for root, dirs, files in os.walk(image_dir):
+            image_list.extend(
+                os.path.join(root, f)
+                for f in files
+                if os.path.splitext(f)[-1] in valid_suffix
+            )
+        image_list.sort()
+    else:
+        raise FileNotFoundError(
+            '`image_path` is not found. it should be an image file or a directory including images'
+        )
+
+
+    return image_list, image_dir
+
 
 
 '''
@@ -462,10 +419,7 @@ def base64_to_image(image_base64):
     img_data = base64.b64decode(image_base64)
     # 转换为np数组
     rgb_array = np.fromstring(img_data, np.uint8)
-    # 转换成opencv可用格式
-    img = cv2.imdecode(rgb_array, cv2.IMREAD_COLOR)
-    # img = cv2.imdecode(rgb_array, cv2.COLOR_BGR2RGB)
-    return img
+    return cv2.imdecode(rgb_array, cv2.IMREAD_COLOR)
 
 
 def download_url(file_url, save_file_path):
@@ -481,21 +435,6 @@ def download_url(file_url, save_file_path):
         local_file.write(file_object.content)
 
 
-def get_last_k_dir_path(path, k):
-    '''获取目录中最后k个目录
-
-    Args:
-        path: str, 目录路径
-        k: int, 获取目录数量
-
-    Returns:
-        last_k_dir_path: str, 最后k个目录
-    '''
-    last_k_dir_path = '/'.join(path.split('/')[-k:])
-
-    return last_k_dir_path
-
-
 def is_file_empty(file_path):
     '''判断文件是否是空文件
 
@@ -505,11 +444,7 @@ def is_file_empty(file_path):
     Returns:
         bool, 为空则为True，否则为False
     '''
-    size = os.path.getsize(file_path)
-    if size:
-        return False
-    else:
-        return True
+    return not (size := os.path.getsize(file_path))
 
 
 def get_str_of_size(size):
@@ -540,7 +475,7 @@ def get_str_of_size(size):
 def copy_dir(src, dst):
     """ copy src-directory to dst-directory, will cover the same files"""
     if not os.path.exists(src):
-        print("\nno src path:{}".format(src))
+        print(f"\nno src path:{src}")
         return
     for root, dirs, files in os.walk(src, topdown=False):
         dest_path = os.path.join(dst, os.path.relpath(root, src))
@@ -551,22 +486,6 @@ def copy_dir(src, dst):
                 os.path.join(root, filename),
                 os.path.join(dest_path, filename)
             )
-
-
-def copy_file(srcfile, dstfile):
-    """
-    copy src file to dst file
-    :param srcfile:
-    :param dstfile:
-    :return:
-    """
-    if not os.path.isfile(srcfile):
-        print("%s not exist!" % (srcfile))
-    else:
-        fpath, fname = os.path.split(dstfile)  # 分离文件名和路径
-        if not os.path.exists(fpath):
-            os.makedirs(fpath)  # 创建路径
-        shutil.copyfile(srcfile, dstfile)  # 复制文件
 
 def others():
     '''文件处理相关的小功能，一两行能实现的
