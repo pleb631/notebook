@@ -1,11 +1,9 @@
-import glob
 import cv2
 import numpy as np
 import os
-import pandas as pd
 
 from .FileUtils import *
-from .ImageVideoUtils import *
+#from .ImageVideoUtils import *
 from .DetectDataVisualization import *
 from .Math import Distance
 from .Convertion import get_xyxy_center
@@ -104,17 +102,7 @@ class BadcaseAnalyseUtils:
         return matched_boxes, unmatched_boxes_a, unmatched_boxes_b
 
 
-class ClsBadcaseUtils(BadcaseAnalyseUtils):
-    """分类模型Badcase工具类
 
-    Attributes:
-        root: str, 根目录路径
-        save_dir_path: str, 需要保存文件的路径
-    """
-
-    def __init__(self):
-        super().__init__()
-        self.vis_utils = ClsDataVis()
 
 
 class DetBadcaseUtils(BadcaseAnalyseUtils):

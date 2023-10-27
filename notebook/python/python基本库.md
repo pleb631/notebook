@@ -193,6 +193,24 @@ if __name__ == '__main__':
 
 ```
 
+### 线程池
+
+```python
+from multiprocessing.pool import ThreadPool
+import time
+from tqdm import tqdm
+def  func(num):
+    time.sleep(0.1)
+    if num%3==0:
+        return num*10
+with ThreadPool(2) as pool:
+    results = pool.imap(func=func, iterable=range(10))
+    pbar = tqdm(results, total=10,ncols=100)
+    for result in pbar:
+        pbar.desc = f'{result=}'
+    pbar.close()
+```
+
 ## threading
 
 ```python

@@ -16,7 +16,7 @@ def read_json(json_path, mode='all'):
 
     Args:
         json_path: str, json文件路径
-        mode: str, 'all'模式代表一次性读取json文件全部内容，只存在一个字典；'line'模式代表按行读取json文件内容，每行为一个字典
+        mode: str, 'all'模式代表一次性读取json文件全部内容,只存在一个字典；'line'模式代表按行读取json文件内容,每行为一个字典
 
     Returns:
         json_data: list, json文件内容
@@ -40,7 +40,7 @@ def save_json(json_path, info, indent=4, mode='w', with_return_char=False):
     Args:
         json_path: str, json文件路径
         info: dict, json文件内容
-        indent: int, 缩进量，默认为4；None代表不缩进
+        indent: int, 缩进量,默认为4；None代表不缩进
         mode: str, 'w'代表覆盖写；'a'代表追加写
         with_return_char: bool, 写文件时是否在结尾添加换行符
     '''
@@ -103,7 +103,7 @@ def yaml_save(yaml_path, data, header=''):
         yaml.safe_dump(data, f, sort_keys=False, allow_unicode=True)
 
 '''
-CSV文件读写；EXCEL大文件用openpyxl/pandas等加载很慢，建议转成CSV再处理
+CSV文件读写；EXCEL大文件用openpyxl/pandas等加载很慢,建议转成CSV再处理
 '''
 def read_csv(csv_path):
     '''读取csv文件
@@ -348,11 +348,18 @@ def save_pkl(pkl_path, pkl_data):
     with open(pkl_path, 'wb') as pkl_file:
         pickle.dump(pkl_data, pkl_file)
 
-def get_files(root_path,suffix=('.jpg', '.png', '.jpeg')):
-    res = []
-    for root, dirs, files in os.walk(root_path, followlinks=True):
-        res.extend(os.path.join(root, f) for f in files if f.endswith(suffix))
-    return res
+def list_files(basePath, validExts=None, contains=None):
+    '''
+    遍历文件夹basePath中的文件,如果validExts不为空,则只返回文件扩展名为validExts的文件,
+    如果contains不为空,则只返回文件名包含contains的文件
+    '''
+    for (rootDir, dirNames, filenames) in os.walk(basePath):
+        for filename in filenames:
+            if contains is not None and filename.find(contains) == -1:
+                continue
+            ext = filename[filename.rfind("."):].lower()
+            if validExts is None or ext.endswith(validExts):
+                yield os.path.join(rootDir, filename)
 
 
 def get_image_list(image_path):
@@ -405,22 +412,6 @@ def byte_to_base64(byte_data):
     return base64_data
 
 
-def image_to_base64(rgb_image):
-    bgr_image = cv2.cvtColor(rgb_image, cv2.COLOR_RGB2BGR)
-    image = cv2.imencode('.jpg', bgr_image)[1]
-    # image_base64 = str(base64.b64encode(image))[2:-1]
-    image_base64 = base64.b64encode(image)
-    image_base64 = str(image_base64, encoding='utf-8')
-    return image_base64
-
-
-def base64_to_image(image_base64):
-    # base64解码
-    img_data = base64.b64decode(image_base64)
-    # 转换为np数组
-    rgb_array = np.fromstring(img_data, np.uint8)
-    return cv2.imdecode(rgb_array, cv2.IMREAD_COLOR)
-
 
 def download_url(file_url, save_file_path):
     '''下载并存储网络文件
@@ -442,19 +433,19 @@ def is_file_empty(file_path):
         file_path: str, 文件路径
 
     Returns:
-        bool, 为空则为True，否则为False
+        bool, 为空则为True,否则为False
     '''
     return not (size := os.path.getsize(file_path))
 
 
 def get_str_of_size(size):
-    '''字节大小自适应转换为B/KB/MB/GB。递归实现，精确为最大单位值 + 小数点后三位
+    '''字节大小自适应转换为B/KB/MB/GB。递归实现,精确为最大单位值 + 小数点后三位
 
     Args:
         size: int, 字节大小
 
     Returns:
-        str, 转换后的大小，如39.421 KB
+        str, 转换后的大小,如39.421 KB
     '''
     def strofsize(integer, remainder, level):
         if integer >= 1024:
@@ -488,7 +479,7 @@ def copy_dir(src, dst):
             )
 
 def others():
-    '''文件处理相关的小功能，一两行能实现的
+    '''文件处理相关的小功能,一两行能实现的
     '''
     # copy file
     shutil.copyfile(src_file, dst_file)

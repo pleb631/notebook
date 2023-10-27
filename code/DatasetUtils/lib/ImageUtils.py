@@ -188,112 +188,7 @@ def depth2gray(depth_npy_path):
     return norm_img
 
 
-def gen_affine_image(src_image, src_image_points, dst_image_points, width, height):
-    """对图像做仿射变换，生成新的图像。仿射变换：将矩形映射成任意平行四边形，各边仍保持平行。需要提供三个顶点。
 
-    Args:
-        src_image: nparray, 原始图像
-        src_image_points: list, 原始图像上三个点，按逆时针排序，三个点分别对应左上角、左下角、右上角，如[[58,144],[348,960],[1920,130]]
-        dst_image_points: list, 原始图像上变换目标三个点，按逆时针排序，三个点分别对应左上角、左下角、右上角，如[[0,0], [0,height], [width,0]]
-        width: int, 保存仿射变换图像的宽
-        height: int, 保存仿射变换图像的高
-
-    Returns:
-        affine_image: nparray, 仿射变换生成的图像
-    """
-    M = cv2.getAffineTransform(
-        np.float32(src_image_points), np.float32(dst_image_points)
-    )
-    return cv2.warpAffine(src_image, M, (width, height))
-
-
-def gen_perspective_image(src_image, src_image_points, dst_image_points, width, height):
-    """对图像做透视变换，生成新的图像。透视变换：将矩形映射为任意四边形，直线仍保持直线。由于不再是平行四边形，需提供四个顶点。
-
-    Args:
-        src_image: nparray, 原始图像
-        src_image_points: list, 原始图像上四个点，按逆时针排序，如[[58,144],[348,960],[1678,936],[1920,130]]
-        dst_image_points: list, 原始图像上变换目标四个点，按逆时针排序，如[[0,0], [0,height], [width,height], [width,0]]
-        width: int, 保存透视变换图像的宽
-        height: int, 保存透视变换图像的高
-
-    Returns:
-        perspective_image: nparray, 透视变换生成的图像
-    """
-    M = cv2.getPerspectiveTransform(
-        np.float32(src_image_points), np.float32(dst_image_points)
-    )
-
-    return cv2.warpPerspective(src_image, M, (width, height))
-
-
-def gen_perspective_points(src_image_points, dst_image_points, src_points):
-    """对点做透视变换，生成新的点
-
-    Args:
-        src_image_points: list, 原始图像上四个点，按逆时针排序，如[[58,144],[348,960],[1678,936],[1920,130]]
-        dst_image_points: list, 原始图像上变换目标四个点，按逆时针排序，如[[0,0], [0,height], [width,height], [width,0]]
-        src_points: list, 原始点；eg: [[x1,y1],[x2,y2],...]
-
-    Returns:
-        perspective_points: list, 透视变换生成的矩形框
-    """
-    M = cv2.getPerspectiveTransform(
-        np.float32(src_image_points), np.float32(dst_image_points)
-    )
-
-    n = len(src_points)
-    base_points_arr = np.array(src_points, dtype=int)
-    xy = np.ones((n, 3))
-
-    xy[:, :2] = base_points_arr.reshape(n, 2)
-
-    xy = xy @ M.T
-    xy = xy[:, :2] / xy[:, 2:3]
-
-
-    return np.array(xy[:, :2], dtype=int)
-
-
-def gen_perspective_boxes(src_image_points, dst_image_points, src_boxes, width, height):
-    """对矩形框做透视变换，生成新的矩形框
-
-    Args:
-        src_image_points: list, 原始图像上四个点，按逆时针排序，如[[58,144],[348,960],[1678,936],[1920,130]]
-        dst_image_points: list, 原始图像上变换目标四个点，按逆时针排序，如[[0,0], [0,height], [width,height], [width,0]]
-        src_boxes: list, 原始矩形框
-        width: int, 原始图像的宽
-        height: int, 原始图像的高
-
-    Returns:
-        perspective_boxes: nparray, 透视变换生成的矩形框
-    """
-    M = cv2.getPerspectiveTransform(
-        np.float32(src_image_points), np.float32(dst_image_points)
-    )
-
-    n = len(src_boxes)
-    base_box_arr = np.array(src_boxes, dtype=int)
-    # 设变换之前的点是z值为1的点，它三维平面上的值是x,y,1，在二维平面上的投影是x,y
-    xy = np.ones((n * 4, 3))
-
-    # [xmin, ymin, xmax, ymax]转为[x1y1, x2y2, x1y2, x2y1]
-    xy[:, :2] = base_box_arr[:, [0, 1, 2, 3, 0, 3, 2, 1]].reshape(n * 4, 2)
-
-    # 通过矩阵变换成三维中的点X,Y,Z，除以三维中Ｚ轴的值，转换成二维中的点，得到变换后四边形四个角点的(x,y)值；
-    xy = xy @ M.T
-    xy = (xy[:, :2] / xy[:, 2:3]).reshape(n, 8)
-
-    # 取四边形最小最大x,y作为新的矩形[xmin,ymin,xmax,ymax]
-    x = xy[:, [0, 2, 4, 6]]
-    y = xy[:, [1, 3, 5, 7]]
-    xy = np.concatenate((x.min(1), y.min(1), x.max(1), y.max(1))).reshape(4, n).T
-
-    # 宽高边界值
-    xy[:, [0, 2]] = xy[:, [0, 2]].clip(0, width)
-    xy[:, [1, 3]] = xy[:, [1, 3]].clip(0, height)
-
-    return np.array(xy, dtype=int)
 
 
 def gen_mask_image(points_list, width, height):
@@ -695,6 +590,21 @@ def filter_similar_image(image_dir_path, save_image_dir_path, threshold=5):
 """
 Others
 """
+def image_to_base64(rgb_image):
+    bgr_image = cv2.cvtColor(rgb_image, cv2.COLOR_RGB2BGR)
+    image = cv2.imencode('.jpg', bgr_image)[1]
+    # image_base64 = str(base64.b64encode(image))[2:-1]
+    image_base64 = base64.b64encode(image)
+    image_base64 = str(image_base64, encoding='utf-8')
+    return image_base64
+
+
+def base64_to_image(image_base64):
+    # base64解码
+    img_data = base64.b64decode(image_base64)
+    # 转换为np数组
+    rgb_array = np.fromstring(img_data, np.uint8)
+    return cv2.imdecode(rgb_array, cv2.IMREAD_COLOR)
 
 
 def imread(filename: str, flags: int = cv2.IMREAD_COLOR):

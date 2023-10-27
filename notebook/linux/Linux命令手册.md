@@ -1,6 +1,7 @@
 [toc]
 
 # 常用命令
+
 du -d 1 -h ./
 查看空间占用
 
@@ -19,6 +20,30 @@ ps aux | grep python
 kill -9 [pid]
 ```
 
+- 查找文件
+
+```bash
+#递归搜索文件内容，如果查找"hello,world!"字符串,可以这样:
+    grep -rn "hello,world!" *
+ 
+    # * : 表示当前目录所有文件，也可以是某个文件名
+    # -r 是递归查找
+    # -n 是显示行号
+    # -R 查找所有文件包含子目录
+    # -i 忽略大小写
+    
+#2、搜索文件
+    find / -name 'pay.html'
+    # /：表示根目录，也可以自己指定搜索的目录。
+    # -name：表示搜索文件名称。
+    # pay.html：搜索的文件名称。
+    
+#3、批量替换。
+    #替换server.xml文件中的”2020”为”8008”
+    sed -i 's/2020/8080/g' ./conf/server.xml
+    #批量替换，替换server.xml文件中的”2020”为”8008”，将结果输出到result1.xml
+    sed -i 's/2020/8080/g' ./conf/server.xml > result1.xml
+    ```
 - 快速生成训练文件
 
 ```shell
