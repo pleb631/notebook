@@ -7,8 +7,8 @@ import random
 import torch
 from .FileUtils import *
 from .Convertion import (
-    xyxy2xywh_center,
-    xywh_center2xyxy,
+    xyxy2xywh,
+    xywh2xyxy,
 )
 
 
@@ -162,7 +162,7 @@ def is_xyxy_valid(xyxy):
     return width > 0 and height > 0
 
 
-def xyxy2xywh_min(xyxy):
+def xyxy2ltwh(xyxy):
     """[xmin, ymin, xmax, ymax]转为[xmin, ymin, w, h]
 
     Args:
@@ -178,7 +178,7 @@ def xyxy2xywh_min(xyxy):
     return [xmin, ymin, width, height]
 
 
-def xywh_min2xyxy(xyxy):
+def ltwh2xyxy(xyxy):
     """[xmin, ymin, w, h]转为[xmin, ymin, xmax, ymax]
 
     Args:
@@ -196,7 +196,7 @@ def xywh_min2xyxy(xyxy):
     return xyxy
 
 
-def xywh_center2xyxy(xywh):
+def xywh2xyxy(xywh):
     """[x_center, y_center, w, h]转为[xmin, ymin, xmax, ymax]
 
     Args:
@@ -212,7 +212,7 @@ def xywh_center2xyxy(xywh):
     return [xmin, ymin, xmax, ymax]
 
 
-def xyxy2xywh_center(xyxy):
+def xyxy2xywh(xyxy):
     """[xmin, ymin, xmax, ymax]转为[x_center, y_center, w, h]
 
     Args:
@@ -228,7 +228,21 @@ def xyxy2xywh_center(xyxy):
     return [x_center, y_center, width, height]
 
 
-def xywhr2xyxyxyxy(center):
+def expand_box(xyxy, ratio, w, h):
+    if isinstance(ratio, float) or isinstance(ratio, int):
+        ratio = [ratio, ratio]
+    xywh = xyxy2xywh(xyxy)
+    new_w, new_h = xywh[2] * ratio[0], xywh[3] * ratio[1]
+    x1, y1 = xywh[0] - new_w // 2, xywh[1] - new_h // 2
+    x2, y2 = xywh[0] + new_w, xywh[1] + new_h
+    x1 = np.clip(x1, 0, w)
+    y1 = np.clip(y1, 0, h)
+    x2 = np.clip(x2, 0, w)
+    y2 = np.clip(y2, 0, h)
+    return np.array([x1, y1, x2, y2])
+
+
+def xywh2xyxyxyxy(center):
     """
     Convert batched Oriented Bounding Boxes (OBB) from [xywh, rotation] to [xy1, xy2, xy3, xy4].
 
@@ -312,7 +326,7 @@ def segments2boxes(segments):
     for s in segments:
         x, y = s.T  # segment xy
         boxes.append([x.min(), y.min(), x.max(), y.max()])  # cls, xyxy
-    return xyxy2xywh_center(np.array(boxes))  # cls, xywh
+    return xyxy2xywh(np.array(boxes))  # cls, xywh
 
 
 def xy_pixel2xy_ratio(xy_pixel, width, height):
@@ -479,7 +493,7 @@ def head_shoulder_box2person_box(head_shoulder_box, ratio, height, width=1920):
     Returns:
         person_box: list, 格式[xmin, ymin, xmax, ymax]
     """
-    box_height = xyxy2xywh_center(head_shoulder_box)[3]
+    box_height = xyxy2xywh(head_shoulder_box)[3]
     person_box = [
         head_shoulder_box[0],
         head_shoulder_box[1],
@@ -488,10 +502,10 @@ def head_shoulder_box2person_box(head_shoulder_box, ratio, height, width=1920):
     ]
 
     # 关键点提标用
-    bbox_xywh_center = xyxy2xywh_center(person_box)
+    bbox_xywh_center = xyxy2xywh(person_box)
     bbox_xywh_center[2] = bbox_xywh_center[2] * (1 + 0.8)
     bbox_xywh_center[3] = bbox_xywh_center[3] * (1 + 0.15)
-    extend_box = xywh_center2xyxy(bbox_xywh_center)
+    extend_box = xywh2xyxy(bbox_xywh_center)
     person_box = [
         max(0, extend_box[0]),
         max(0, extend_box[1]),
@@ -519,7 +533,7 @@ def get_rotated_person_box(
     """
     from .Math import calcu_vector_angle_np, rotated_rectangle
 
-    HeadShoulderBox_xywh = xyxy2xywh_center(HeadShoulderBox)
+    HeadShoulderBox_xywh = xyxy2xywh(HeadShoulderBox)
     person_headshoulder_mid_keypoint = HeadShoulderBox_xywh[:2]
     headshoulder_width = HeadShoulderBox_xywh[2]
 
@@ -757,7 +771,7 @@ class VocCocoConvert:
             for box in xml_data["bndboxes"]:
                 box_anno = {"image_id": image_id, "category_id": classes.index(box[4])}
                 # box_anno['category_id'] = 0
-                box_anno["bbox"] = xyxy2xywh_min(box[:4])
+                box_anno["bbox"] = xyxy2ltwh(box[:4])
                 box_anno["id"] = box_id
                 box_anno["area"] = (box[2] - box[0]) * (box[3] - box[1])
                 box_anno["iscrowd"] = 0

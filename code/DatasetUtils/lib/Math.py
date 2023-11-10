@@ -5,7 +5,7 @@ import numpy as np
 import torch
 # import torch
 
-from .Convertion import xyxy2xywh_center, xywh_center2xyxy, get_xyxy_center
+from .Convertion import xyxy2xywh, xywh2xyxy, get_xyxy_center
 
 
 class Distance:
@@ -98,10 +98,10 @@ class Distance:
             elif mode == "extend":
                 (width, height, extend_ratio_width, extend_ratio_height) = extend_params
                 bbox = boxes[i]
-                bbox_xywh_center = xyxy2xywh_center(bbox)
+                bbox_xywh_center = xyxy2xywh(bbox)
                 bbox_xywh_center[2] = bbox_xywh_center[2] * (1 + extend_ratio_width)
                 bbox_xywh_center[3] = bbox_xywh_center[3] * (1 + extend_ratio_height)
-                bbox_xyxy = xywh_center2xyxy(bbox_xywh_center)
+                bbox_xyxy = xywh2xyxy(bbox_xywh_center)
                 bbox = [
                     max(min(bbox_xyxy[0], width), 0),
                     max(min(bbox_xyxy[1], height), 0),

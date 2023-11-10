@@ -6,7 +6,7 @@ import cv2
 import numpy as np
 
 from .FileUtils import read_json, read_txt, read_xml, save_csv, save_json, read_pkl
-from .Convertion import colorstr, quadrilateral_points2left_top_first_quadrilateral, xyxy2xywh_min, xywh_min2xyxy
+from .Convertion import colorstr, quadrilateral_points2left_top_first_quadrilateral, xyxy2ltwh, ltwh2xyxy
 # from .Database import SQLiteDatabase
 from .BadcaseAnalyseUtils import *
 # from .DataVisualization import *
@@ -590,7 +590,7 @@ class GucciHipKeypointEvalFunc(KeypointEvalFunc):
             if line['image_id'] not in image_id_pred:
                 image_id_pred[line['image_id']] = []
             if line['score'] >= box_thresh:
-                image_id_pred[line['image_id']].append(xywh_min2xyxy(line['bbox'][:4]) + [line['score'], line['category_id']] + line['bbox'][4:])
+                image_id_pred[line['image_id']].append(ltwh2xyxy(line['bbox'][:4]) + [line['score'], line['category_id']] + line['bbox'][4:])
 
         for idx, image_path in enumerate(images_path):
             # print(idx, len(images_path), image_path)

@@ -5,11 +5,12 @@ import os
 import numpy as np
 from functools import cmp_to_key
 from PIL import Image
+from pathlib import Path
 
 from .FileUtils import *
 from .Convertion import (
-    xyxy2xywh_center,
-    xywh_center2xyxy,
+    xyxy2xywh,
+    xywh2xyxy,
     xyxy2points,
     quadrilateral_points2left_top_first_quadrilateral,
     quadrilateral_points2rectangle_xyxy,
@@ -48,8 +49,6 @@ def get_image_features(image, mode="cv2"):
         width, height = image.size
         channel = len(image.split())
         return height, width, channel
-
-
 
 
 def fftCacul(img):
@@ -188,9 +187,6 @@ def depth2gray(depth_npy_path):
     return norm_img
 
 
-
-
-
 def gen_mask_image(points_list, width, height):
     """根据连续顶点列表生成指定大小的蒙版图像
 
@@ -220,11 +216,11 @@ def extend_box(bbox, extend_ratio_width, extend_ratio_height):
     Returns:
         extend_box: list, 矩形框，格式[xmin, ymin, xmax, ymax]
     """
-    bbox_xywh_center = xyxy2xywh_center(bbox)
+    bbox_xywh_center = xyxy2xywh(bbox)
     bbox_xywh_center[2] = bbox_xywh_center[2] * (1 + extend_ratio_width)
     bbox_xywh_center[3] = bbox_xywh_center[3] * (1 + extend_ratio_height)
 
-    return xywh_center2xyxy(bbox_xywh_center)
+    return xywh2xyxy(bbox_xywh_center)
 
 
 def crop_image_extend_border(image, bbox, extend_ratio_width=0, extend_ratio_height=0):
@@ -290,8 +286,6 @@ def crop_rotated_box_image(image, rotated_box, size):
     )
 
 
-
-
 def normalize(im, mean, std):
     im = im.astype(np.float32, copy=False) / 255.0
     im -= mean
@@ -312,7 +306,6 @@ def resize_long(im, long_size=224, interpolation=cv2.INTER_LINEAR):
     return im
 
 
-
 # 定义一个函数，用于改变图片的尺寸
 def rescale_size(img_size, target_size):
     # 计算缩放比例
@@ -321,8 +314,6 @@ def rescale_size(img_size, target_size):
     rescaled_size = [round(i * scale) for i in img_size]
     # 返回改变后的尺寸和缩放比例
     return rescaled_size, scale
-
-
 
 
 def resize_short(im, short_size=224, interpolation=cv2.INTER_LINEAR):
@@ -524,7 +515,7 @@ def filter_similar_image(image_dir_path, save_image_dir_path, threshold=5):
     def avhash(image):
         if not isinstance(image, Image.Image):
             image = Image.open(image)
-        image = image.resize((8, 8), Image.ANTIALIAS).convert("L")
+        image = image.resize((8, 8), Image.LANCZOS).convert("L")
         avg = reduce(lambda x, y: x + y, image.getdata()) / 64.0
         return reduce(
             lambda x, y_z: x | y_z[1] << y_z[0],
@@ -540,7 +531,7 @@ def filter_similar_image(image_dir_path, save_image_dir_path, threshold=5):
             d &= d - 1
         return h
 
-    image_names = glob.glob(f"{image_dir_path}/*.jpg")
+    image_names = glob.glob(f"{image_dir_path}**/*.jpg",recursive=True)+glob.glob(f"{image_dir_path}**/*.png",recursive=True)
 
     print("Caculating hash value of images...")
     image_hash_list = []
@@ -552,50 +543,37 @@ def filter_similar_image(image_dir_path, save_image_dir_path, threshold=5):
         h_value = avhash(image_name)
         image_hash_list.append((image_name, h_value))
 
-    print("Caculating hamming distance...")
-    hamming_list = np.zeros(shape=(len(image_hash_list), len(image_hash_list)))
-    for index_i in range(len(image_hash_list)):
-        for index_j in range(index_i + 1, len(image_hash_list)):
-            hamming_list[index_i, index_j] = hamming(
-                image_hash_list[index_i][1], image_hash_list[index_j][1]
-            )
-
     print("Deleting duplicates")
     remaining_list = image_names.copy()
     for index_i in range(len(image_hash_list)):
         for index_j in range(index_i + 1, len(image_hash_list)):
-            if hamming_list[index_i, index_j] <= threshold and (
-                image_hash_list[index_j][0] in remaining_list
+            if (
+                hamming(image_hash_list[index_i][1], image_hash_list[index_j][1])
+                <= threshold
             ):
-                print("delete %d %s" % (index_j, image_hash_list[index_j][0]))
-                remaining_list.remove(image_hash_list[index_j][0])
+                print("delete %d %s" % (index_i, image_hash_list[index_i][0]))
+                remaining_list.remove(image_hash_list[index_i][0])
+                break
 
     print("Copying remaining images...")
     for index in range(len(remaining_list)):
         print(f"keep {remaining_list[index]}")
-        os.makedirs(save_image_dir_path, exist_ok=True)
-        print(
-            remaining_list[index],
-            os.path.join(save_image_dir_path, os.path.basename(remaining_list[index])),
-        )
-        shutil.copyfile(
-            remaining_list[index],
-            os.path.join(save_image_dir_path, os.path.basename(remaining_list[index])),
-        )
-
-
-
+        save_path = Path(save_image_dir_path)/Path(remaining_list[index]).relative_to(image_dir_path)
+        save_path.parent.mkdir(parents=True, exist_ok=True)
+        shutil.copyfile(remaining_list[index], save_path)
 
 
 """
 Others
 """
+
+
 def image_to_base64(rgb_image):
     bgr_image = cv2.cvtColor(rgb_image, cv2.COLOR_RGB2BGR)
-    image = cv2.imencode('.jpg', bgr_image)[1]
+    image = cv2.imencode(".jpg", bgr_image)[1]
     # image_base64 = str(base64.b64encode(image))[2:-1]
     image_base64 = base64.b64encode(image)
-    image_base64 = str(image_base64, encoding='utf-8')
+    image_base64 = str(image_base64, encoding="utf-8")
     return image_base64
 
 
@@ -608,17 +586,16 @@ def base64_to_image(image_base64):
 
 
 def imread(filename: str, flags: int = cv2.IMREAD_COLOR):
-    
     return cv2.imdecode(np.fromfile(filename, np.uint8), flags)
 
 
 def imwrite(filename: str, img: np.ndarray, params=None):
-
     try:
         cv2.imencode(os.path.splitext(filename)[1], img, params)[1].tofile(filename)
         return True
     except Exception:
         return False
+
 
 def pillow_to_numpy(img):
     img_numpy = np.asarray(img)
@@ -629,6 +606,7 @@ def pillow_to_numpy(img):
 
 def numpy_to_pillow(img, mode=None):
     return Image.fromarray(img, mode=mode)
+
 
 def others(self):
     """图像处理相关的小功能，一两行能实现的"""
@@ -688,4 +666,3 @@ def others(self):
     key_num = cv2.waitKey(0)
     if chr(key_num) == "r":
         print("press r")
-
