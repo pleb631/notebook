@@ -11,9 +11,7 @@ from .FileUtils import *
 from .Convertion import (
     xyxy2xywh,
     xywh2xyxy,
-    xyxy2points,
     quadrilateral_points2left_top_first_quadrilateral,
-    quadrilateral_points2rectangle_xyxy,
 )
 from functools import reduce
 

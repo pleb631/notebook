@@ -40,14 +40,6 @@ def label_colormap(n_label=10):
 
     return cmap
 
-
-
-# def set_class_set(class_set=set()):
-#     global CLASS_SET
-#     CLASS_SET = class_set
-
-
-
 COLOR_MAP = label_colormap(200)
 
 

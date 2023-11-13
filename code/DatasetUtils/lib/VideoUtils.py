@@ -1,10 +1,7 @@
 import cv2
 import os
-import numpy as np
-from functools import cmp_to_key
-from PIL import Image
 from .FileUtils import *
-from .ImageUtils import (merge_images,)
+from .ImageUtils import merge_images
 import torch
 
 def get_video_features(capture):

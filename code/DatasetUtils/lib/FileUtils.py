@@ -2,10 +2,8 @@
 import os
 import shutil
 import json, csv, pickle, yaml
-import numpy as np
 import xml.etree.ElementTree as ET
-import cv2
-import base64
+
 
 
 '''
@@ -77,7 +75,7 @@ def read_yaml(yaml_path):
 
 
 
-def yaml_save(yaml_path, data, header=''):
+def save_yaml(yaml_path, data, header=''):
     """
     Save YAML data to a file.
 

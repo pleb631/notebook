@@ -14,7 +14,7 @@
 
 import cv2
 import numpy as np
-from PIL import Image, ImageEnhance
+from PIL import Image
 from scipy.ndimage import distance_transform_edt
 
 
