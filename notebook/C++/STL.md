@@ -74,9 +74,88 @@
 
 ```
 
-## array
+## 顺序容器
 
-### 介绍
+![2023-11-17-10-39-40](https://cdn.jsdelivr.net/gh/pleb631/ImgManager@main/img/2023-11-17-10-39-40.png)
+
+ 函数成员 | 函数功能 | array&lt;T,N&gt; | vector&lt;T&gt; | deque&lt;T&gt;
+---|---|---|---|---
+ begin() | 返回指向容器中第一个元素的迭代器。 | 是 | 是 | 是
+ end() | 返回指向容器最后一个元素所在位置后一个位置的迭代器，通常和 begin() 结合使用。 | 是 | 是 | 是
+ rbegin() | 返回指向最后一个元素的迭代器。 | 是 | 是 | 是
+ rend() | 返回指向第一个元素所在位置前一个位置的迭代器。 | 是 | 是 | 是
+ cbegin() | 和&nbsp;begin() 功能相同，只不过在其基础上，增加了 const 属性，不能用于修改元素。 | 是 | 是 | 是
+ cend() | 和 end() 功能相同，只不过在其基础上，增加了 const 属性，不能用于修改元素。 | 是 | 是 | 是
+ crbegin() | 和 rbegin() 功能相同，只不过在其基础上，增加了 const 属性，不能用于修改元素。 | 是 | 是 | 是
+ crend() | 和 rend() 功能相同，只不过在其基础上，增加了 const 属性，不能用于修改元素。 | 是 | 是 | 是
+ assign() | 用新元素替换原有内容。 | - | 是 | 是
+ operator=() | 复制同类型容器的元素，或者用初始化列表替换现有内容。 | 是 | 是 | 是
+ size() | 返回实际元素个数。 | 是 | 是 | 是
+ max_size() | 返回元素个数的最大值。这通常是一个很大的值，一般是 232-1，所以我们很少会用到这个函数。 | 是 | 是 | 是
+ capacity() | 返回当前容量。 | - | 是 | -
+ empty() | 判断容器中是否有元素，若无元素，则返回 true；反之，返回 false。 | 是 | 是 | 是
+ resize() | 改变实际元素的个数。 | - | 是 | 是
+ shrink _to_fit() | 将内存减少到等于当前元素实际所使用的大小。 | - | 是 | 是
+ front() | 返回第一个元素的引用。 | 是 | 是 | 是
+ back() | 返回最后一个元素的引用。 | 是 | 是 | 是
+ operator[]() | 使用索引访问元素。 | 是 | 是 | 是
+ at() | 使用经过边界检査的索引访问元素。 | 是 | 是 | 是
+ push_back() | 在序列的尾部添加一个元素。 | - | 是 | 是
+ insert() | 在指定的位置插入一个或多个元素。 | - | 是 | 是
+ emplace() | 在指定的位置直接生成一个元素。 | - | 是 | 是
+ emplace_back() | 在序列尾部生成一个元素。 | - | 是 | 是
+ pop_back() | 移出序列尾部的元素。 | - | 是 | 是
+ erase() | 移出一个元素或一段元素。 | - | 是 | 是
+ clear() | 移出所有的元素，容器大小变为 0。 | - | 是 | 是
+ swap() | 交换两个容器的所有元素。 | 是 | 是 | 是
+ data() | 返回指向容器中第一个元素的指针。 | 是 | 是 | -
+
+ 函数成员 | 函数功能 | list&lt;T&gt; | forward_list&lt;T&gt;
+---|---|---|---
+ begin() | 返回指向容器中第一个元素的迭代器。 | 是 | 是
+ end() | 返回指向容器最后一个元素所在位置后一个位置的迭代器。 | 是 | 是
+ rbegin() | 返回指向最后一个元素的迭代器。 | 是 | -
+ rend() | 返回指向第一个元素所在位置前一个位置的迭代器。 | 是 | -
+ cbegin() | 和 begin() 功能相同，只不过在其基础上，增加了 const 属性，不能用于修改元素。 | 是 | 是
+ before_begin() | 返回指向第一个元素前一个位置的迭代器。 | - | 是
+ cbefore_begin() | 和 before_begin() 功能相同，只不过在其基础上，增加了 const 属性，即不能用该指针修改元素的值。 | - | 是
+ cend() | 和 end() 功能相同，只不过在其基础上，增加了 const 属性，不能用于修改元素。 | 是 | 是
+ crbegin() | 和 rbegin() 功能相同，只不过在其基础上，增加了 const 属性，不能用于修改元素。 | 是 | -
+ crend() | 和 rend() 功能相同，只不过在其基础上，增加了 const 属性，不能用于修改元素。 | 是 | -
+ assign() | 用新元素替换原有内容。 | 是 | 是
+ operator=() | 复制同类型容器的元素，或者用初始化列表替换现有内容。 | 是 | 是
+ size() | 返回实际元素个数。 | 是 | -
+ max_size() | 返回元素个数的最大值，这通常是一个很大的值，一般是 232-1，所以我们很少会用到这个函数。 | 是 | 是
+ resize() | 改变实际元素的个数。 | 是 | 是
+ empty() | 判断容器中是否有元素，若无元素，则返回 true；反之，返回 false。 | 是 | 是
+ front() | 返回容器中第一个元素的引用。 | 是 | 是
+ back() | 返回容器中最后一个元素的引用。 | 是 | -
+ push_back() | 在序列的尾部添加一个元素。 | 是 | -
+ push_front() | 在序列的起始位置添加一个元素。 | 是 | 是
+ emplace() | 在指定位置直接生成一个元素。 | 是 | -
+ emplace_after() | 在指定位置的后面直接生成一个元素。 | - | 是
+ emplace_back() | 在序列尾部生成一个元素。 | 是 | -
+ cmplacc_front() | 在序列的起始位生成一个元索。 | 是 | 是
+ insert() | 在指定的位置插入一个或多个元素。 | 是 | -
+ insert_after() | 在指定位置的后面插入一个或多个元素。 | - | 是
+ pop_back() | 移除序列尾部的元素。 | 是 | -
+ pop_front() | 移除序列头部的元素。 | 是 | 是
+ reverse() | 反转容器中某一段的元素。 | 是 | 是
+ erase() | 移除指定位置的一个元素或一段元素。 | 是 | -
+ erase_after() | 移除指定位置后面的一个元素或一段元素。 | - | 是
+ remove() | 移除所有和参数匹配的元素。 | 是 | 是
+ remove_if() | 移除满足一元函数条件的所有元素。 | 是 | 是
+ unique() | 移除所有连续重复的元素。 | 是 | 是
+ clear() | 移除所有的元素，容器大小变为 0。 | 是 | 是
+ swap() | 交换两个容器的所有元素。 | 是 | 是
+ sort() | 对元素进行排序。 | 是 | 是
+ merge() | 合并两个有序容器。 | 是 | 是
+ splice() | 移动指定位置前面的所有元素到另一个同类型的 list 中。 | 是 | -
+ splice_after() | 移动指定位置后面的所有元素到另一个同类型的 list 中。 | - | 是
+
+### array
+
+#### 介绍
 
 array 容器是 C++ 11 标准中新增的序列容器。它是封装固定大小数组的容器。简单地理解，它就是在 C++ 普通数组的基础上，添加了一些成员函数和全局函数的结构体。在使用上，它比普通数组更安全，且效率并没有因此变差。它不会自动退化成 T* 。它能作为聚合类型聚合初始化。
 
@@ -147,7 +226,7 @@ int main(){   
 3
 0 1 2 3
 
-### api
+#### api
 
 | 隐式定义的成员函数   |                                                                                |
 | -------------------- | ------------------------------------------------------------------------------ |
@@ -182,6 +261,7 @@ int main(){   
   T* data() noexcept;
 
   ```
+
 - 迭代器
 
   ```c++
@@ -206,6 +286,7 @@ int main(){   
   const_reverse_iterator rend() const noexcept;
   const_reverse_iterator rend() const noexcept;
   ```
+
 - 容量
 
   ```c++
@@ -218,6 +299,7 @@ int main(){   
   //返回根据系统或库实现限制的容器可保有的元素最大数量，即对于最大容器的 std::distance(begin(), end())
   constexpr size_type max_size() const noexcept;
   ```
+
 - 操作
 
   ```c++
@@ -228,6 +310,7 @@ int main(){   
   //将容器内容与 other 的内容交换。不导致迭代器和引用关联到别的容器。
   void swap( array& other ) noexcept(/* see below */);
   ```
+
 - 非成员函数
 
   ```c++
@@ -236,9 +319,9 @@ int main(){   
   to_array
   ```
 
-## vector
+### vector
 
-### vector介绍
+#### vector介绍
 
 vector和 array 容器非常类似，都可以看做是对C++普通数组的“升级版”。不同之处在于，array 实现的是静态数组（容量固定的数组），而 vector 实现的是一个动态数组，即可以进行元素的插入和删除，vector 的存储是自动管理的，按需扩张收缩。 vector 通常占用多于静态数组的空间，因为要分配更多内存以管理将来的增长。 vector 所用的方式不在每次插入元素时，而只在额外内存耗尽时重分配
 
@@ -248,7 +331,7 @@ vector 上的常见操作复杂度（效率）如下：
 - 在末尾插入或移除元素——均摊常数 O(1)
 - 插入或移除元素——与到 vector 结尾的距离成线性 O(n)
 
-### 创建vector容器的几种方式
+#### 创建vector容器的几种方式
 
 创建 vector 容器的方式有很多，大致可分为以下几种。
 
@@ -300,6 +383,7 @@ vector 上的常见操作复杂度（效率）如下：
    int num=20;double value =1.0;
    std::vector<double>    values(num, value);
    ```
+
 4. 通过存储元素类型相同的其它 vector 容器，也可以创建新 的 vector 容器，例如：
 
    ```c++
@@ -317,7 +401,7 @@ vector 上的常见操作复杂度（效率）如下：
    //value2保存{1,2,3}
    ```
 
-### api
+#### api
 
 - 构造函数、复制函数
 
@@ -357,6 +441,7 @@ vector 上的常见操作复杂度（效率）如下：
   //构造拥有 initializer_list init 内容的容器。
   vector( std::initializer_list<T> init,const Allocator& alloc = Allocator() );
   ```
+
 - assign
 
   ```c++
@@ -373,6 +458,7 @@ vector 上的常见操作复杂度（效率）如下：
   void assign( std::initializer_list<T> ilist );
 
   ```
+
 - operator=
 
   ```c++
@@ -386,6 +472,7 @@ vector 上的常见操作复杂度（效率）如下：
   vector& operator=( std::initializer_list<T> ilist );
 
   ```
+
 - 元素访问
 
   ```c++
@@ -409,6 +496,7 @@ vector 上的常见操作复杂度（效率）如下：
   T* data() noexcept;
 
   ```
+
 - 迭代器
 
   ```c++
@@ -434,6 +522,7 @@ vector 上的常见操作复杂度（效率）如下：
   const_reverse_iterator rend() const noexcept;
 
   ```
+
 - 容量
 
   ```c++
@@ -455,71 +544,235 @@ vector 上的常见操作复杂度（效率）如下：
   //请求移除未使用的容量。它是减少 capacity() 到 size()非强制性请求,若发生重分配，则所有迭代器，包含尾后迭代器，和所有到元素的引用都被非法化
   void shrink_to_fit();
   ```
+
 - 修改
 
   ```c++
   //从容器擦除所有元素。此调用后 size() 返回零。非法化任何指代所含元素的引用、指针或迭代器。任何尾后迭代器亦被非法化。  
   void clear() noexcept;
-
+  
   //将内容与 other 的交换。不在单个元素上调用任何移动、复制或交换操作。
   void swap( vector& other );
-
+  
   //
   //insert
   // 在 pos 前插入 value
   iterator insert( const_iterator pos, const T& value );
-
+  
   iterator insert( const_iterator pos, T&& value );
-
+  
   //在 pos 前插入 value 的 count 个副本
   iterator insert( const_iterator pos, size_type count, const T& value );
-
+  
   //在 pos 前插入来自范围 [first, last) 的元素。
   template< class InputIt >
   iterator insert( const_iterator pos, InputIt first, InputIt last );
-
+  
   //在 pos 前插入来自 initializer_list ilist 的元素。
   iterator insert( const_iterator pos, std::initializer_list<T> ilist );
   //
   //
-
+  
   //直接于 pos 前插入元素到容器中。
   iterator emplace( const_iterator pos, Args&&... args );
-
+  
   //从容器擦除指定位置的元素。函数擦除的最后一个元素后跟的元素
   iterator erase( const_iterator pos );
-
+  
   //移除范围 [first; last) 中的元素。左闭右开
   iterator erase( const_iterator first, const_iterator last );
-
+  
   //初始化新元素为 value 的副本。
   void push_back( const T& value );
-
+  
   // 移动 value 进新元素。
   void push_back( T&& value );
-
+  
   //添加新元素到容器尾
   template< class... Args >
   void emplace_back( Args&&... args );
-
+  
   //移除容器的末元素。
   void pop_back();
-
+  
   //重设容器大小以容纳 count 个元素。
   //若当前大小大于 count ，则减小容器为其首 count 个元素。若当前大小小于 count ，
   //1. 则后附额外的默认插入的元素
   void resize( size_type count );
   //2.则后附额外的 value 的副本
   void resize( size_type count, T value = T() );
-
+  
   //
   void swap( vector& other );
-
+  
   ```
 
-## unordered_map
+### deque
 
-### 介绍
+std::deque （ double-ended queue ，双端队列）是有下标顺序容器，它允许在其首尾两段快速插入及删除。另外，在 deque 任一端插入或删除不会非法化指向其余元素的指针或引用。
+
+与 std::vector 相反， deque 的元素不是相接存储的：典型实现用单独分配的固定大小数组的序列，外加额外的登记，这表示下标访问必须进行二次指针解引用，与之相比 vector 的下标访问只进行一次。
+
+deque 的存储按需自动扩展及收缩。扩张 deque 比扩张 std::vector 更优，因为它不涉及到复制既存元素到新内存位置。另一方面， deque 典型地拥有较大的最小内存开销；只保有一个元素的 deque 必须分配其整个内部数组（例如 64 位 libstdc++ 上为对象大小 8 倍； 64 位 libc++ 上为对象大小 16 倍或 4096 字节的较大者）。
+
+deque 上常见操作的复杂度（效率）如下：
+
+随机访问——常数 O(1)
+在结尾或起始插入或移除元素——常数 O(1)
+插入或移除元素——线性 O(n)
+
+### list
+
+std::list 是支持常数时间从容器任何位置插入和移除元素的容器。不支持快速随机访问。它通常实现为双向链表。与 std::forward_list 相比，此容器提供双向迭代但在空间上效率稍低。
+
+在 list 内或在数个 list 间添加、移除和移动元素不会非法化迭代器或引用。迭代器仅在对应元素被删除时非法化。
+
+### forward_list
+
+std::forward_list 是支持从容器中的任何位置快速插入和移除元素的容器。不支持快速随机访问。它实现为单链表，且实质上与其在 C 中实现相比无任何开销。与 std::list 相比，此容器在不需要双向迭代时提供更有效地利用空间的存储。
+
+在链表内或跨数个链表添加、移除和移动元素，不会非法化当前指代链表中其他元素的迭代器。然而，在从链表移除元素（通过 erase_after ）时，指代对应元素的迭代器或引用会被非法化。
+
+### std::set
+
+```c++
+template<
+    class Key,
+    class Compare = std::less<Key>,
+    class Allocator = std::allocator<Key>
+> class set;
+std::set 是关联容器，含有 Key 类型对象的已排序集。用比较函数 比较 (Compare) 进行排序。搜索、移除和插入拥有对数复杂度。 set 通常以红黑树实现。
+
+在每个标准库使用比较 (Compare) 概念的场所，用等价关系确定唯一性。不精确地说，若二个对象 a 与 b 相互间既不比较大于亦不比较小于： !comp(a, b) && !comp(b, a) ，则认为它们等价。
+```
+
+#### api
+
+- 构造函数
+- 修改
+
+  ```c++
+  ```
+
+- 查找
+
+  ```c++
+  //返回拥有关键比较等价于指定参数的元素数，因为此容器不允许重复故为 1 或 0。
+  size_type count( const Key& key ) const;
+
+  template< class K >
+  size_type count( const K& x ) const;
+
+  //寻找键等于 key 的的元素。
+  iterator find( const Key& key );
+  // 寻找键比较等价于值 x 的元素
+  template< class K > iterator find( const K& x );
+
+  //返回容器中所有拥有给定关键的元素范围。范围以二个迭代器定义，一个指向首个不小于 key 的元素，另一个指向首个大于 key 的元素。首个迭代器可以换用 lower_bound() 获得，而第二迭代器可换用 upper_bound() 获得
+  //比较关键与 key
+  std::pair<iterator,iterator> equal_range( const Key& key );
+  // 比较关键与值 x 
+  template< class K >
+  std::pair<iterator,iterator> equal_range( const K& x );
+
+
+  //返回指向首个不小于 key 的元素的迭代器。
+  iterator lower_bound( const Key& key );
+  //返回指向首个比较不小于值 x 的元素的迭代器
+  template< class K >
+  iterator lower_bound(const K& x);
+
+
+  //返回指向首个大于 key 的元素的迭代器。
+  iterator upper_bound( const Key& key );
+  //返回指向首个比较大于值 x 的元素的迭代器
+  template< class K >
+  iterator upper_bound( const K& x );
+  ```
+
+#### 示例
+
+自定义比较函数的set
+
+```c++
+#include <iostream>
+#include <set>
+using namespace std;
+struct song
+{
+    int m_id;
+    int m_hot;
+    song(int id,int hot)
+    {
+
+        this->m_id = id;
+        this->m_hot = hot;
+    }
+    /*
+    bool operator<(const struct song & right)const   //重载<运算符
+    {
+        if(this->m_id == right.m_id)     //根据id去重
+            return false;
+        else
+        {
+            if(this->m_hot != right.m_hot)
+            {
+                return this->m_hot > right.m_hot;      //降序
+            }
+            else
+            {
+                return this->m_id > right.m_id;
+            }
+        }
+    }
+    */
+};
+struct comp
+{
+    bool operator()(struct song left,struct song  right)  //重载（）运算符
+    {
+
+        if(left.m_id == right.m_id)     //根据id去重
+            return false;
+        else
+        {
+            if(left.m_hot != right.m_hot)
+            {
+                return left.m_hot > right.m_hot;      //降序
+            }
+            else
+            {
+                return left.m_id > right.m_id;
+            }
+
+        }
+    }
+
+};
+void main()
+{
+    std::set<song,comp> mySet;      //
+    //std::set<song> mySet; //重载函数写在struct里面时
+    song s1(10,100);
+    song s2(20,200);
+    song s3(20,300);
+    song s4(30,200);
+    mySet.insert(s1);    //插入s1
+    mySet.insert(s2);    //插入s2
+    mySet.insert(s3);    //s3和s2的id相同，不插入
+    mySet.insert(s4);    //插入s4
+    for(auto it:mySet)
+    {
+        std::cout<<"id:"<<it.m_id<<",hot:"<<it.m_hot<<std::endl;
+    }
+    std::cout<<"end"<<std::endl;
+};
+
+```
+
+### unordered_map
+
+#### 介绍
 
 - unordered_map是一个将key和value关联起来的容器，它可以高效的根据单个key值查找对应的value。
 - key值应该是唯一的，key和value的数据类型可以不相同。
@@ -527,7 +780,7 @@ vector 上的常见操作复杂度（效率）如下：
 - unordered_map查询单个key的时候效率比map高，但是要查询某一范围内的key值时比map效率低。
 - 可以使用[]操作符来访问key值对应的value值。
 
-### api
+#### api
 
 - 构造函数
 
@@ -616,6 +869,7 @@ vector 上的常见操作复杂度（效率）如下：
       std::unordered_map<Goo, double, decltype(hash), decltype(comp)> m8(10, hash, comp);
   }
   ```
+
 - operator=
 
   ```c++
@@ -626,9 +880,10 @@ vector 上的常见操作复杂度（效率）如下：
   unordered_map& operator=( unordered_map&& other );
 
   //以 initializer_list ilist 所标识者替换内容。
-  //    std::unordered_map<int, int> nums1 {{3, 1}, {4, 1}, {5, 9}}                            
+  //    std::unordered_map<int, int> nums1 {{3, 1}, {4, 1}, {5, 9}}              
   unordered_map& operator=( std::initializer_list<value_type> ilist );
   ```
+
 - 特殊
 
   ```c++
@@ -640,7 +895,9 @@ vector 上的常见操作复杂度（效率）如下：
 
   //返回到映射到等于 key 的键的值的引用，若这种键不存在则进行插入。
   T& operator[]( const Key& key );
+
   ```
+
 - other
 
   ```c++
@@ -654,6 +911,8 @@ vector 上的常见操作复杂度（效率）如下：
   clear
   swap
   count//要么1要么0，无意义
+  emplace    //move
+  insert    //插入元素
   ```
 
 # 算法
@@ -678,6 +937,7 @@ vector 上的常见操作复杂度（效率）如下：
   bool none_of( InputIt first, InputIt last, UnaryPredicate p );
 
   ```
+
   应用函数到范围中的元素
 
   ```c++
@@ -687,6 +947,7 @@ vector 上的常见操作复杂度（效率）如下：
   template< class InputIt, class UnaryFunction >
   UnaryFunction for_each( InputIt first, InputIt last, UnaryFunction f );
   ```
+
   返回满足指定判别标准的元素数
 
   ```c++
@@ -701,6 +962,7 @@ vector 上的常见操作复杂度（效率）如下：
   typename iterator_traits<InputIt>::difference_type
       count_if( InputIt first, InputIt last, UnaryPredicate p );
   ```
+
   寻找两个范围出现不同的首个位置
 
   ```c++
@@ -714,6 +976,7 @@ vector 上的常见操作复杂度（效率）如下：
   std::pair<InputIt1,InputIt2> mismatch( InputIt1 first1, InputIt1 last1,
             InputIt2 first2, BinaryPredicate p );
   ```
+
   寻找首个满足特定判别标准的元素
 
   ```c++
@@ -730,6 +993,7 @@ vector 上的常见操作复杂度（效率）如下：
   template< class InputIt, class UnaryPredicate >
   InputIt find_if_not( InputIt first, InputIt last,UnaryPredicate q );
   ```
+
   在特定范围中寻找最后出现的元素序列
 
   ```c++
@@ -744,6 +1008,7 @@ vector 上的常见操作复杂度（效率）如下：
   ForwardIt1 find_end( ForwardIt1 first, ForwardIt1 last,
                    ForwardIt2 s_first, ForwardIt2 s_last, BinaryPredicate p );
   ```
+
   搜索元素集合中的任意元素
 
   ```c++
@@ -758,6 +1023,7 @@ vector 上的常见操作复杂度（效率）如下：
   InputIt find_first_of( InputIt first, InputIt last,
                      ForwardIt s_first, ForwardIt s_last, BinaryPredicate p );
   ```
+
   查找首对相邻的相同（或满足给定谓词的）元素
 
   ```c++
@@ -770,6 +1036,7 @@ vector 上的常见操作复杂度（效率）如下：
   template< class ForwardIt, class BinaryPredicate>
   ForwardIt adjacent_find( ForwardIt first, ForwardIt last, BinaryPredicate p );
   ```
+
   搜索一个元素范围
 
   ```c++
@@ -784,6 +1051,7 @@ vector 上的常见操作复杂度（效率）如下：
   ForwardIt1 search( ForwardIt1 first, ForwardIt1 last,
                  ForwardIt2 s_first, ForwardIt2 s_last, BinaryPredicate p );
   ```
+
   在范围中搜索一定量的某个元素的连续副本
 
   ```c++
@@ -797,6 +1065,7 @@ vector 上的常见操作复杂度（效率）如下：
   ForwardIt search_n( ForwardIt first, ForwardIt last, Size count, const T& value,
                    BinaryPredicate p );
   ```
+
 - 修改序列的操作
 
   将某一范围的元素复制到一个新的位置
@@ -806,12 +1075,13 @@ vector 上的常见操作复杂度（效率）如下：
   // 复制范围 [first, last) 中的所有元素，从首元素开始逐次到末元素
   template< class InputIt, class OutputIt >
   OutputIt copy( InputIt first, InputIt last, OutputIt d_first );
-
+  
   //仅复制谓词 pred 对其返回 true 的元素。保持被复制元素的相对顺序。
   template< class InputIt, class OutputIt, class UnaryPredicate >
   OutputIt copy_if( InputIt first, InputIt last,
                 OutputIt d_first, UnaryPredicate pred );
   ```
+
   将一定数目的元素复制到一个新的位置
 
   ```c++
@@ -819,6 +1089,7 @@ vector 上的常见操作复杂度（效率）如下：
   template< class InputIt, class Size, class OutputIt >
   OutputIt copy_n( InputIt first, Size count, OutputIt result );
   ```
+
   按从后往前的顺序复制一个范围内的元素
 
   ```c++
@@ -826,6 +1097,7 @@ vector 上的常见操作复杂度（效率）如下：
   template< class BidirIt1, class BidirIt2 >
   BidirIt2 copy_backward( BidirIt1 first, BidirIt1 last, BidirIt2 d_last );
   ```
+
   将某一范围的元素移动到一个新的位置
 
   ```c++
@@ -838,6 +1110,7 @@ vector 上的常见操作复杂度（效率）如下：
   template< class BidirIt1, class BidirIt2 >
   BidirIt2 move_backward( BidirIt1 first, BidirIt1 last, BidirIt2 d_last );
   ```
+
   将一个给定值复制赋值给一个范围内的每个元素
 
   ```c++
@@ -849,6 +1122,7 @@ vector 上的常见操作复杂度（效率）如下：
   template< class OutputIt, class Size, class T >
   OutputIt fill_n( OutputIt first, Size count, const T& value );
   ```
+
   ```c++
   //std::transform 应用给定的函数到范围并存储结果于始于 d_first 的另一范围。
   // 应用一元函数 unary_op 到 [first1, last1) 所定义的范围。
@@ -860,6 +1134,7 @@ vector 上的常见操作复杂度（效率）如下：
   OutputIt transform( InputIt1 first1, InputIt1 last1, InputIt2 first2,
                   OutputIt d_first, BinaryOperation binary_op );
   ```
+
   将相继的函数调用结果赋值给一个范围中的每个元素
 
   ```c++
@@ -873,6 +1148,7 @@ vector 上的常见操作复杂度（效率）如下：
   template< class OutputIt, class Size, class Generator >
   OutputIt generate_n( OutputIt first, Size count, Generator g );
   ```
+
   复制一个范围的元素，忽略满足特定判别标准的元素
 
   ```c++
@@ -888,6 +1164,7 @@ vector 上的常见操作复杂度（效率）如下：
 
   //通过以满足不移除的元素出现在范围起始的方式，迁移（以移动赋值的方式）范围中的元素进行移除。保持剩余元素的相对顺序，且不更改容器的物理大小。指向范围的新逻辑结尾和物理结尾之间元素的迭代器仍然可解引用，但元素自身拥有未指定值（因为可移动赋值 (MoveAssignable) 的后条件）。调用 remove 典型地后随调用容器的 erase 方法，它擦除未指定值并减小容器的物理大小，以匹配其新的逻辑大小。
   ```
+
   替换所有谓词 p 对其返回 true 的元素。
 
   ```c++
@@ -902,6 +1179,7 @@ vector 上的常见操作复杂度（效率）如下：
   void replace_if( ForwardIt first, ForwardIt last,
                    UnaryPredicate p, const T& new_value );
   ```
+
   复制一个范围内的元素，并将满足特定判别标准的元素替换为另一个值
 
   ```c++
@@ -917,6 +1195,7 @@ vector 上的常见操作复杂度（效率）如下：
   OutputIt replace_copy_if( InputIt first, InputIt last, OutputIt d_first,
                         UnaryPredicate p, const T& new_value );
   ```
+
   交换两个对象的值
 
   ```c++
@@ -937,6 +1216,7 @@ vector 上的常见操作复杂度（效率）如下：
                       ForwardIt2 first2 );
 
   ```
+
   逆转范围中的元素顺序
 
   ```c++
@@ -948,6 +1228,7 @@ vector 上的常见操作复杂度（效率）如下：
   template< class BidirIt, class OutputIt >
   OutputIt reverse_copy( BidirIt first, BidirIt last, OutputIt d_first );
   ```
+
   旋转范围中的元素顺序
 
   ```c++
@@ -961,6 +1242,7 @@ vector 上的常见操作复杂度（效率）如下：
   OutputIt rotate_copy( ForwardIt first, ForwardIt n_first,
                     ForwardIt last, OutputIt d_first );
   ```
+
   随机数生成器为函数对象 r
 
   ```c++
@@ -975,6 +1257,7 @@ vector 上的常见操作复杂度（效率）如下：
   template< class RandomIt, class URBG >
   void shuffle( RandomIt first, RandomIt last, URBG&& g );
   ```
+
   移除范围内的连续重复元素
 
   ```C++
