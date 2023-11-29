@@ -78,80 +78,80 @@
 
 ![2023-11-17-10-39-40](https://cdn.jsdelivr.net/gh/pleb631/ImgManager@main/img/2023-11-17-10-39-40.png)
 
- 函数成员 | 函数功能 | array&lt;T,N&gt; | vector&lt;T&gt; | deque&lt;T&gt;
----|---|---|---|---
- begin() | 返回指向容器中第一个元素的迭代器。 | 是 | 是 | 是
- end() | 返回指向容器最后一个元素所在位置后一个位置的迭代器，通常和 begin() 结合使用。 | 是 | 是 | 是
- rbegin() | 返回指向最后一个元素的迭代器。 | 是 | 是 | 是
- rend() | 返回指向第一个元素所在位置前一个位置的迭代器。 | 是 | 是 | 是
- cbegin() | 和&nbsp;begin() 功能相同，只不过在其基础上，增加了 const 属性，不能用于修改元素。 | 是 | 是 | 是
- cend() | 和 end() 功能相同，只不过在其基础上，增加了 const 属性，不能用于修改元素。 | 是 | 是 | 是
- crbegin() | 和 rbegin() 功能相同，只不过在其基础上，增加了 const 属性，不能用于修改元素。 | 是 | 是 | 是
- crend() | 和 rend() 功能相同，只不过在其基础上，增加了 const 属性，不能用于修改元素。 | 是 | 是 | 是
- assign() | 用新元素替换原有内容。 | - | 是 | 是
- operator=() | 复制同类型容器的元素，或者用初始化列表替换现有内容。 | 是 | 是 | 是
- size() | 返回实际元素个数。 | 是 | 是 | 是
- max_size() | 返回元素个数的最大值。这通常是一个很大的值，一般是 232-1，所以我们很少会用到这个函数。 | 是 | 是 | 是
- capacity() | 返回当前容量。 | - | 是 | -
- empty() | 判断容器中是否有元素，若无元素，则返回 true；反之，返回 false。 | 是 | 是 | 是
- resize() | 改变实际元素的个数。 | - | 是 | 是
- shrink _to_fit() | 将内存减少到等于当前元素实际所使用的大小。 | - | 是 | 是
- front() | 返回第一个元素的引用。 | 是 | 是 | 是
- back() | 返回最后一个元素的引用。 | 是 | 是 | 是
- operator[]() | 使用索引访问元素。 | 是 | 是 | 是
- at() | 使用经过边界检査的索引访问元素。 | 是 | 是 | 是
- push_back() | 在序列的尾部添加一个元素。 | - | 是 | 是
- insert() | 在指定的位置插入一个或多个元素。 | - | 是 | 是
- emplace() | 在指定的位置直接生成一个元素。 | - | 是 | 是
- emplace_back() | 在序列尾部生成一个元素。 | - | 是 | 是
- pop_back() | 移出序列尾部的元素。 | - | 是 | 是
- erase() | 移出一个元素或一段元素。 | - | 是 | 是
- clear() | 移出所有的元素，容器大小变为 0。 | - | 是 | 是
- swap() | 交换两个容器的所有元素。 | 是 | 是 | 是
- data() | 返回指向容器中第一个元素的指针。 | 是 | 是 | -
+| 函数成员         | 函数功能                                                                               | array&lt;T,N&gt; | vector&lt;T&gt; | deque&lt;T&gt; |
+| ---------------- | -------------------------------------------------------------------------------------- | ---------------- | --------------- | -------------- |
+| begin()          | 返回指向容器中第一个元素的迭代器。                                                     | 是               | 是              | 是             |
+| end()            | 返回指向容器最后一个元素所在位置后一个位置的迭代器，通常和 begin() 结合使用。          | 是               | 是              | 是             |
+| rbegin()         | 返回指向最后一个元素的迭代器。                                                         | 是               | 是              | 是             |
+| rend()           | 返回指向第一个元素所在位置前一个位置的迭代器。                                         | 是               | 是              | 是             |
+| cbegin()         | 和&nbsp;begin() 功能相同，只不过在其基础上，增加了 const 属性，不能用于修改元素。      | 是               | 是              | 是             |
+| cend()           | 和 end() 功能相同，只不过在其基础上，增加了 const 属性，不能用于修改元素。             | 是               | 是              | 是             |
+| crbegin()        | 和 rbegin() 功能相同，只不过在其基础上，增加了 const 属性，不能用于修改元素。          | 是               | 是              | 是             |
+| crend()          | 和 rend() 功能相同，只不过在其基础上，增加了 const 属性，不能用于修改元素。            | 是               | 是              | 是             |
+| assign()         | 用新元素替换原有内容。                                                                 | -                | 是              | 是             |
+| operator=()      | 复制同类型容器的元素，或者用初始化列表替换现有内容。                                   | 是               | 是              | 是             |
+| size()           | 返回实际元素个数。                                                                     | 是               | 是              | 是             |
+| max_size()       | 返回元素个数的最大值。这通常是一个很大的值，一般是 232-1，所以我们很少会用到这个函数。 | 是               | 是              | 是             |
+| capacity()       | 返回当前容量。                                                                         | -                | 是              | -              |
+| empty()          | 判断容器中是否有元素，若无元素，则返回 true；反之，返回 false。                        | 是               | 是              | 是             |
+| resize()         | 改变实际元素的个数。                                                                   | -                | 是              | 是             |
+| shrink _to_fit() | 将内存减少到等于当前元素实际所使用的大小。                                             | -                | 是              | 是             |
+| front()          | 返回第一个元素的引用。                                                                 | 是               | 是              | 是             |
+| back()           | 返回最后一个元素的引用。                                                               | 是               | 是              | 是             |
+| operator[]()     | 使用索引访问元素。                                                                     | 是               | 是              | 是             |
+| at()             | 使用经过边界检査的索引访问元素。                                                       | 是               | 是              | 是             |
+| push_back()      | 在序列的尾部添加一个元素。                                                             | -                | 是              | 是             |
+| insert()         | 在指定的位置插入一个或多个元素。                                                       | -                | 是              | 是             |
+| emplace()        | 在指定的位置直接生成一个元素。                                                         | -                | 是              | 是             |
+| emplace_back()   | 在序列尾部生成一个元素。                                                               | -                | 是              | 是             |
+| pop_back()       | 移出序列尾部的元素。                                                                   | -                | 是              | 是             |
+| erase()          | 移出一个元素或一段元素。                                                               | -                | 是              | 是             |
+| clear()          | 移出所有的元素，容器大小变为 0。                                                       | -                | 是              | 是             |
+| swap()           | 交换两个容器的所有元素。                                                               | 是               | 是              | 是             |
+| data()           | 返回指向容器中第一个元素的指针。                                                       | 是               | 是              | -              |
 
- 函数成员 | 函数功能 | list&lt;T&gt; | forward_list&lt;T&gt;
----|---|---|---
- begin() | 返回指向容器中第一个元素的迭代器。 | 是 | 是
- end() | 返回指向容器最后一个元素所在位置后一个位置的迭代器。 | 是 | 是
- rbegin() | 返回指向最后一个元素的迭代器。 | 是 | -
- rend() | 返回指向第一个元素所在位置前一个位置的迭代器。 | 是 | -
- cbegin() | 和 begin() 功能相同，只不过在其基础上，增加了 const 属性，不能用于修改元素。 | 是 | 是
- before_begin() | 返回指向第一个元素前一个位置的迭代器。 | - | 是
- cbefore_begin() | 和 before_begin() 功能相同，只不过在其基础上，增加了 const 属性，即不能用该指针修改元素的值。 | - | 是
- cend() | 和 end() 功能相同，只不过在其基础上，增加了 const 属性，不能用于修改元素。 | 是 | 是
- crbegin() | 和 rbegin() 功能相同，只不过在其基础上，增加了 const 属性，不能用于修改元素。 | 是 | -
- crend() | 和 rend() 功能相同，只不过在其基础上，增加了 const 属性，不能用于修改元素。 | 是 | -
- assign() | 用新元素替换原有内容。 | 是 | 是
- operator=() | 复制同类型容器的元素，或者用初始化列表替换现有内容。 | 是 | 是
- size() | 返回实际元素个数。 | 是 | -
- max_size() | 返回元素个数的最大值，这通常是一个很大的值，一般是 232-1，所以我们很少会用到这个函数。 | 是 | 是
- resize() | 改变实际元素的个数。 | 是 | 是
- empty() | 判断容器中是否有元素，若无元素，则返回 true；反之，返回 false。 | 是 | 是
- front() | 返回容器中第一个元素的引用。 | 是 | 是
- back() | 返回容器中最后一个元素的引用。 | 是 | -
- push_back() | 在序列的尾部添加一个元素。 | 是 | -
- push_front() | 在序列的起始位置添加一个元素。 | 是 | 是
- emplace() | 在指定位置直接生成一个元素。 | 是 | -
- emplace_after() | 在指定位置的后面直接生成一个元素。 | - | 是
- emplace_back() | 在序列尾部生成一个元素。 | 是 | -
- cmplacc_front() | 在序列的起始位生成一个元索。 | 是 | 是
- insert() | 在指定的位置插入一个或多个元素。 | 是 | -
- insert_after() | 在指定位置的后面插入一个或多个元素。 | - | 是
- pop_back() | 移除序列尾部的元素。 | 是 | -
- pop_front() | 移除序列头部的元素。 | 是 | 是
- reverse() | 反转容器中某一段的元素。 | 是 | 是
- erase() | 移除指定位置的一个元素或一段元素。 | 是 | -
- erase_after() | 移除指定位置后面的一个元素或一段元素。 | - | 是
- remove() | 移除所有和参数匹配的元素。 | 是 | 是
- remove_if() | 移除满足一元函数条件的所有元素。 | 是 | 是
- unique() | 移除所有连续重复的元素。 | 是 | 是
- clear() | 移除所有的元素，容器大小变为 0。 | 是 | 是
- swap() | 交换两个容器的所有元素。 | 是 | 是
- sort() | 对元素进行排序。 | 是 | 是
- merge() | 合并两个有序容器。 | 是 | 是
- splice() | 移动指定位置前面的所有元素到另一个同类型的 list 中。 | 是 | -
- splice_after() | 移动指定位置后面的所有元素到另一个同类型的 list 中。 | - | 是
+| 函数成员        | 函数功能                                                                                      | list&lt;T&gt; | forward_list&lt;T&gt; |
+| --------------- | --------------------------------------------------------------------------------------------- | ------------- | --------------------- |
+| begin()         | 返回指向容器中第一个元素的迭代器。                                                            | 是            | 是                    |
+| end()           | 返回指向容器最后一个元素所在位置后一个位置的迭代器。                                          | 是            | 是                    |
+| rbegin()        | 返回指向最后一个元素的迭代器。                                                                | 是            | -                     |
+| rend()          | 返回指向第一个元素所在位置前一个位置的迭代器。                                                | 是            | -                     |
+| cbegin()        | 和 begin() 功能相同，只不过在其基础上，增加了 const 属性，不能用于修改元素。                  | 是            | 是                    |
+| before_begin()  | 返回指向第一个元素前一个位置的迭代器。                                                        | -             | 是                    |
+| cbefore_begin() | 和 before_begin() 功能相同，只不过在其基础上，增加了 const 属性，即不能用该指针修改元素的值。 | -             | 是                    |
+| cend()          | 和 end() 功能相同，只不过在其基础上，增加了 const 属性，不能用于修改元素。                    | 是            | 是                    |
+| crbegin()       | 和 rbegin() 功能相同，只不过在其基础上，增加了 const 属性，不能用于修改元素。                 | 是            | -                     |
+| crend()         | 和 rend() 功能相同，只不过在其基础上，增加了 const 属性，不能用于修改元素。                   | 是            | -                     |
+| assign()        | 用新元素替换原有内容。                                                                        | 是            | 是                    |
+| operator=()     | 复制同类型容器的元素，或者用初始化列表替换现有内容。                                          | 是            | 是                    |
+| size()          | 返回实际元素个数。                                                                            | 是            | -                     |
+| max_size()      | 返回元素个数的最大值，这通常是一个很大的值，一般是 232-1，所以我们很少会用到这个函数。        | 是            | 是                    |
+| resize()        | 改变实际元素的个数。                                                                          | 是            | 是                    |
+| empty()         | 判断容器中是否有元素，若无元素，则返回 true；反之，返回 false。                               | 是            | 是                    |
+| front()         | 返回容器中第一个元素的引用。                                                                  | 是            | 是                    |
+| back()          | 返回容器中最后一个元素的引用。                                                                | 是            | -                     |
+| push_back()     | 在序列的尾部添加一个元素。                                                                    | 是            | -                     |
+| push_front()    | 在序列的起始位置添加一个元素。                                                                | 是            | 是                    |
+| emplace()       | 在指定位置直接生成一个元素。                                                                  | 是            | -                     |
+| emplace_after() | 在指定位置的后面直接生成一个元素。                                                            | -             | 是                    |
+| emplace_back()  | 在序列尾部生成一个元素。                                                                      | 是            | -                     |
+| cmplacc_front() | 在序列的起始位生成一个元索。                                                                  | 是            | 是                    |
+| insert()        | 在指定的位置插入一个或多个元素。                                                              | 是            | -                     |
+| insert_after()  | 在指定位置的后面插入一个或多个元素。                                                          | -             | 是                    |
+| pop_back()      | 移除序列尾部的元素。                                                                          | 是            | -                     |
+| pop_front()     | 移除序列头部的元素。                                                                          | 是            | 是                    |
+| reverse()       | 反转容器中某一段的元素。                                                                      | 是            | 是                    |
+| erase()         | 移除指定位置的一个元素或一段元素。                                                            | 是            | -                     |
+| erase_after()   | 移除指定位置后面的一个元素或一段元素。                                                        | -             | 是                    |
+| remove()        | 移除所有和参数匹配的元素。                                                                    | 是            | 是                    |
+| remove_if()     | 移除满足一元函数条件的所有元素。                                                              | 是            | 是                    |
+| unique()        | 移除所有连续重复的元素。                                                                      | 是            | 是                    |
+| clear()         | 移除所有的元素，容器大小变为 0。                                                              | 是            | 是                    |
+| swap()          | 交换两个容器的所有元素。                                                                      | 是            | 是                    |
+| sort()          | 对元素进行排序。                                                                              | 是            | 是                    |
+| merge()         | 合并两个有序容器。                                                                            | 是            | 是                    |
+| splice()        | 移动指定位置前面的所有元素到另一个同类型的 list 中。                                          | 是            | -                     |
+| splice_after()  | 移动指定位置后面的所有元素到另一个同类型的 list 中。                                          | -             | 是                    |
 
 ### array
 
@@ -550,61 +550,61 @@ vector 上的常见操作复杂度（效率）如下：
   ```c++
   //从容器擦除所有元素。此调用后 size() 返回零。非法化任何指代所含元素的引用、指针或迭代器。任何尾后迭代器亦被非法化。  
   void clear() noexcept;
-  
+
   //将内容与 other 的交换。不在单个元素上调用任何移动、复制或交换操作。
   void swap( vector& other );
-  
+
   //
   //insert
   // 在 pos 前插入 value
   iterator insert( const_iterator pos, const T& value );
-  
+
   iterator insert( const_iterator pos, T&& value );
-  
+
   //在 pos 前插入 value 的 count 个副本
   iterator insert( const_iterator pos, size_type count, const T& value );
-  
+
   //在 pos 前插入来自范围 [first, last) 的元素。
   template< class InputIt >
   iterator insert( const_iterator pos, InputIt first, InputIt last );
-  
+
   //在 pos 前插入来自 initializer_list ilist 的元素。
   iterator insert( const_iterator pos, std::initializer_list<T> ilist );
   //
   //
-  
+
   //直接于 pos 前插入元素到容器中。
   iterator emplace( const_iterator pos, Args&&... args );
-  
+
   //从容器擦除指定位置的元素。函数擦除的最后一个元素后跟的元素
   iterator erase( const_iterator pos );
-  
+
   //移除范围 [first; last) 中的元素。左闭右开
   iterator erase( const_iterator first, const_iterator last );
-  
+
   //初始化新元素为 value 的副本。
   void push_back( const T& value );
-  
+
   // 移动 value 进新元素。
   void push_back( T&& value );
-  
+
   //添加新元素到容器尾
   template< class... Args >
   void emplace_back( Args&&... args );
-  
+
   //移除容器的末元素。
   void pop_back();
-  
+
   //重设容器大小以容纳 count 个元素。
   //若当前大小大于 count ，则减小容器为其首 count 个元素。若当前大小小于 count ，
   //1. 则后附额外的默认插入的元素
   void resize( size_type count );
   //2.则后附额外的 value 的副本
   void resize( size_type count, T value = T() );
-  
+
   //
   void swap( vector& other );
-  
+
   ```
 
 ### deque
@@ -649,10 +649,64 @@ std::set 是关联容器，含有 Key 类型对象的已排序集。用比较函
 #### api
 
 - 构造函数
+  ```c++
+  //默认构造函数
+  set();
+  explicit set( const Compare& comp,
+              const Allocator& alloc = Allocator() );
+  explicit set( const Allocator& alloc );
+  
+  //范围构造函数。构造拥有范围 [first, last) 内容的容器。若范围中的多个元素拥有比较等价的关键，则插入哪个元素是未指定的
+  template< class InputIt >
+  set( InputIt first, InputIt last,
+     const Compare& comp = Compare(),
+     const Allocator& alloc = Allocator() );
+  
+  // 复制构造
+  set( const set& other );
+  set( const set& other, const Allocator& alloc );
+
+  //移动构造
+  set( set&& other );
+  set( set&& other, const Allocator& alloc );
+
+  //initializer_list 构造函数。构造拥有 initializer_list init 内容的容器。若范围中的多个元素拥有比较等价的关键，则插入哪个元素是未指定的
+  set( std::initializer_list<value_type> init,
+     const Compare& comp = Compare(),
+     const Allocator& alloc = Allocator() );
+     ```
 - 修改
 
   ```c++
+  //插入 value
+  std::pair<iterator,bool> insert( value_type&& value );
+
+  //插入来自范围 [first, last) 的元素。 若范围中的多个元素拥有比较等价的关键，则插入哪个元素是未指定的
+  template< class InputIt >
+  void insert( InputIt first, InputIt last );
+
+  //插入来自 initializer_list ilist 的元素
+  void insert( std::initializer_list<value_type> ilist );
+
+
+  //插入 value 到尽可能接近，正好前于(C++11 起) hint 的位置。
+  iterator insert( iterator hint, const value_type& value );
+
+
+  //若容器中无拥有该关键的元素，则插入以给定的 args 原位构造的新元素到容器。细心地使用 emplace 允许在构造新元素的同时避免不必要的复制或移动操作。 准确地以与提供给 emplace 者相同的参数，通过 std::forward<Args>(args)... 转发调用新元素的构造函数。 即使容器中已有拥有该关键的元素，也可能构造元素，该情况下新构造的元素将被立即销毁。
+  template< class... Args >
+  std::pair<iterator,bool> emplace( Args&&... args );
+
+  
+  //插入新元素到容器中尽可能接近于恰在 hint 前的位置。原位构造元素，即不进行复制或移动操作。以提供给函数的参数准确相同者，以 std::forward<Args>(args)... 转发调用元素的构造函数。没有迭代器或引用被非法化。
+  template <class... Args>
+  iterator emplace_hint( const_iterator hint, Args&&... args );
+
+
+  //将内容与 other 的交换
+  void swap( set& other );
   ```
+
 
 - 查找
 
@@ -880,7 +934,7 @@ void main()
   unordered_map& operator=( unordered_map&& other );
 
   //以 initializer_list ilist 所标识者替换内容。
-  //    std::unordered_map<int, int> nums1 {{3, 1}, {4, 1}, {5, 9}}              
+  //    std::unordered_map<int, int> nums1 {{3, 1}, {4, 1}, {5, 9}}            
   unordered_map& operator=( std::initializer_list<value_type> ilist );
   ```
 
@@ -1075,7 +1129,7 @@ void main()
   // 复制范围 [first, last) 中的所有元素，从首元素开始逐次到末元素
   template< class InputIt, class OutputIt >
   OutputIt copy( InputIt first, InputIt last, OutputIt d_first );
-  
+
   //仅复制谓词 pred 对其返回 true 的元素。保持被复制元素的相对顺序。
   template< class InputIt, class OutputIt, class UnaryPredicate >
   OutputIt copy_if( InputIt first, InputIt last,

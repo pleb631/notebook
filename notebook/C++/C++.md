@@ -281,7 +281,7 @@ public:
     如果你不写，编译器会自动创建一个，但是里面是空语句
     Person()
     {
-    
+  
     }
     */
 };
@@ -290,7 +290,7 @@ int main()
 {
     Person x_entiy(2);
     /*=》等价写法
-    Person x_entiy=2；//显示法
+    Person x_entiy=2；//显式法
     Person x_entiy = Person(2) //隐式转换法
     */
     Person y_entiy(1,"asd");
@@ -391,7 +391,7 @@ public:
     int m_B;
       static void func()
     {
-        m_A = 100; //静态成员函数可以访问静态成员变量，这个数据是共享的，只有一份，所以不需要区分哪个对象的。                            
+        m_A = 100; //静态成员函数可以访问静态成员变量，这个数据是共享的，只有一份，所以不需要区分哪个对象的。                        
         //m_B = 200; //静态成员函数不可以访问非静态成员变量，无法区分到底是哪个对象的m_B属性，非静态成员变量属于特定的对象上面
         std::cout << "static void func调用" << std::endl;
     }
@@ -471,10 +471,10 @@ public:
     Person(int age)
     {
         this->age = age;  
-                          //如果这里是 age = age；那么编译器会将这两个age和上面的形参age当做同一个age，因此age并没有赋值                
+                          //如果这里是 age = age；那么编译器会将这两个age和上面的形参age当做同一个age，因此age并没有赋值            
     }
   
-    //如果用值的方式返回，Person PersonAddAge(Person& p){}，它返回的是本体拷贝的对象p'，而不是本体p                                 
+    //如果用值的方式返回，Person PersonAddAge(Person& p){}，它返回的是本体拷贝的对象p'，而不是本体p                             
     Person& PersonAddAge(Person& p) //要返回本体的时候，要用引用的方式返回
     {
         this->age += p.age;
@@ -736,11 +736,12 @@ implicit：该构造函数是隐式的（默认）
 
 如果是显示的会被阻止，在编译时无法自动转为对象。
 
-如果时隐私的会被放行。
+如果是隐式的会被放行。
 
 ```c++
 #include <iostream>
 using namespace std;
+
 class Cat
 {
 public :
@@ -748,6 +749,8 @@ public :
 private:
  int n;
 };
+
+
 class Mouse
 {
 public :
@@ -866,6 +869,22 @@ new其实就是告诉计算机开辟一段新的空间，但是和一般的声�
 Entity* e = new Entity()；
 Entity* e = (Entity*)malloc(sizeof(Entity))；
 ```
+
+### 1.new和operator new
+
+* new：指我们在C++里通常用到的运算符，比如A* a = new A; 对于new来说，有new和::new之分，前者位于std
+* operator new()：指对new的重载形式，它是一个函数，并不是运算符。
+* 对于operator new来说，分为全局重载和类重载， =全局重载是void* ::operator new(size_t size)= ，在类中重载形式 void* A::operator new(size_t size)。事实上 =系统默认的全局::operator new(size_t size)也只是调用malloc分配内存= ，并且返回一个void*指针。而构造函数的调用(如果需要)是在=new运算符中完成=的；
+
+### new (void*)
+
+new ((void*)ptr) T1(value);
+
+和new(ptr) T1(value);是等价的操作
+
+* 是一种 **定位new运算符** ，它的作用是在**指定的地址**ptr上创建一个 **T1类型的对象** ，并用value作为 **构造函数的参数** 。
+* 这种操作可以 **节省内存分配的时间** ，因为它不需要在堆中寻找足够大的空间，而是直接使用已有的空间作为 **缓冲区** 。这样可以 **提高程序的效率** ，并**避免内存碎片**的产生。
+* void*是一种 **空指针** ，它没有关联任何数据类型，可以保存任何类型的地址，并可以转换为任何类型的指针。在这里，它的作用是 **强制类型转换** ，把ptr的原始类型转换为void*类型，以便和new运算符匹配
 
 ## 栈作用域生存期
 
@@ -1286,6 +1305,24 @@ int main()
 
 ```
 
+### template <class ...Args>
+
+是一个类型模板形参包，它可以接受任意个数和类型的模板实参。它的语法是在模板形参的类型前加上省略号(…)，表示这个形参是一个可变的参数包，它可以匹配任意个数和类型的模板实参。例如，下面的函数模板就使用了类型模板形参包：
+
+```c++
+template <class ...Args>
+void print(Args... args) {
+  // 这里的args...是一个可变参数包，它可以接受任意个数和类型的函数实参
+  // 这里的sizeof...(args)是一个运算符，它可以计算可变参数包中的参数个数
+  cout << "The number of arguments is: " << sizeof...(args) << endl;
+}
+print(); // 输出 The number of arguments is: 0
+print(1); // 输出 The number of arguments is: 1
+print(1, 2.0, "hello"); // 输出 The number of arguments is: 3
+
+
+```
+
 ## size_t,size_type, typedef和decltype
 
 1. typedef
@@ -1298,7 +1335,6 @@ int main()
    my_double a;
 
    ```
-
 2. decltype
    decltype的作用是**选择并返回操作数的数据类型**
 
@@ -1308,7 +1344,6 @@ int main()
    int B;
    decltype(A) B;
    ```
-
 3. size_t 和 size_type
 
    - size_t and size_type是为了独立于及其设备而定义的类型；比如在这个电脑上int为2字  节，另一台上电脑是4字节，所以经常使用size_t和size_type而不是 `int unsigned`可以    让程序有更好的移植性。
@@ -1317,7 +1352,6 @@ int main()
      ```c++
      typedef unsigned int size_t
      ```
-
    - size_type属于容器概念,本质上是一样的,但是size_t是在全局命名空间里，size_type在string里（`string::size_type`）或vector命名空间里（`vector::size_type`）,在使用STL中表明容器长度的时候，我们一般用size_type。
 
 ## 初始化
@@ -1344,10 +1378,7 @@ T object {arg1, arg2, ...};
 T object (arg1, arg2, ...);//c++ 20起
 ```
 
-
-
 ## 特殊用途语言特性
-
 
 ### 宏
 
@@ -1421,6 +1452,7 @@ int main()
 MAIN
 
 ```
+
 ### 内联（inline）函数
 
 - 普通函数的缺点：调用函数比求解等价表达式要慢得多。
@@ -1520,13 +1552,13 @@ int main()
 ```
 
 > 这里的[]叫做捕获方式，lambda可以把上下文变量以值或引用的方式捕获，在body中直接使用。int value是我们的参数，后面就和PrintValue函数体一样了。
-  [] 什么也不捕获;
-  [=] 按值的方式捕获所有变量 ;
-  [&] 按引用的方式捕获所有变量;
-  [=, &a] 除了变量a之外，按值的方式捕获所有局部变量，变量a  使用引用的方式来捕获。这里可以按引用捕获多个，例如 [=, &  a, &b,&c]。这里注意，如果前面加了=，后面加的具体的参数必  须以引用的方式来捕获，否则会报错;  
-  [&, a] 除了变量a之外，按引用的方式捕获所有局部变量，变量  a使用值的方式来捕获。这里后面的参数也可以多个，例如 [&,   a, b, c]。这里注意，如果前面加了&，后面加的具体的参数必  须以值的方式来捕获;  
-  [a, &b] 以值的方式捕获a，引用的方式捕获b，也可以捕获多个;
-  [this] 在成员函数中，也可以直接捕获this指针，其实在成员  函数中，[=]和[&]也会捕获this指针。
+> [] 什么也不捕获;
+> [=] 按值的方式捕获所有变量 ;
+> [&] 按引用的方式捕获所有变量;
+> [=, &a] 除了变量a之外，按值的方式捕获所有局部变量，变量a  使用引用的方式来捕获。这里可以按引用捕获多个，例如 [=, &  a, &b,&c]。这里注意，如果前面加了=，后面加的具体的参数必  须以引用的方式来捕获，否则会报错;
+> [&, a] 除了变量a之外，按引用的方式捕获所有局部变量，变量  a使用值的方式来捕获。这里后面的参数也可以多个，例如 [&,   a, b, c]。这里注意，如果前面加了&，后面加的具体的参数必  须以值的方式来捕获;
+> [a, &b] 以值的方式捕获a，引用的方式捕获b，也可以捕获多个;
+> [this] 在成员函数中，也可以直接捕获this指针，其实在成员  函数中，[=]和[&]也会捕获this指针。
 
 ```c++
 int x = 1; int y = 2;
@@ -1617,4 +1649,153 @@ weak_ptr被称为弱指针，可以和shared_ptr一起使用。它只是像声�
 
 ```c++
 std::weak_ptr<Entity> entity;
+```
+
+### static_cast
+
+static_cast是可以使用的最简单的类型转换。它是编译时强制转换。它可以在类型之间进行隐式转换(例如int到float，或指针到void*)，它还可以调用显式转换函数(或隐式转换函数)。
+
+#### 用于原C风格的隐式类型转换
+
+例如float转int
+
+```c++
+   float a = 1.3;
+    int b = static_cast<int>(a);
+    cout<<"b="<<b<<endl;
+```
+
+#### 静态下行转换
+
+不执行类型安全检查。
+
+将父类的引用转换为子类的引用
+
+```c++
+struct B
+{
+    int m = 42;
+    const char *hello() const
+    {
+        return "Hello world, this is B!\n";
+    }
+};
+
+struct D : B
+{
+    const char *hello() const
+    {
+        return "Hello world, this is D!\n";
+    }
+};
+
+
+D d;
+B &br = d; // upcast via implicit conversion
+std::cout << "1) " << br.hello();
+D &another_d = static_cast<D &>(br); // downcast
+std::cout << "1) " << another_d.hello();
+
+//1) Hello world, this is B!
+//1) Hello world, this is D!
+```
+
+#### 左值转换为右值引用
+
+将左值v0的资源转移到右值引用v2, v2为{1, 2, 3}的右值引用
+
+```
+ std::vector<int> v0{1, 2, 3};
+    std::vector<int> v2 = static_cast<std::vector<int> &&>(v0);
+    std::cout << "2) after move, v0.size() = " << v0.size() << '\n';
+
+//3) after move, v0.size() = 0
+```
+
+#### 初始化转换
+
+在变量初始化期间就对初始化数据进行类型转换
+
+```
+int n = static_cast<int>(3.14);
+std::cout << "4) n = " << n << '\n';
+std::vector<int> v = static_cast<std::vector<int>>(10);
+std::cout << "4) v.size() = " << v.size() << '\n';
+//4) n = 3
+//4) v.size() = 10
+```
+
+```
+
+```
+
+#### 转换为void并丢弃
+
+如果 new type为void类型，static\_cast将会在计算表达式的值之后丢弃这个值，无法使用变量接到这个值。
+
+```c++
+static_cast<void>(v2.size());  
+int a =  static_cast<void>(v2.size());  //error,void value not ignored as it ought to be
+```
+
+#### void\*转换到具体类型
+
+static\_cast可以提取void\*类型中的值
+
+```c++
+  void *nv = &n;
+
+  int *ni = static_cast<int *>(nv);
+
+  std::cout << "6) *ni = " << *ni << '\n';
+
+  //6) *ni = 3
+```
+
+#### 8.枚举转int（scoped enum to int）
+
+将枚举代表的值转换为int
+
+```c++
+enum class E
+{
+    ONE = 1,
+    TWO,
+    THREE
+};
+
+   E e = E::TWO;
+   int two = static_cast<int>(e);
+   std::cout << "7) " << two << '\n';
+```
+
+#### int转enum以及enum转为其他enum
+
+```c++
+enum class E
+{
+    ONE = 1,
+    TWO,
+    THREE
+};
+enum EU
+{
+    ONE = 1,
+    TWO,
+    THREE
+};
+
+
+   E e2 = static_cast<E>(two);
+   [[maybe_unused]] EU eu = static_cast<EU>(e2);
+```
+
+#### 成员指针的上行转换（pointer to member upcast）
+
+将D内的成员变量的指针转换为B类型的成员变量指针
+
+```c++
+   int D::*pm = &D::m;
+   std::cout << "10) " << br.*static_cast<int B::*>(pm) << '\n';
+   //10) 42
 ```
