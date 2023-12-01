@@ -45,7 +45,7 @@ def save_json(json_path, info, indent=4, mode='w', with_return_char=False):
     #os.makedirs(os.path.split(json_path)[0], exist_ok=True)
     
     # 把python字典转换为字符串
-    json_str = json.dumps(info, indent=indent)
+    json_str = json.dumps(info, indent=indent,ensure_ascii=False)
     if with_return_char:
         json_str += '\n'
     
@@ -125,7 +125,6 @@ def save_csv(csv_path, info, mode='w'):
         info: list, csv文件内容
         mode: str, 'w'代表覆盖写；'a'代表追加写
     '''
-    os.makedirs(os.path.dirname(csv_path), exist_ok=True)
     
     csv_file = csv.writer(open(csv_path, mode))
     # csv_file.writerow(['This','is','a','row', 'sample!'])
@@ -267,7 +266,6 @@ def save_xml(data, xml_path, width, height, classes=None, mode='std'):
                     'with_hip_mid_keypoint'模式添加了臀部关键点；
                     'with_headshoulder_box'模式用于臀部关键点提标时personbox+headshoulderbox记录
     '''
-    os.makedirs(os.path.dirname(xml_path), exist_ok=True)
 
     with open(xml_path, 'w') as xml_file:
         xml_file.write('<annotation>\n')
