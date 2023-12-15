@@ -261,6 +261,7 @@ if __name__ == '__main__':
 cmp_to_key|为sorted()函数自定义比较方法|
 reduce|对列表逐元素数学操作|
 partial|基于现有函数固定参数生成新的可调用对象|
+@warps|将 被修饰的函数(wrapped) 的一些属性值赋值给 修饰器函数|
 
 ```python
 #cmp_to_key
@@ -309,6 +310,24 @@ add = functools.partial(add, 1)
 add(2)
 ```
 
+```python
+
+#functools.wraps
+from functools import wraps
+
+def wrapper(func):
+    @wraps(func)
+    def inner_function():
+        pass
+    return inner_function
+
+@wrapper
+def wrapped():
+    pass
+
+print(wrapped.__name__)
+# wrapped
+```
 # time
 
 见 [python.ipynb](ipynb/python.ipynb)
