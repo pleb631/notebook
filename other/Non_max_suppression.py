@@ -1,65 +1,41 @@
 # import the necessary packages
 import numpy as np
 
-def non_max_suppression(boxes, probs=None, overlapThresh=0.3):
-	# if there are no boxes, return an empty list
-	if len(boxes) == 0:
-		return []
+def non_max_suppression(dets, thresh=0.3):
+    """Pure Python NMS baseline."""
+    if len(dets)==0:
+        return []
+    # x1、y1、x2、y2、以及score赋值
+    x1 = dets[:, 0]  # xmin
+    y1 = dets[:, 1]  # ymin
+    x2 = dets[:, 2]  # xmax
+    y2 = dets[:, 3]  # ymax
+    scores = dets[:, 4]
+    areas = (x2 - x1 + 1) * (y2 - y1 + 1)
+    # argsort()返回数组值从小到大的索引值
+    order = scores.argsort()[::-1]    
+    keep = []
+    while order.size > 0:  # 还有数据
+        print("order:",order)
+        i = order[0]
+        keep.append(i)
+        if order.size==1:break
+        # 计算当前概率最大矩形框与其他矩形框的相交框的坐标
+        xx1 = np.maximum(x1[i], x1[order[1:]])
+        yy1 = np.maximum(y1[i], y1[order[1:]])
+        xx2 = np.minimum(x2[i], x2[order[1:]])
+        yy2 = np.minimum(y2[i], y2[order[1:]])
 
-	# if the bounding boxes are integers, convert them to floats -- this
-	# is important since we'll be doing a bunch of divisions
-	if boxes.dtype.kind == "i":
-		boxes = boxes.astype("float")
-
-	# initialize the list of picked indexes
-	pick = []
-
-	# grab the coordinates of the bounding boxes
-	x1 = boxes[:, 0]
-	y1 = boxes[:, 1]
-	x2 = boxes[:, 2]
-	y2 = boxes[:, 3]
-
-	# compute the area of the bounding boxes and grab the indexes to sort
-	# (in the case that no probabilities are provided, simply sort on the
-	# bottom-left y-coordinate)
-	area = (x2 - x1 + 1) * (y2 - y1 + 1)
-	idxs = y2
-
-	# if probabilities are provided, sort on them instead
-	if probs is not None:
-		idxs = probs
-
-	# sort the indexes
-	idxs = np.argsort(idxs)
-
-	# keep looping while some indexes still remain in the indexes list
-	while len(idxs) > 0:
-		# grab the last index in the indexes list and add the index value
-		# to the list of picked indexes
-		last = len(idxs) - 1
-		i = idxs[last]
-		pick.append(i)
-
-		# find the largest (x, y) coordinates for the start of the bounding
-		# box and the smallest (x, y) coordinates for the end of the bounding
-		# box
-		xx1 = np.maximum(x1[i], x1[idxs[:last]])
-		yy1 = np.maximum(y1[i], y1[idxs[:last]])
-		xx2 = np.minimum(x2[i], x2[idxs[:last]])
-		yy2 = np.minimum(y2[i], y2[idxs[:last]])
-
-		# compute the width and height of the bounding box
-		w = np.maximum(0, xx2 - xx1 + 1)
-		h = np.maximum(0, yy2 - yy1 + 1)
-
-		# compute the ratio of overlap
-		overlap = (w * h) / area[idxs[:last]]
-
-		# delete all indexes from the index list that have overlap greater
-		# than the provided overlap threshold
-		idxs = np.delete(idxs, np.concatenate(([last],
-			np.where(overlap > overlapThresh)[0])))
-
-	# return only the bounding boxes that were picked
-	return boxes[pick].astype("int")
+        # 计算相交框的面积
+        w = np.maximum(0.0, xx2 - xx1 + 1)
+        h = np.maximum(0.0, yy2 - yy1 + 1)
+        inter = w * h
+        # 计算重叠度IOU：重叠面积/（面积1+面积2-重叠面积）
+        IOU = inter / (areas[i] + areas[order[1:]] - inter)
+     
+        left_index = (np.where(IOU <= thresh))[0]
+        
+        # 将order序列更新，由于前面得到的矩形框索引要比矩形框在原order序列中的索引小1，所以要把这个1加回来
+        order = order[left_index + 1]
+        
+    return keep

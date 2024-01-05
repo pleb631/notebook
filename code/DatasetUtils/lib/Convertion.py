@@ -5,11 +5,10 @@ import numpy as np
 from tqdm import tqdm
 import random
 import torch
+import glob
+
+
 from .FileUtils import *
-from .Convertion import (
-    xyxy2xywh,
-    xywh2xyxy,
-)
 
 
 """
@@ -89,18 +88,6 @@ def get_index_of_value_from_list(list, spec_value):
     """
     return [index for index, value in enumerate(list) if value == spec_value]
 
-
-def get_value_of_index_from_list(list, index_list):
-    """从List中获取指定下标对应的值
-
-    Args:
-        list: list, 列表
-        index_list: list, 下标列表
-
-    Returns:
-        value_list: list, 指定下标对应的值
-    """
-    return [list[index] for index in index_list]
 
 
 def get_mcount_value_index_from_list(list, mode="max"):
@@ -340,17 +327,10 @@ def xy_pixel2xy_ratio(xy_pixel, width, height):
     Returns:
         xy_ratio: list, 比例表示的xy，格式xy_ratio[x1,y1,x2,y2,x3,y3,x4,y4]（比例表示[0.211,0.78334,0.1242,0.564...]）
     """
-    x1, y1, x2, y2, x3, y3, x4, y4 = xy_pixel
-    return [
-        x1 / width,
-        y1 / height,
-        x2 / width,
-        y2 / height,
-        x3 / width,
-        y3 / height,
-        x4 / width,
-        y4 / height,
-    ]
+    xy_pixel = np.array(xy_pixel).reshape(-1,2)
+    xy_pixel = xy_pixel/[width, height]
+    return xy_pixel.reshape(-1).tolist()
+
 
 
 def quadrilateral_points2rectangle_xyxy(quadrilateral_points):
@@ -362,30 +342,12 @@ def quadrilateral_points2rectangle_xyxy(quadrilateral_points):
     Returns:
         rectangle_xyxy: list, 格式[xmin, ymin, xmax, ymax]
     """
-    xmin = min(
-        quadrilateral_points[0][0],
-        quadrilateral_points[1][0],
-        quadrilateral_points[2][0],
-        quadrilateral_points[3][0],
-    )
-    ymin = min(
-        quadrilateral_points[0][1],
-        quadrilateral_points[1][1],
-        quadrilateral_points[2][1],
-        quadrilateral_points[3][1],
-    )
-    xmax = max(
-        quadrilateral_points[0][0],
-        quadrilateral_points[1][0],
-        quadrilateral_points[2][0],
-        quadrilateral_points[3][0],
-    )
-    ymax = max(
-        quadrilateral_points[0][1],
-        quadrilateral_points[1][1],
-        quadrilateral_points[2][1],
-        quadrilateral_points[3][1],
-    )
+    point = np.array(quadrilateral_points)
+    xmin = np.min(point,0)
+    ymin = np.min(point,1)
+    xmax = np.max(point,0)
+    ymax = np.max(point,1)
+    
     return [xmin, ymin, xmax, ymax]
 
 
@@ -650,14 +612,13 @@ class YoloVocConvert:
                 classes,
             )
 
-    def voc_box_2_yolo_box(self, size, box, mode="std"):
+    def voc_box_2_yolo_box(self, size, box):
         """voc_box转为yolo_box
 
         Args:
             size: tuple, 宽高尺寸(width, height)
             box: list, voc格式检测框[xmin, ymin, xmax, ymax]
-            mode: str, 'std'代表只包含检测框；
-                        'with_hip_mid_keypoint'代表只包含检测框与臀部关键点；
+
 
         Returns:
             box: list, yolo格式检测框[x_center, y_center, width, height]，均为归一化值
@@ -676,49 +637,34 @@ class YoloVocConvert:
         y = y * dh
         h = h * dh
 
-        if mode == "std":
-            return (x, y, w, h)
-        elif mode == "with_hip_mid_keypoint":
-            if box[4] == -1 and box[5] == -1:
-                hip_mid_x = -1
-                hip_mid_y = -1
-            else:
-                hip_mid_x = box[4] * dw
-                hip_mid_y = box[5] * dh
-            return (x, y, w, h, hip_mid_x, hip_mid_y)
+        return (x, y, w, h)
 
-    def voc2yolo(self, root, classes, mode="std"):
-        """VOC格式（路径'Annotations_XML/'）转为YOLO格式（路径'Annotations/'）
+    def voc2yolo(self, root, classes):
+        """VOC格式（路径'annotations_XML/'）转为YOLO格式（路径'labels/'）
 
         Args:
             root: str, 根目录路径
-            mode: str, 'std'代表只包含类别与检测框；
-                        'with_hip_mid_keypoint'代表只包含类别、检测框与臀部关键点；
+
         """
-        yolo_path = f"{root}/Annotations/"
-        voc_path = f"{root}/Annotations_XML/"
+        yolo_path = f"{root}/labels/"
+        voc_path = f"{root}/annotations_XML/"
 
         xml_files = os.listdir(voc_path)
         for index, xml_file in enumerate(xml_files):
             print(index, len(xml_files), xml_file)
             os.makedirs(yolo_path, exist_ok=True)
             with open(yolo_path + xml_file.replace(".xml", ".txt"), "w") as txt_file:
-                if mode == "std":
-                    xml_data = read_xml(voc_path + xml_file)
-                elif mode == "with_hip_mid_keypoint":
-                    xml_data = read_xml(voc_path + xml_file, "with_hip_mid_keypoint")
+
+                xml_data = read_xml(voc_path + xml_file)
+
                 height = int(xml_data["size"][1])
                 width = int(xml_data["size"][0])
                 for box in xml_data["bndboxes"]:
                     cls_name = box[4]
                     cls_id = classes.index(cls_name)
 
-                    if mode == "std":
-                        yolo_box = self.voc_box_2_yolo_box((width, height), box[:4])
-                    elif mode == "with_hip_mid_keypoint":
-                        yolo_box = self.voc_box_2_yolo_box(
-                            (width, height), box[:4] + box[5:], "with_hip_mid_keypoint"
-                        )
+                    yolo_box = self.voc_box_2_yolo_box((width, height), box[:4])
+
                     txt_file.write(
                         f"{str(cls_id)} "
                         + " ".join([str(element) for element in yolo_box])
@@ -726,63 +672,126 @@ class YoloVocConvert:
                     )
 
 
-class VocCocoConvert:
-    """VocCoco标注转换类"""
 
-    def coco2voc(self):
-        pass
+def yolo2coco(root_dir,class_path,save_path):
+    root_path = root_dir
+    print("Loading data from ",root_path)
 
-    def voc2coco(self, classes, txt_path, save_coco_json_path):
-        """VOC格式（路径'Annotations_XML/'）+train/test.txt转为COCO格式（路径'./label_coco.json'）
-        注意coco的bbox格式为: [xmin, ymin, w, h]！！！！！！而非[xmin, ymin, xmax, ymax]
+    assert os.path.exists(root_path)
 
-        Args:
-            classes: list, 类别名称
-            txt_path: str, train/val/test.txt
-            save_coco_json_path: str, 保存coco格式json文件路径
-        """
-        categories, images, annotations = [], [], []
+    with open(class_path) as f:
+        classes = f.read().strip().split()
+    # images dir name
+    image_paths = glob.glob(os.path.join(root_path,"**/*.jpg"),recursive=True)+glob.glob(os.path.join(root_path,"**/*.png"),recursive=True)
 
-        # read train/val/test.txt
-        images_list = read_txt(txt_path)
+    dataset = {'categories': [], 'annotations': [], 'images': []}
+    for i, cls in enumerate(classes, 0):
+        dataset['categories'].append({'id': i, 'name': cls, 'supercategory': 'mark'})
+    
+    # 标注的id
+    ann_id_cnt = 0
+    for k, index in enumerate(tqdm(image_paths)):
+        # 支持 png jpg 格式的图片。
+        txt_path = index.replace('images','labels').replace('.jpg','.txt').replace('.png','.txt')
+        # 读取图像的宽和高
+        im = cv2.imdecode(np.fromfile(index, np.uint8), cv2.IMREAD_COLOR)
+        height, width, _ = im.shape
 
-        # build categories
-        for index, category in enumerate(classes):
-            category_info = {"supercategory": category, "name": category, "id": index}
-            categories.append(category_info)
+        # 添加图像的信息
+        dataset['images'].append({'file_name': os.path.relpath(index, start=root_path),
+                                    'id': k,
+                                    'width': width,
+                                    'height': height})
+        
+        if not os.path.exists(txt_path):
+            # 如没标签，跳过，只保留图片信息。
+            continue
+        with open(txt_path, 'r') as fr:
+            labelList = fr.readlines()
+            for label in labelList:
+                label = label.strip().split()
+                x = float(label[1])
+                y = float(label[2])
+                w = float(label[3])
+                h = float(label[4])
 
-        # build images, annotations
-        box_id = 0
-        for image_id, image_file in enumerate(images_list):
-            print(image_id, image_file)
-            image_info, anno_info = {}, []
-            xml_data = read_xml(
-                image_file.replace("JPEGImages", "Annotations_XML").replace(
-                    ".jpg", ".xml"
-                )
+                # convert x,y,w,h to x1,y1,x2,y2
+                H, W, _ = im.shape
+                x1 = (x - w / 2) * W
+                y1 = (y - h / 2) * H
+                x2 = (x + w / 2) * W
+                y2 = (y + h / 2) * H
+                # 标签序号从0开始计算, coco2017数据集标号混乱，不管它了。
+                cls_id = int(label[0])   
+                width = max(0, x2 - x1)
+                height = max(0, y2 - y1)
+                dataset['annotations'].append({
+                    'area': width * height,
+                    'bbox': [x1, y1, width, height],
+                    'category_id': cls_id,
+                    'id': ann_id_cnt,
+                    'image_id': k,
+                    'iscrowd': 0,
+                    # mask, 矩形是从左上角点按顺时针的四个顶点
+                    'segmentation': [[x1, y1, x2, y1, x2, y2, x1, y2]]
+                })
+                ann_id_cnt += 1
+
+    # 保存结果    
+    json_name = os.path.join(root_path, 'annotations/{}'.format(save_path))
+    
+    os.makedirs(os.path.dirname(json_name),exist_ok=True)
+    
+    with open(json_name, 'w') as f:
+        json.dump(dataset, f,ensure_ascii=False)
+        print('Save annotation to {}'.format(json_name))
+
+
+def voc2coco(classes, txt_path, save_coco_json_path):
+    """VOC格式（路径'Annotations_XML/'）+train/test.txt转为COCO格式（路径'./label_cocojson'）
+    注意coco的bbox格式为: [xmin, ymin, w, h]！！！！！！而非[xmin, ymin, xmax, ymax]
+    Args:
+        classes: list, 类别名称
+        txt_path: str, train/val/test.txt
+        save_coco_json_path: str, 保存coco格式json文件路径
+    """
+    categories, images, annotations = [], [], []
+    # read train/val/test.txt
+    images_list = read_txt(txt_path)
+    # build categories
+    for index, category in enumerate(classes):
+        category_info = {"supercategory": category, "name": category,"id": index}
+        categories.append(category_info)
+    # build images, annotations
+    box_id = 0
+    for image_id, image_file in enumerate(images_list):
+        print(image_id, image_file)
+        image_info, anno_info = {}, []
+        xml_data = read_xml(
+            image_file.replace("JPEGImages", "Annotations_XML").replace(
+                ".jpg", ".xml"
             )
-
-            image_info["file_name"] = xml_data["file_name"]
-            image_info["width"] = xml_data["size"][0]
-            image_info["height"] = xml_data["size"][1]
-            image_info["id"] = image_id
-            images.append(image_info)
-
-            for box in xml_data["bndboxes"]:
-                box_anno = {"image_id": image_id, "category_id": classes.index(box[4])}
-                # box_anno['category_id'] = 0
-                box_anno["bbox"] = xyxy2ltwh(box[:4])
-                box_anno["id"] = box_id
-                box_anno["area"] = (box[2] - box[0]) * (box[3] - box[1])
-                box_anno["iscrowd"] = 0
-                anno_info.append(box_anno)
-                box_id += 1
-            annotations.extend(anno_info)
-
-        save_json(
-            save_coco_json_path,
-            {"images": images, "categories": categories, "annotations": annotations},
         )
+        image_info["file_name"] = xml_data["file_name"]
+        image_info["width"] = xml_data["size"][0]
+        image_info["height"] = xml_data["size"][1]
+        image_info["id"] = image_id
+        images.append(image_info)
+        for box in xml_data["bndboxes"]:
+            box_anno = {"image_id": image_id, "category_id": classesindex(box[4])}
+            # box_anno['category_id'] = 0
+            box_anno["bbox"] = xyxy2ltwh(box[:4])
+            box_anno["id"] = box_id
+            box_anno["area"] = (box[2] - box[0]) * (box[3] - box[1])
+            box_anno["iscrowd"] = 0
+            anno_info.append(box_anno)
+            box_id += 1
+        annotations.extend(anno_info)
+        
+    save_json(
+        save_coco_json_path,
+        {"images": images, "categories": categories, "annotations": annotations},
+    )
 
 
 def coco2yolo(json_path, save_path):

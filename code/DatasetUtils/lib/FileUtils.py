@@ -3,7 +3,9 @@ import os
 import shutil
 import json, csv, pickle, yaml
 import xml.etree.ElementTree as ET
-
+from .Convertion import (
+    xywh2xyxy,
+)
 
 
 '''
@@ -159,47 +161,30 @@ def save_txt(txt_path, info, mode='w'):
             txt_file.write(line + '\n')
     
     
-def read_yolo_txt(txt_path, width, height, mode='std'):
+def read_yolo_txt(txt_path, width, height):
     '''读取yolo_txt文件
 
     Args:
         txt_path: str, yolo_txt文件路径
         width: int, 图像的宽
         height: int, 图像的高
-        mode: str, 'std'代表标准模式；
-                              'with_hip_mid_keypoint'代表包含臀部点
+
 
     Returns:
         txt_data: list, yolo_txt文件内容
     '''
-    def xywh2xyxy(xywh):
-        '''[x, y, w, h]转为[xmin, ymin, xmax, ymax]
-        '''
-        xmin = int(xywh[0] - xywh[2] / 2)
-        ymin = int(xywh[1] - xywh[3] / 2)
-        xmax = int(xywh[0] + xywh[2] / 2)
-        ymax = int(xywh[1] + xywh[3] / 2)
-        xyxy = [xmin, ymin, xmax, ymax]
-
-        return xyxy
-
     txt_file = open(txt_path, 'r')
     txt_data = []
     for line in txt_file:
-        cls_id = int(line.split(' ')[0])
-        box_x = float(line.split(' ')[1]) * width
-        box_y = float(line.split(' ')[2]) * height
-        box_w = float(line.split(' ')[3]) * width
-        box_h = float(line.split(' ')[4]) * height
-        if mode == 'std':
-            txt_data.append(xywh2xyxy([box_x, box_y, box_w, box_h]) + [cls_id])
-        elif mode == 'with_hip_mid_keypoint':
-            if float(line.split(' ')[5]) == -1 and float(line.split(' ')[6]) == -1:
-                hip_x, hip_y = -1, -1
-            else:
-                hip_x = float(line.split(' ')[5]) * width
-                hip_y = float(line.split(' ')[6]) * height
-            txt_data.append(xywh2xyxy([box_x, box_y, box_w, box_h]) + [cls_id] + [hip_x, hip_y])
+        line = line.split()
+        cls_id = int(line[0])
+        box_x = float(line[1]) * width
+        box_y = float(line[2]) * height
+        box_w = float(line[3]) * width
+        box_h = float(line[4]) * height
+
+        txt_data.append(xywh2xyxy([box_x, box_y, box_w, box_h]) + [cls_id])
+
 
     return txt_data
 
@@ -208,13 +193,11 @@ def read_yolo_txt(txt_path, width, height, mode='std'):
 '''
 XML文件读写
 '''
-def read_xml(xml_path, mode='std'):
+def read_xml(xml_path):
     '''读取xml文件
 
     Args:
         xml_path: str, xml文件路径
-        mode: str, 'std'标准模式读取file_name、size、bndboxes；
-                                'with_pred_topk'模式读取时在bndboxes中添加了预测的topk类别；
 
 
     Returns:
@@ -230,7 +213,6 @@ def read_xml(xml_path, mode='std'):
     xml_data['size'] = [width, height, depth]
 
     bndboxes = []
-    keypoints = []
     for obj_node in xml_target.iter('object'):
         name = obj_node.find('name').text
         bbox = obj_node.find('bndbox')
@@ -242,18 +224,12 @@ def read_xml(xml_path, mode='std'):
             bndbox.append(cur_pt)
         bndbox.append(name)
 
-        if mode == 'with_pred_topk':
-            pred_cls = obj_node.find('pred_cls')
-            classes_name = pred_cls.findall('cls_name')
-            bndbox.extend(class_name.text for class_name in classes_name)
-        bndboxes.append(bndbox)
-
     xml_data['bndboxes'] = bndboxes
 
     return xml_data
 
 
-def save_xml(data, xml_path, width, height, classes=None, mode='std'):
+def save_xml(data, xml_path, width, height, classes=None):
     '''保存xml文件
 
     Args:
@@ -261,10 +237,7 @@ def save_xml(data, xml_path, width, height, classes=None, mode='std'):
         xml_path: str, xml文件路径
         width: int, 图像的宽
         height: int, 图像的高
-        mode: str, 'std'标准模式读取file_name、size和bndboxes；
-                    'with_pred_topk'模式读取时在bndboxes中添加了预测的topk类别；
-                    'with_hip_mid_keypoint'模式添加了臀部关键点；
-                    'with_headshoulder_box'模式用于臀部关键点提标时personbox+headshoulderbox记录
+
     '''
 
     with open(xml_path, 'w') as xml_file:
@@ -292,26 +265,6 @@ def save_xml(data, xml_path, width, height, classes=None, mode='std'):
             xml_file.write(f'            <xmax>{int(data[obj_index][2])}' + '</xmax>\n')
             xml_file.write(f'            <ymax>{int(data[obj_index][3])}' + '</ymax>\n')
             xml_file.write('        </bndbox>\n')
-            if mode == 'with_pred_topk':
-                xml_file.write('        <pred_cls>\n')
-                for cls_name_index in range(5, len(data[obj_index])):
-                    xml_file.write(
-                        f'            <cls_name>{str(data[obj_index][cls_name_index])}'
-                        + '</cls_name>\n'
-                    )
-                xml_file.write('        </pred_cls>\n')
-            if mode == 'with_hip_mid_keypoint':
-                xml_file.write('        <midpoint>\n')
-                xml_file.write(f'            <xm>{str(data[obj_index][5])}' + '</xm>\n')
-                xml_file.write(f'            <ym>{str(data[obj_index][6])}' + '</ym>\n')
-                xml_file.write('        </midpoint>\n')
-            if mode == 'with_headshoulder_box':
-                xml_file.write('        <hsbndbox>\n')
-                xml_file.write(f'            <xmin>{int(data[obj_index][5])}' + '</xmin>\n')
-                xml_file.write(f'            <ymin>{int(data[obj_index][6])}' + '</ymin>\n')
-                xml_file.write(f'            <xmax>{int(data[obj_index][7])}' + '</xmax>\n')
-                xml_file.write(f'            <ymax>{int(data[obj_index][8])}' + '</ymax>\n')
-                xml_file.write('        </hsbndbox>\n')
             xml_file.write('    </object>\n')
 
         xml_file.write('</annotation>')
@@ -356,40 +309,6 @@ def list_files(basePath, validExts=None, contains=None):
             ext = filename[filename.rfind("."):].lower()
             if validExts is None or ext.endswith(validExts):
                 yield os.path.join(rootDir, filename)
-
-
-def get_image_list(image_path):
-    """Get image list"""
-    valid_suffix = [
-        '.JPEG', '.jpeg', '.JPG', '.jpg', '.BMP', '.bmp', '.PNG', '.png'
-    ]
-    image_list = []
-    image_dir = None
-    if os.path.isfile(image_path):
-        image_dir = None
-        if os.path.splitext(image_path)[-1] in valid_suffix:
-            image_list.append(image_path)
-        else:
-            image_dir = os.path.dirname(image_path)
-            with open(image_path, 'r') as f:
-                image_list.extend(os.path.join(image_dir, line) for line in f)
-    elif os.path.isdir(image_path):
-        image_dir = image_path
-        for root, dirs, files in os.walk(image_dir):
-            image_list.extend(
-                os.path.join(root, f)
-                for f in files
-                if os.path.splitext(f)[-1] in valid_suffix
-            )
-        image_list.sort()
-    else:
-        raise FileNotFoundError(
-            '`image_path` is not found. it should be an image file or a directory including images'
-        )
-
-
-    return image_list, image_dir
-
 
 
 '''
@@ -459,20 +378,7 @@ def get_str_of_size(size):
     return '{}.{:>03d} {}'.format(integer, remainder, units[level])
 
 
-def copy_dir(src, dst):
-    """ copy src-directory to dst-directory, will cover the same files"""
-    if not os.path.exists(src):
-        print(f"\nno src path:{src}")
-        return
-    for root, dirs, files in os.walk(src, topdown=False):
-        dest_path = os.path.join(dst, os.path.relpath(root, src))
-        if not os.path.exists(dest_path):
-            os.makedirs(dest_path)
-        for filename in files:
-            copy_file(
-                os.path.join(root, filename),
-                os.path.join(dest_path, filename)
-            )
+
 
 def others():
     '''文件处理相关的小功能,一两行能实现的

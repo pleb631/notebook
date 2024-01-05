@@ -171,7 +171,7 @@ if __name__ == "__main__":
         start = each_process_files * i
         end = each_process_files * (i + 1) if i<num_processes-1 else len(file_list)
         asyncResult.append(pool.apply_async(process, [(file_list, start, end)]))
-        
+      
     pool.close()
     pool.join()
     # 输出处理结果
@@ -359,7 +359,7 @@ print(conn2.poll())  # 会print出 True ，因为conn1 send 了个 'A' 等着con
 print(conn2.recv(), conn2.poll(2))  # 会等待2秒钟再开始查询，然后print出 'A False'
 ```
 
-### 线程池
+## ThreadPool
 
 ```python
 from multiprocessing.pool import ThreadPool
@@ -377,7 +377,100 @@ with ThreadPool(2) as pool:
     pbar.close()
 ```
 
-## threading
+# Manager
+
+## dict、list
+
+```python
+import multiprocessing
+
+test_dict={}
+test_dict['test'] ={}
+
+def test(idx, test_dict1):
+    
+    test_dict1[idx] = idx
+    test_dict['test'][idx] = idx # 字典key对应的地址内容不会被修改
+
+if __name__ == '__main__':
+    
+    mg = multiprocessing.Manager()
+    dicMP = mg.dict()  # 多进程，共享字典
+
+    pool = multiprocessing.Pool(4)
+    for i in range(10):
+        pool.apply_async(test, args=(i, dicMP))
+
+    pool.close()
+    pool.join()
+    print(dicMP)
+    print(test_dict)
+
+```
+
+## 自定义Manager
+
+自定义共享内存，下面的代码可以实现一个共享的set，实际效率很慢，**不明白为什么**
+
+```python
+import multiprocessing as mp
+from multiprocessing.managers import BaseManager
+import random
+import tqdm
+import time
+
+
+class shareSet:
+
+    def __init__(self,):
+        self.__save=set()
+
+    def addnum(self, x):
+        if x not in self.save:
+            self.__save.add(x)
+            return True
+        return False
+    
+    def getback(self):
+        return self.__save 
+    
+
+class MyManager(BaseManager):
+    pass
+
+
+MyManager.register('myset', shareSet)
+
+
+def func(my_set,num):
+    i=0
+    prog = tqdm.tqdm(total=num)
+    while(i<num):
+        time.sleep(0.1)
+        randint = random.randint(0,30)
+        if my_set.addnum(randint):
+            i+=1
+            prog.update(1)
+
+if __name__ == '__main__':
+    with MyManager() as manager:
+        
+        myset = manager.myset()
+
+        pool = mp.Pool(processes=3)
+        for i in range(0, 3):
+            pool.apply_async(func, (myset,5))
+        pool.close()
+        pool.join()
+
+        res = myset.getback()
+        print(res)
+        print(len(res))
+
+
+```
+
+# threading
 
 ```python
 """
