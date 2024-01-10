@@ -1,6 +1,5 @@
 # -*- coding: UTF-8 -*-
 import os
-import shutil
 import json, csv, pickle, yaml
 import xml.etree.ElementTree as ET
 from .Convertion import (
@@ -377,19 +376,3 @@ def get_str_of_size(size):
         level = -1
     return '{}.{:>03d} {}'.format(integer, remainder, units[level])
 
-
-
-
-def others():
-    '''文件处理相关的小功能,一两行能实现的
-    '''
-    # copy file
-    shutil.copyfile(src_file, dst_file)
-    # copy dir, os.path.mkdir is not needed
-    shutil.copytree(src_path, dst_path)
-    # move dir
-    shutil.move(src_path, dst_path)
-    # remove dir
-    shutil.rmtree(src_path)
-    # remove file
-    os.remove(file_path, exist_ok=True)

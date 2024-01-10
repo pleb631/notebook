@@ -215,7 +215,7 @@ def xyxy2xywh(xyxy):
     return [x_center, y_center, width, height]
 
 
-def expand_box(xyxy, ratio, w, h):
+def expand_bbox(xyxy, ratio, w, h):
     if isinstance(ratio, float) or isinstance(ratio, int):
         ratio = [ratio, ratio]
     xywh = xyxy2xywh(xyxy)
@@ -226,7 +226,7 @@ def expand_box(xyxy, ratio, w, h):
     y1 = np.clip(y1, 0, h)
     x2 = np.clip(x2, 0, w)
     y2 = np.clip(y2, 0, h)
-    return np.array([x1, y1, x2, y2])
+    return [x1, y1, x2, y2]
 
 
 def xywh2xyxyxyxy(center):
@@ -584,92 +584,72 @@ def gen_nonoverlap_box(image_shape, box_image_shape, current_boxes, roi):
 文件格式转换
 """
 
+def yolo2voc(root, classes, width, height):
+    """YOLO格式（路径'Annotations/'）转为VOC格式（路径'Annotations_XML/'）
+    Args:
+        width: int, 图像宽
+        height: int, 图像高
+    """
+    yolo_path = f"{root}/Annotations/"
+    voc_path = f"{root}/Annotations_XML/"
+    txt_files = os.listdir(yolo_path)
+    for index, txt_file in enumerate(txt_files):
+        print(index, txt_file)
+        os.makedirs(voc_path, exist_ok=True)
+        txt_data = read_yolo_txt(yolo_path + txt_file, width, height)
+        save_xml(
+            txt_data,
+            voc_path + txt_file.replace(".txt", ".xml"),
+            width,
+            height,
+            classes,
+        )
+def voc_box_2_yolo_box(size, box):
+    """voc_box转为yolo_box
+    Args:
+        size: tuple, 宽高尺寸(width, height)
+        box: list, voc格式检测框[xmin, ymin, xmax, ymax]
+    Returns:
+        box: list, yolo格式检测框[x_center, y_center, width, height]，均为归一化值
+    """
+    dw = 1.0 / size[0]
+    dh = 1.0 / size[1]
+    x = (box[0] + box[2]) / 2.0
+    y = (box[1] + box[3]) / 2.0
+    # abs防止检测框xymin-xymax位置放反
+    w = abs(box[2] - box[0])
+    h = abs(box[3] - box[1])
+    x = x * dw
+    w = w * dw
+    y = y * dh
+    h = h * dh
+    return (x, y, w, h)
 
-class YoloVocConvert:
-    """YoloVoc标注转换类"""
 
-    def yolo2voc(self, root, classes, width, height):
-        """YOLO格式（路径'Annotations/'）转为VOC格式（路径'Annotations_XML/'）
-
-        Args:
-            width: int, 图像宽
-            height: int, 图像高
-        """
-        yolo_path = f"{root}/Annotations/"
-        voc_path = f"{root}/Annotations_XML/"
-
-        txt_files = os.listdir(yolo_path)
-        for index, txt_file in enumerate(txt_files):
-            print(index, txt_file)
-            os.makedirs(voc_path, exist_ok=True)
-
-            txt_data = read_yolo_txt(yolo_path + txt_file, width, height)
-            save_xml(
-                txt_data,
-                voc_path + txt_file.replace(".txt", ".xml"),
-                width,
-                height,
-                classes,
-            )
-
-    def voc_box_2_yolo_box(self, size, box):
-        """voc_box转为yolo_box
-
-        Args:
-            size: tuple, 宽高尺寸(width, height)
-            box: list, voc格式检测框[xmin, ymin, xmax, ymax]
-
-
-        Returns:
-            box: list, yolo格式检测框[x_center, y_center, width, height]，均为归一化值
-        """
-        dw = 1.0 / size[0]
-        dh = 1.0 / size[1]
-
-        x = (box[0] + box[2]) / 2.0
-        y = (box[1] + box[3]) / 2.0
-        # abs防止检测框xymin-xymax位置放反
-        w = abs(box[2] - box[0])
-        h = abs(box[3] - box[1])
-
-        x = x * dw
-        w = w * dw
-        y = y * dh
-        h = h * dh
-
-        return (x, y, w, h)
-
-    def voc2yolo(self, root, classes):
-        """VOC格式（路径'annotations_XML/'）转为YOLO格式（路径'labels/'）
-
-        Args:
-            root: str, 根目录路径
-
-        """
-        yolo_path = f"{root}/labels/"
-        voc_path = f"{root}/annotations_XML/"
-
-        xml_files = os.listdir(voc_path)
-        for index, xml_file in enumerate(xml_files):
-            print(index, len(xml_files), xml_file)
-            os.makedirs(yolo_path, exist_ok=True)
-            with open(yolo_path + xml_file.replace(".xml", ".txt"), "w") as txt_file:
-
-                xml_data = read_xml(voc_path + xml_file)
-
-                height = int(xml_data["size"][1])
-                width = int(xml_data["size"][0])
-                for box in xml_data["bndboxes"]:
-                    cls_name = box[4]
-                    cls_id = classes.index(cls_name)
-
-                    yolo_box = self.voc_box_2_yolo_box((width, height), box[:4])
-
-                    txt_file.write(
-                        f"{str(cls_id)} "
-                        + " ".join([str(element) for element in yolo_box])
-                        + "\n"
-                    )
+def voc2yolo(root, classes):
+    """VOC格式（路径'annotations_XML/'）转为YOLO格式（路径'labels/'）
+    Args:
+        root: str, 根目录路径
+    """
+    yolo_path = f"{root}/labels/"
+    voc_path = f"{root}/annotations_XML/"
+    xml_files = os.listdir(voc_path)
+    for index, xml_file in enumerate(xml_files):
+        print(index, len(xml_files), xml_file)
+        os.makedirs(yolo_path, exist_ok=True)
+        with open(yolo_path + xml_file.replace(".xml", ".txt"), "w") as txt_file:
+            xml_data = read_xml(voc_path + xml_file)
+            height = int(xml_data["size"][1])
+            width = int(xml_data["size"][0])
+            for box in xml_data["bndboxes"]:
+                cls_name = box[4]
+                cls_id = classes.index(cls_name)
+                yolo_box = voc_box_2_yolo_box((width, height), box[:4])
+                txt_file.write(
+                    f"{str(cls_id)} "
+                    + " ".join([str(element) for element in yolo_box])
+                    + "\n"
+                )
 
 
 

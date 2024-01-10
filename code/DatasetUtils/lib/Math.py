@@ -423,20 +423,6 @@ def calcu_vector_angle_np(vector_a, vector_b, with_character_flag=True, mode="ra
         return np.rad2deg(angle_radian)
 
 
-def others_numpy():
-    """numpy杂项"""
-    # 向量叉乘，叉积。向量的叉积的模表示这两个向量围成的平行四边形的面积
-    np.cross(line_a, line_b)
-    # 向量内积
-    np.dot(a, b)
-    # 间隔取值，每隔5-1=4个取一个数
-    a = a[::5]
-    # 生成等间隔数组
-    internal_index = np.linspace(
-        0, len(tracking_quality_seq) - 1, keyframe_num, endpoint=True, dtype="int64"
-    )
-
-
 """
 pytorch
 """
@@ -502,28 +488,6 @@ def calcu_batch_tensor_angle_torch(tensor_a, tensor_b, mode="radian"):
     elif mode == "degree":
         return torch.rad2deg(tensor_ab_angle_radian)
 
-
-def others_pytorch():
-    """pytorch杂项"""
-    # 点积（内积），即对应位置相乘再相加；得到的结果是scale标量
-    torch.dot(torch.tensor([2, 3]), torch.tensor([2, 1]))
-    # 点乘，即对应位置相乘；torch.mul和*作用相同
-    a = torch.tensor(list(range(12))).view(4, 3)
-    b = torch.tensor([1, 2, 3])
-    c = torch.mul(torch.tensor([2, 3]), torch.tensor([2, 1]))
-    d = a * b
-    # 矩阵叉乘，维度必须满足mn x nk
-    a = torch.randn(4, 3)
-    b = torch.randn(3, 5)
-    c = torch.mm(a, b).shape
-    # 两个tensor的矩阵乘法，具体操作取决于两个tensor的shape，按两个矩阵维度的不同可分为以下五种
-    a = torch.randn(3)
-    b = torch.randn(3, 5)
-    torch.matmul(a, b)
-
-    # 三角函数，输入输出为弧度制
-    torch.sin()
-    torch.asin()
 
 
 class Trigonometric:
@@ -622,7 +586,7 @@ class Trigonometric:
         """弧度->角度"""
         return radian * (180 / np.pi)
 
-    @staticmethod
+
     @staticmethod
     def angle2radian(angle):
         """角度 ->弧度"""
