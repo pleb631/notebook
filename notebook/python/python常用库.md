@@ -76,22 +76,22 @@ nargs
 
 此案例中`ls`需要输入两个值，输多或少都会报错。
 
-|值|  含义|
-|--|--|
-N  | 参数的绝对个数（例如：3）
-'?' |  0或1个参数
-'*' |  0或所有参数
-'+' |  所有，并且至少一个参数
+| 值  | 含义                      |
+| --- | ------------------------- |
+| N   | 参数的绝对个数（例如：3） |
+| '?' | 0或1个参数                |
+| '*' | 0或所有参数               |
+| '+' | 所有，并且至少一个参数    |
 
 ## pprint
 
 可以按照目标格式按行输出内容，易于debug
 pprint.pprint(content)
 
-
 ## pickledb
 
 一般命令
+
 ```python
 import pickledb
 
@@ -110,7 +110,9 @@ print(db.getall()) #输出所有key
 print(db.exists('3')) #判断key是否存在
 db.deldb() #删除所有内容
 ```
+
 list
+
 ```python
 
 #-*- coding:utf-8 -*-
@@ -172,37 +174,45 @@ Path('path')
 #WindowsPath('path')
 ```
 
-| 模块/方法                         | 作用                          | 备注        |
-| --------------------------------- | ----------------------------- | ----------- |
-|Path.cwd()|返回工作路径|
-|Path.home()|返回电脑用户的目录|#WindowsPath('C:/Users/admin')
-|Path(Path.home(), "Desktop")|#拼接地址|WindowsPath('C:/Users/admin/Desktop')
-|Path(input).reslove()|取绝对路径，等价于Path.cwd().joinpath(input)
-|Path(INPUT).name|返回文件名+文件后缀|
-|Path(INPUT).stem|返回文件名|
-|Path(INPUT).relative_to('path')|去掉路径前缀|
-|Path(INPUT).suffix|返回文件后缀|
-|Path(INPUT).suffixes|返回文件后缀列表|
-|Path(INPUT).root|返回根目录|
-|Path(INPUT).anchor|自动判断返回drive或root|
-|Path.replace(input)|文件重命名或移动|
-|Path.joinpath('path')|
-|Path(INPUT).parts|拆分路径，类似os.path.split('\\')|
-|Path(INPUT).parent|返回父级目录|
-|Path(INPUT).parents|返回各级父级目录|
-|Path(INPUT).exists()|判断 Path 路径是否存在|
-|Path(INPUT).is_dir()|判断 Path 是否是一个文件夹
-Path(INPUT).is_file()|判断 Path 是否是一个文件
-Path(INPUT).mkdir(exist_ok=True,parents=True)|创建文件夹；
-Path(INPUT).rmdir()|删除文件夹，文件夹必须为空
-Path(INPUT).unlink()|删除文件
-Path(INPUT).iterdir()|查找文件夹下的所有文件，返回的是一个生成器类型
-Path(INPUT).glob(pattern)|查找文件夹下所有与 pattern 匹配的文件，返回的是一个生成器类型；
-Path(INPUT).rglob(pattern)|查找文件夹下所有子文件夹中与 pattern 匹配的文件，返回的是一个生成器
-Path(INPUT).rename('INPUT1')|剪切UNPUT文件至INPUT1
-Path(INPUT).with_name('INPUT1')|改变路径中文件名
-Path(INPUT).with_suffix('INPUT1')|改变路径中文件名后缀
-Path(INPUT).match('pattern')|测试路径是否符合pattern
-Path(INPUT).relative_to('path')|取相对路径
-Path(INPUT).read_bytes()，file.write_bytes(b'asdasd')|以bytes读写文件
-
+| 模块/方法 | 作用 | 备注 |
+|---|---|---|
+| Path.cwd() | 返回工作路径 |  |
+| Path.home() | 返回电脑用户的目录 | #WindowsPath('C:/Users/admin') |
+| Path(Path.home(), "Desktop") | #拼接地址 | WindowsPath('C:/Users/admin/Desktop') |
+| Path(input).reslove() | 取绝对路径，等价于Path.cwd().joinpath(input) |  |
+| Path(INPUT).name | 返回文件名+文件后缀 |  |
+| Path(INPUT).stem | 返回文件名 |  |
+| Path(INPUT).relative_to('path') | 去掉路径前缀 |  |
+| Path(INPUT).suffix | 返回文件后缀 |  |
+| Path(INPUT).suffixes | 返回文件后缀列表 |  |
+| Path(INPUT).root | 返回根目录 |  |
+| Path(INPUT).anchor | 自动判断返回drive或root |  |
+| Path.replace(input) | 文件重命名或移动 |  |
+| Path.joinpath('path') |  |  |
+| Path(INPUT).parts | 拆分路径，类似os.path.split('\\') |  |
+| Path(INPUT).parent | 返回父级目录 |  |
+| Path(INPUT).parents | 返回各级父级目录 |  |
+| Path(INPUT).exists() | 判断 Path 路径是否存在 |  |
+| Path(INPUT).is_dir() | 判断 Path 是否是一个文件夹 |  |
+| Path(INPUT).is_file() | 判断 Path 是否是一个文件 |  |
+| Path(INPUT).mkdir(exist_ok=True,parents=True) | 创建文件夹； |  |
+| Path(INPUT).rmdir() | 删除文件夹，文件夹必须为空 |  |
+| Path(INPUT).unlink(missing_ok=False) | 删除文件 |  |
+| Path(INPUT).iterdir() | 查找文件夹下的所有文件，返回的是一个生成器类型 |  |
+| Path(INPUT).glob(pattern) | 查找文件夹下所有与 pattern 匹配的文件，返回的是一个生成器类型； |  |
+| Path(INPUT).rglob(pattern) | 查找文件夹下所有子文件夹中与 pattern 匹配的文件，返回的是一个生成器 |  |
+| Path(INPUT).rename('INPUT1') | 剪切UNPUT文件至INPUT1 |  |
+| Path(INPUT).with_name('INPUT1') | 改变路径中文件名 |  |
+| Path(INPUT).with_suffix('INPUT1') | 改变路径中文件名后缀 |  |
+| Path(INPUT).match('pattern') | 测试路径是否符合pattern |  |
+| Path(INPUT).relative_to('path') | 取相对路径 |  |
+| Path(INPUT).hardlink_to('path') | 创建硬链接 |  |
+| Path(INPUT).symlink_to('path') | 创建软链接 |  |
+| Path(INPUT).is_symlink() | 判断是否为软链接 |  |
+| Path(INPUT).as_posix() | 返回绝对路径 |  |
+| Path(INPUT).link_to('path') | 创建硬链接 |  |
+| Path(INPUT).read_bytes() | 以bytes读取文件 |  |
+| Path(INPUT).read_text() | 以str读取文件 |  |
+| Path(INPUT).write_bytes(b'asdasd') | 以bytes写入文件 |  |
+| Path(INPUT).write_text('asdasd', encoding='utf-8', errors='strict') | 以str写入文件，并指定编码和错误处理方式 |  |
+| Path(INPUT).symlink_to('path') | 创建软链接 |  |
