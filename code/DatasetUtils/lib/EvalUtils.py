@@ -1,15 +1,9 @@
-import json
-import os
-import glob
-from tkinter import N
 import cv2
 import numpy as np
 
-from .FileUtils import read_json, read_txt, read_xml, save_csv, save_json, read_pkl
-from .Convertion import colorstr, quadrilateral_points2left_top_first_quadrilateral, xyxy2ltwh, ltwh2xyxy
-# from .Database import SQLiteDatabase
+from .FileUtils import read_json
+from .Convertion import colorstr
 from .BadcaseAnalyseUtils import *
-# from .DataVisualization import *
 from .Math import Distance
 
 
@@ -291,10 +285,10 @@ class DetEvalFunc(EvalFunc):
         return map50, map50_95
 
     def calcu_map(self, pr_result_json_path):
-        '''根据线上发版结果pr曲线计算map
+        '''根据pr曲线计算map
 
         Args:
-            pr_result_json_path: str, 线上发版结果pr曲线json文件路径
+            pr_result_json_path: str, pr曲线json文件路径
         '''
         json_data = read_json(pr_result_json_path)
         precision = []
@@ -487,7 +481,7 @@ class KeypointEvalFunc(EvalFunc):
         badcases = badcases_index[2][0].tolist()
         for index in badcases:
             image_path = images_path[index]
-            image = cv2.imread('/yuanzifu_data/dataset/gucci/bag_keypoint/' + image_path)
+            image = cv2.imread('keypoint/' + image_path)
             image_gt_keypoints = gt_keypoints[index]
             image_pred_keypoints = pred_keypoints[index]
 
@@ -511,184 +505,7 @@ class KeypointEvalFunc(EvalFunc):
             cv2.circle(image, (int(x3),int(y3)), radius = 4, color = (255,0,0), thickness=-1)
             cv2.circle(image, (int(x4),int(y4)), radius = 4, color = (0,255,255), thickness=-1)
 
-            # cv2.imwrite('/yuanzifu_data/projects/gucci/bag_keypoint/PIPNet/images/test_badcases/' + os.path.basename(image_path), image)
         
         return acc
 
-    def compute_box_hip_acc(self, images_gts_preds, thresholds):
-        """计算头肩框对应关键点的准确率，参考PCK指标修改的
-        
-        Args:
-            images_gts_preds: np.array, 指标评估类函数输入统一为字典images_gts_preds，参考EvalFunc说明
-            thresholds: np.array, 关键点阈值
-        
-        Returns:
-            acc_count: list, 准确率
-            all_count: int, gt关键点数量
-            missed_count: int, 漏检框数量
-            incorrect_count: int, 误检框数量
-        """
-        from .BadcaseAnalyseUtils import DetBadcaseUtils
-        det_badcase_utils = DetBadcaseUtils('')
 
-        acc_count = np.zeros(thresholds.shape[0])
-        all_count, incorrect_count, missed_count, invalid_hip_count = 0, 0, 0, 0
-
-        for image_path in images_gts_preds.keys():
-            gts = images_gts_preds[image_path]['gts']
-            preds = images_gts_preds[image_path]['preds']
-            
-            # 匹配头肩框
-            correct_boxes, incorrect_boxes, missed_boxes = det_badcase_utils.analyse_false_miss_box(gts, preds)
-
-            # 匹配上的计算关键点之间的误差
-            if len(correct_boxes) > 0:
-                preds_box_hip = np.array(correct_boxes)[:, :8]
-                gts_box_hip = np.array(correct_boxes)[:, 8:]
-                scale = np.sqrt(np.square(gts_box_hip[:,2] - gts_box_hip[:,0]) + np.square(gts_box_hip[:,3] - gts_box_hip[:,1]))
-                hip_dist = np.sqrt(np.square(gts_box_hip[:,5] - preds_box_hip[:,6]) + np.square(gts_box_hip[:,6] - preds_box_hip[:,7])) / scale
-                
-                for index, threshold in enumerate(list(thresholds)):
-                    down_threshold = (hip_dist[:] <= threshold)
-                    acc_count[index] += np.sum(down_threshold)
-                
-                invalid_hip_count += np.sum(preds_box_hip[:, 6] == -1)
-            
-            # 未匹配上的记录头肩框误检+漏检
-            all_count += len(gts)
-            incorrect_count += len(incorrect_boxes)
-            missed_count += len(missed_boxes)
-
-        return list(acc_count), incorrect_count, missed_count, all_count, invalid_hip_count
-
-
-class GucciHipKeypointEvalFunc(KeypointEvalFunc):
-    """Gucci臀部关键点评估方法类
-    """
-    def __init__(self, root, save_dir_path):
-        super().__init__(root)
-        from .BadcaseAnalyseUtils import GucciHSDetHipBadcaseUtils
-        self.gucci_hs_det_hip_badcase_utils = GucciHSDetHipBadcaseUtils(root, save_dir_path)
-
-    def compute_acc_using_gt_xml_pred_json(self, pred_json_path, image_path_txt_path, box_thresh, hip_threshes, save_badcase):
-        """计算Gucci臀部关键点准确率
-        
-        Args:
-            pred_json_path: str, 预测头肩框+臀部关键点coco格式json文件路径
-            image_path_txt_path: str, coco格式json文件所用到的图像txt文件路径
-            box_thresh: float, 头肩框置信度阈值
-            hip_threshes: np.array, 臀部关键点阈值
-            save_badcase: bool, 是否保存badcase
-        """
-        json_data = read_json(pred_json_path)
-        images_path = read_txt(image_path_txt_path)
-        images_gts_preds = {}
-
-        print('loading images_gts_preds...')
-        image_id_pred = {}
-        for line in json_data:
-            if line['image_id'] not in image_id_pred:
-                image_id_pred[line['image_id']] = []
-            if line['score'] >= box_thresh:
-                image_id_pred[line['image_id']].append(ltwh2xyxy(line['bbox'][:4]) + [line['score'], line['category_id']] + line['bbox'][4:])
-
-        for idx, image_path in enumerate(images_path):
-            # print(idx, len(images_path), image_path)
-            gts = []
-            preds = []
-            gt_data = read_xml(image_path.replace('JPEGImages', 'Annotations_XML').replace('.jpg', '.xml'), 'with_hip_mid_keypoint')
-            gts = (np.array(gt_data['bndboxes'])[:, [0,1,2,3,5,6]]).astype(np.int32)
-            gts = np.insert(gts, 6, 0, 1)[:, [0,1,2,3,6,4,5]]
-            gts[:, 5] = np.clip(gts[:, 5], 0, 1920)
-            gts[:, 6] = np.clip(gts[:, 6], 0, 1080)
-            gts = gts.tolist()
-
-            if idx not in image_id_pred.keys():
-                preds = []
-            else:
-                preds = image_id_pred[idx]
-
-            images_gts_preds[image_path] = {'gts':gts, 'preds':preds}
-
-        print('calculating acc...')
-        acc_count, incorrect_count, missed_count, all_count, invalid_hip_count = self.compute_box_hip_acc(images_gts_preds, hip_threshes)
-        all_count = all_count - invalid_hip_count
-        for idx, hip_thresh in enumerate(list(hip_threshes)):
-            print('%.02f'%(hip_thresh), int(acc_count[idx]), incorrect_count, missed_count, all_count, '%.04f'%(acc_count[idx]/all_count), '%.04f'%(acc_count[idx]/(all_count-missed_count)))
-
-        if save_badcase:
-            print('saving badcase...')
-            self.gucci_hs_det_hip_badcase_utils.save_false_miss_det_bad_hip_image(images_gts_preds, hip_threshes)
-
-
-class GucciBagKeypointEvalFunc(KeypointEvalFunc):
-    """Gucci女包关键点评估方法类
-    """
-    def compute_acc_using_gt_txt_pred_json(self, gt_txt_path, image_shape_json_path, pred_json_path):
-        """计算Gucci关键点准确率
-        
-        Args:
-            gt_txt_path: str, 标注关键点txt文件路径
-            image_shape_json_path: str, 图像尺寸json文件路径，加速用
-            pred_json_path: str, 预测关键点json文件路径
-        
-        Returns:
-            acc: float, 准确率
-        """
-        txt_data = read_txt(gt_txt_path)
-        image_shapes = read_json(image_shape_json_path, mode='all')
-        json_data = read_json(pred_json_path)
-
-        gt_keypoints, pred_keypoints = [], []
-        images_gt_keypoints, images_pred_keypoints = {}, {}
-        
-        # get gt keypoints
-        for index, line in enumerate(txt_data):
-            print(index, len(txt_data))
-            image_path = line.split(',')[0]
-            # image = cv2.imread(image_path)
-            # height, width, _ = get_image_features(image)
-            width, height = image_shapes[image_path]
-            image_gt_keypoints = line.split(',')[1:]
-            image_gt_keypoints = list(map(float, image_gt_keypoints))
-            for index in range(len(image_gt_keypoints)):
-                if index % 2 == 0:
-                    image_gt_keypoints[index] = image_gt_keypoints[index] * width
-                else:
-                    image_gt_keypoints[index] = image_gt_keypoints[index] * height
-
-            image_gt_keypoints = [[image_gt_keypoints[0], image_gt_keypoints[1]], [image_gt_keypoints[2], image_gt_keypoints[3]], [image_gt_keypoints[4], image_gt_keypoints[5]], [image_gt_keypoints[6], image_gt_keypoints[7]]]
-            filter_set = set()
-            for index in range(4):
-                filter_set.add(tuple(image_gt_keypoints[index]))
-            if len(filter_set) != 4:
-                continue
-            image_gt_keypoints = quadrilateral_points2left_top_first_quadrilateral(image_gt_keypoints)
-            image_gt_keypoints = [image_gt_keypoints[0][0], image_gt_keypoints[0][1], image_gt_keypoints[1][0], image_gt_keypoints[1][1], image_gt_keypoints[2][0], image_gt_keypoints[2][1], image_gt_keypoints[3][0], image_gt_keypoints[3][1]]
-            image_gt_x_keypoints = (np.array(image_gt_keypoints)[[0,2,4,6]]).tolist()
-            image_gt_y_keypoints = (np.array(image_gt_keypoints)[[1,3,5,7]]).tolist()
-
-            # images_gt_keypoints['/'.join(image_path.split('/')[-3:])] = [image_gt_x_keypoints, image_gt_y_keypoints]
-            images_gt_keypoints['/'.join(image_path.split('/')[-2:])] = [image_gt_x_keypoints, image_gt_y_keypoints]
-
-        # get pred keypoints
-        for index, line in enumerate(json_data):
-            print(index, len(txt_data))
-            image_path = line['url_image']
-            image_pred_keypoints = line['result'][0]['data']
-            image_pred_x_keypoints = np.array(image_pred_keypoints)[[0,2,4,6]].tolist()
-            image_pred_y_keypoints = np.array(image_pred_keypoints)[[1,3,5,7]].tolist()
-
-            # images_pred_keypoints['/'.join(image_path.split('/')[-3:])] = [image_pred_x_keypoints, image_pred_y_keypoints]
-            images_pred_keypoints['/'.join(image_path.split('/')[-2:])] = [image_pred_x_keypoints, image_pred_y_keypoints]
-
-        # match gt pred keypoints
-        images_path = []
-        for image in images_gt_keypoints.keys():
-            images_path.append(image)
-            gt_keypoints.append(images_gt_keypoints[image])
-            pred_keypoints.append(images_pred_keypoints[image])
-
-        refer_kpts = [0, 2]
-        acc = self.compute_acc(np.array(gt_keypoints), np.array(pred_keypoints), refer_kpts, images_path)
-        print(acc)

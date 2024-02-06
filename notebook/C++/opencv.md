@@ -126,3 +126,284 @@ params 编码为对（paramId_1、paramValue_1、paramId_2、paramValue_2等）�
 ```
 
 Python:`cv.imwrite( filename, img[, params] ) -> retval`
+
+## 数据格式
+
+### Point_
+
+```c++
+template<typename _Tp> class Point_
+//! dot product
+_Tp dot(const Point_& pt) const;
+//! dot product computed in double-precisionarithmetics
+double ddot(const Point_& pt) const;
+//! cross-product
+double cross(const Point_& pt) const;
+//! checks whether the point is inside thespecified rectangle
+bool inside(const Rect_<_Tp>& r) const;
+_Tp x; //!< x coordinate of the point
+_Tp y; //!< y coordinate of the point
+
+
+typedef Point_<int> Point2i;
+typedef Point_<int64> Point2l;
+typedef Point_<float> Point2f;
+typedef Point_<double> Point2d;
+typedef Point2i Point;
+```
+
+### Point3_
+
+```c++
+    template<typename _Tp> class Point3_
+    //! dot product
+    _Tp dot(const Point3_& pt) const;
+    //! dot product computed in     double-precisionarithmetics
+    double ddot(const Point3_& pt) const;
+    //! cross product of the 2 3D points
+    Point3_ cross(const Point3_& pt) const;
+    _Tp x; //!< x coordinate of the 3D point
+    _Tp y; //!< y coordinate of the 3D point
+    _Tp z; //!< z coordinate of the 3D point
+
+typedef Point3_<int> Point3i;
+typedef Point3_<float> Point3f;
+typedef Point3_<double> Point3d;
+```
+
+### Size_
+
+```c++
+    template<typename _Tp> class Size_
+    //! the area (width*height)
+    _Tp area() const;
+    //! aspect ratio (width/height)
+    double aspectRatio() const;
+    //! true if empty
+    bool empty() const;
+    //! conversion of another data type.
+    template<typename _Tp2> operator Size_<_Tp2>()const;
+    _Tp width; //!< the width
+    _Tp height; //!< the height
+
+typedef Size_<int> Size2i;
+typedef Size_<int64> Size2l;
+typedef Size_<float> Size2f;
+typedef Size_<double> Size2d;
+typedef Size2i Size;
+```
+
+### Rect_
+
+```c++
+    template<typename _Tp> class Rect_
+    //! the top-left corner
+    Point_<_Tp> tl() const;
+    //! the bottom-right corner
+    Point_<_Tp> br() const;
+
+    //! size (width, height) of the rectangle
+    Size_<_Tp> size() const;
+    //! area (width*height) of the rectangle
+    _Tp area() const;
+    //! true if empty
+    bool empty() const;
+
+    //! conversion to another data type
+    template<typename _Tp2> operator Rect_<_Tp2>() const;
+
+    //! checks whether the rectangle contains the point
+    bool contains(const Point_<_Tp>& pt) const;
+
+    _Tp x; //!< x coordinate of the top-left corner
+    _Tp y; //!< y coordinate of the top-left corner
+    _Tp width; //!< width of the rectangle
+    _Tp height; //!< height of the rectangle
+
+typedef Rect_<int> Rect2i;
+typedef Rect_<float> Rect2f;
+typedef Rect_<double> Rect2d;
+typedef Rect2i Rect;
+```
+
+### RotatedRect
+
+### Range
+
+
+### matx
+```c++
+    template<typename _Tp, int m, int n> class Matx
+    CV_NODISCARD_STD static Matx all(_Tp alpha);
+    CV_NODISCARD_STD static Matx zeros();
+    CV_NODISCARD_STD static Matx ones();
+    CV_NODISCARD_STD static Matx eye();
+    CV_NODISCARD_STD static Matx diag(const diag_type& d);
+    /** @brief Generates uniformly distributed random numbers
+    @param a Range boundary.
+    @param b The other range boundary (boundaries don't have to be ordered, the lower boundary is inclusive,
+    the upper one is exclusive).
+     */
+    CV_NODISCARD_STD static Matx randu(_Tp a, _Tp b);
+    /** @brief Generates normally distributed random numbers
+    @param a Mean value.
+    @param b Standard deviation.
+     */
+    CV_NODISCARD_STD static Matx randn(_Tp a, _Tp b);
+
+    //! dot product computed with the default precision
+    _Tp dot(const Matx<_Tp, m, n>& v) const;
+
+    //! dot product computed in double-precision arithmetics
+    double ddot(const Matx<_Tp, m, n>& v) const;
+
+    //! conversion to another data type
+    template<typename T2> operator Matx<T2, m, n>() const;
+
+    //! change the matrix shape
+    template<int m1, int n1> Matx<_Tp, m1, n1> reshape() const;
+
+    //! extract part of the matrix
+    template<int m1, int n1> Matx<_Tp, m1, n1> get_minor(int base_row, int base_col) const;
+
+    //! extract the matrix row
+    Matx<_Tp, 1, n> row(int i) const;
+
+    //! extract the matrix column
+    Matx<_Tp, m, 1> col(int i) const;
+
+    //! extract the matrix diagonal
+    diag_type diag() const;
+
+    //! transpose the matrix
+    Matx<_Tp, n, m> t() const;
+
+    //! invert the matrix
+    Matx<_Tp, n, m> inv(int method=DECOMP_LU, bool *p_is_ok = NULL) const;
+
+    //! solve linear system
+    template<int l> Matx<_Tp, n, l> solve(const Matx<_Tp, m, l>& rhs, int flags=DECOMP_LU) const;
+    Vec<_Tp, n> solve(const Vec<_Tp, m>& rhs, int method) const;
+
+    //! multiply two matrices element-wise
+    Matx<_Tp, m, n> mul(const Matx<_Tp, m, n>& a) const;
+
+    //! divide two matrices element-wise
+    Matx<_Tp, m, n> div(const Matx<_Tp, m, n>& a) const;
+
+    //! element access
+    const _Tp& operator ()(int row, int col) const;
+    _Tp& operator ()(int row, int col);
+
+    //! 1D element access
+    const _Tp& operator ()(int i) const;
+    _Tp& operator ()(int i);
+
+    Matx(const Matx<_Tp, m, n>& a, const Matx<_Tp, m, n>& b, Matx_AddOp);
+    Matx(const Matx<_Tp, m, n>& a, const Matx<_Tp, m, n>& b, Matx_SubOp);
+    template<typename _T2> Matx(const Matx<_Tp, m, n>& a, _T2 alpha, Matx_ScaleOp);
+    Matx(const Matx<_Tp, m, n>& a, const Matx<_Tp, m, n>& b, Matx_MulOp);
+    Matx(const Matx<_Tp, m, n>& a, const Matx<_Tp, m, n>& b, Matx_DivOp);
+    template<int l> Matx(const Matx<_Tp, m, l>& a, const Matx<_Tp, l, n>& b, Matx_MatMulOp);
+    Matx(const Matx<_Tp, n, m>& a, Matx_TOp);
+
+    _Tp val[m*n]; //< matrix elements
+    ```
+### Vec
+
+```c++
+    template<typename _Tp, int cn> class Vec : public Matx<_Tp, cn, 1>
+        static Vec all(_Tp alpha);
+    static Vec ones();
+    static Vec randn(_Tp a, _Tp b);
+    static Vec randu(_Tp a, _Tp b);
+    static Vec zeros();
+#ifdef CV_CXX11
+    static Vec diag(_Tp alpha) = delete;
+    static Vec eye() = delete;
+#endif
+
+    //! per-element multiplication
+    Vec mul(const Vec<_Tp, cn>& v) const;
+
+    //! conjugation (makes sense for complex numbers and quaternions)
+    Vec conj() const;
+
+    /*!
+      cross product of the two 3D vectors.
+
+      For other dimensionalities the exception is raised
+    */
+    Vec cross(const Vec& v) const;
+    //! conversion to another data type
+    template<typename T2> operator Vec<T2, cn>() const;
+
+    /*! element access */
+    const _Tp& operator [](int i) const;
+    _Tp& operator[](int i);
+    const _Tp& operator ()(int i) const;
+    _Tp& operator ()(int i);
+
+#ifdef CV_CXX11
+    Vec<_Tp, cn>& operator=(const Vec<_Tp, cn>& rhs) = default;
+#endif
+
+    Vec(const Matx<_Tp, cn, 1>& a, const Matx<_Tp, cn, 1>& b, Matx_AddOp);
+    Vec(const Matx<_Tp, cn, 1>& a, const Matx<_Tp, cn, 1>& b, Matx_SubOp);
+    template<typename _T2> Vec(const Matx<_Tp, cn, 1>& a, _T2 alpha, Matx_ScaleOp);
+
+
+typedef Vec<uchar, 2> Vec2b;
+typedef Vec<uchar, 3> Vec3b;
+typedef Vec<uchar, 4> Vec4b;
+
+typedef Vec<short, 2> Vec2s;
+typedef Vec<short, 3> Vec3s;
+typedef Vec<short, 4> Vec4s;
+
+typedef Vec<ushort, 2> Vec2w;
+typedef Vec<ushort, 3> Vec3w;
+typedef Vec<ushort, 4> Vec4w;
+
+typedef Vec<int, 2> Vec2i;
+typedef Vec<int, 3> Vec3i;
+typedef Vec<int, 4> Vec4i;
+typedef Vec<int, 6> Vec6i;
+typedef Vec<int, 8> Vec8i;
+
+typedef Vec<float, 2> Vec2f;
+typedef Vec<float, 3> Vec3f;
+typedef Vec<float, 4> Vec4f;
+typedef Vec<float, 6> Vec6f;
+
+typedef Vec<double, 2> Vec2d;
+typedef Vec<double, 3> Vec3d;
+typedef Vec<double, 4> Vec4d;
+typedef Vec<double, 6> Vec6d;
+```
+
+### Scalar_
+
+```c++
+    template<typename _Tp> class Scalar_ : public Vec<_Tp, 4>
+        //! returns a scalar with all elements set to v0
+    static Scalar_<_Tp> all(_Tp v0);
+
+    //! conversion to another data type
+    template<typename T2> operator Scalar_<T2>() const;
+
+    //! per-element product
+    Scalar_<_Tp> mul(const Scalar_<_Tp>& a, double scale=1 ) const;
+
+    //! returns (v0, -v1, -v2, -v3)
+    Scalar_<_Tp> conj() const;
+
+    //! returns true iff v1 == v2 == v3 == 0
+    bool isReal() const;
+
+typedef Scalar_<double> Scalar;
+```
+
+### KeyPoint
+
+### Matx

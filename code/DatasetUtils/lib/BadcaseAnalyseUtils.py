@@ -1,12 +1,12 @@
 import cv2
 import numpy as np
 import os
+from functools import cmp_to_key
 
 from .FileUtils import *
-#from .ImageVideoUtils import *
 from .DetectDataVisualization import *
 from .Math import Distance
-from .Convertion import get_xyxy_center
+from .Convertion import xyxy2xywh
 
 
 class BadcaseAnalyseUtils:
@@ -102,7 +102,16 @@ class BadcaseAnalyseUtils:
         return matched_boxes, unmatched_boxes_a, unmatched_boxes_b
 
 
+class ClsBadcaseUtils(BadcaseAnalyseUtils):
+    '''分类模型Badcase工具类
 
+    Attributes:
+        root: str, 根目录路径
+        save_dir_path: str, 需要保存文件的路径
+    '''
+    def __init__(self):
+        super().__init__()
+        self.vis_utils = ClsDataVis()
 
 
 class DetBadcaseUtils(BadcaseAnalyseUtils):
@@ -124,7 +133,7 @@ class DetBadcaseUtils(BadcaseAnalyseUtils):
         """
         filtered_boxes = []
         for box_info in boxes_list:
-            center = get_xyxy_center(box_info[:4])
+            center = xyxy2xywh(box_info[:4])[:2]
             if point_in_mask(center, mask_image):
                 filtered_boxes.append(box_info)
 
@@ -213,9 +222,8 @@ class DetBadcaseUtils(BadcaseAnalyseUtils):
             image = cv2.imread(image_path)
             if image is None:
                 continue
-            txtPath = image_path.replace("JPEGImages", "Annotations").replace(
-                ".jpg", ".txt"
-            )
+            txtPath = os.path.splitext(image_path.replace(f"{os.sep}images{os.sep}", f"{os.sep}labels{os.sep}"))[0]+".txt"
+
             gt_boxes = read_yolo_txt(txtPath, image.shape[1], image.shape[0])
             pred_boxes_list = json_data[image_path]
 
@@ -261,106 +269,6 @@ class DetBadcaseUtils(BadcaseAnalyseUtils):
                             missed_box_img,
                         )
 
-
-class GucciHSDetHipBadcaseUtils(DetBadcaseUtils):
-    """Gucci头肩检测+臀部关键点模型Badcase工具类"""
-
-    def save_false_miss_det_bad_hip_image(self, images_gts_preds, thresholds):
-        """保存误检和漏检的头肩框和错误臀部关键点图像；绿框代表正确预测框，红框代表误检框，蓝框代表漏检框
-
-        Args:
-            images_gts_preds: np.array, 指标评估类函数输入统一为字典images_gts_preds，参考EvalFunc说明
-            thresholds: np.array, 关键点阈值
-        """
-        os.makedirs(os.path.join(self.save_dir_path, "hs_det_badcase"), exist_ok=True)
-        for idx, image_path in enumerate(images_gts_preds.keys()):
-            print("badcase: %d/%d %s" % (idx, len(images_gts_preds.keys()), image_path))
-            gts = images_gts_preds[image_path]["gts"]
-            preds = images_gts_preds[image_path]["preds"]
-            image = cv2.imread(image_path)
-
-            # 匹配头肩框
-            correct_boxes, incorrect_boxes, missed_boxes = self.analyse_false_miss_box(
-                gts, preds
-            )
-
-            # 头肩框badcase可视化
-            if len(incorrect_boxes) != 0 or len(missed_boxes) != 0:
-                show_image = self.vis_utils.badcase_det_box_vis(
-                    image.copy(), correct_boxes, incorrect_boxes, missed_boxes
-                )
-                cv2.imwrite(
-                    os.path.join(
-                        self.save_dir_path,
-                        "hs_det_badcase",
-                        os.path.basename(image_path),
-                    ),
-                    show_image,
-                )
-
-            # 匹配上的计算关键点之间的误差
-            if len(correct_boxes) > 0:
-                preds_box_hip = np.array(correct_boxes)[:, :8]
-                gts_box_hip = np.array(correct_boxes)[:, 8:]
-                scale = np.sqrt(
-                    np.square(gts_box_hip[:, 2] - gts_box_hip[:, 0])
-                    + np.square(gts_box_hip[:, 3] - gts_box_hip[:, 1])
-                )
-                hip_dist = (
-                    np.sqrt(
-                        np.square(gts_box_hip[:, 5] - preds_box_hip[:, 6])
-                        + np.square(gts_box_hip[:, 6] - preds_box_hip[:, 7])
-                    )
-                    / scale
-                )
-
-                for threshold in list(thresholds):
-                    os.makedirs(
-                        os.path.join(
-                            self.save_dir_path, "hip_badcase", "%f" % (threshold)
-                        ),
-                        exist_ok=True,
-                    )
-                    os.makedirs(
-                        os.path.join(
-                            self.save_dir_path,
-                            "hip_badcase",
-                            "%f" % (threshold),
-                            "invalid_hip",
-                        ),
-                        exist_ok=True,
-                    )
-                    badcase_indices = np.where(hip_dist > threshold)
-
-                    for bc_idx in badcase_indices[0].tolist():
-                        pred_box_hip = preds_box_hip[bc_idx].tolist()
-                        gt_box_hip = gts_box_hip[bc_idx].tolist()
-                        person_image = self.vis_utils.badcase_det_box_hip_vis(
-                            image.copy(), gt_box_hip, pred_box_hip
-                        )
-                        if pred_box_hip[6] == -1:
-                            cv2.imwrite(
-                                os.path.join(
-                                    self.save_dir_path,
-                                    "hip_badcase",
-                                    "%f" % (threshold),
-                                    "invalid_hip",
-                                    os.path.basename(image_path).split(".jpg")[0]
-                                    + "_%05d.jpg" % (bc_idx),
-                                ),
-                                person_image,
-                            )
-                        else:
-                            cv2.imwrite(
-                                os.path.join(
-                                    self.save_dir_path,
-                                    "hip_badcase",
-                                    "%f" % (threshold),
-                                    os.path.basename(image_path).split(".jpg")[0]
-                                    + "_%05d.jpg" % (bc_idx),
-                                ),
-                                person_image,
-                            )
 
 
 class ReIDBadcaseUtils(BadcaseAnalyseUtils):

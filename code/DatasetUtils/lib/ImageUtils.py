@@ -3,19 +3,12 @@ import math
 import glob
 import os
 import numpy as np
-from functools import cmp_to_key
 from PIL import Image
 from pathlib import Path
-import base64
-import shutil
 
 from .FileUtils import *
-from .calibration import gen_perspective_image
 from .Convertion import (
-    xyxy2xywh,
-    xywh2xyxy,
     quadrilateral_points2left_top_first_quadrilateral,
-    expand_bbox,
 )
 from functools import reduce
 
@@ -207,26 +200,42 @@ def gen_mask_image(points_list, width, height):
     return mask_image
 
 
-def crop_image_extend_border(image, xyxy, extend_ratio_width=1, extend_ratio_height=1):
-    """从图片中裁剪出一个矩形,按extend_ratio进行扩边
+def extend_box(bbox, extend_ratio_width, extend_ratio_height):
+    """按extend_ratio对矩形进行扩边
+
+    Args:
+        bbox: list, 矩形框，格式[xmin, ymin, xmax, ymax]
+        extend_ratio_width: float, 宽扩边比例。如0.4，则扩边1.4倍
+        extend_ratio_height: float, 高扩边比例。如0.4，则扩边1.4倍
+
+    Returns:
+        extend_box: list, 矩形框，格式[xmin, ymin, xmax, ymax]
+    """
+    bbox_xywh_center = xyxy2xywh(bbox)
+    bbox_xywh_center[2] = bbox_xywh_center[2] * (1 + extend_ratio_width)
+    bbox_xywh_center[3] = bbox_xywh_center[3] * (1 + extend_ratio_height)
+
+    return xywh2xyxy(bbox_xywh_center)
+
+
+def crop_image_extend_border(image, bbox, extend_ratio_width=0, extend_ratio_height=0):
+    """从图片中裁剪出一个矩形，按extend_ratio进行扩边
 
     Args:
         image: nparray, 需要裁剪的图像
-        xyxy: list, 矩形框, 格式[xmin, ymin, xmax, ymax]
-        extend_ratio_width: float, 宽扩边比例。如1.4, 则扩边1.4倍
-        extend_ratio_height: float, 高扩边比例。如1.4, 则扩边1.4倍
+        bbox: list, 矩形框，格式[xmin, ymin, xmax, ymax]
+        extend_ratio_width: float, 宽扩边比例。如0.4，则扩边1.4倍
+        extend_ratio_height: float, 高扩边比例。如0.4，则扩边1.4倍
 
     Returns:
         roi_img: nparray, 裁剪后的图片
     """
     height, width = image.shape[:2]
-    new_xyxy = expand_bbox(
-        xyxy, [extend_ratio_width, extend_ratio_height], width, height
-    )
+    bbox_xyxy = extend_box(bbox, extend_ratio_width, extend_ratio_height)
 
     return image[
-        int(new_xyxy[1]) : int(new_xyxy[3]),
-        int(new_xyxy[0]) : int(new_xyxy[2]),
+        max(bbox_xyxy[1], 0) : min(bbox_xyxy[3], height),
+        max(bbox_xyxy[0], 0) : min(bbox_xyxy[2], width),
     ]
 
 
@@ -517,9 +526,7 @@ def filter_similar_image(image_dir_path, save_image_dir_path, threshold=5):
             d &= d - 1
         return h
 
-    image_names = glob.glob(
-        os.path.join(image_dir_path, "**/*.jpg"), recursive=True
-    ) + glob.glob(os.path.join(image_dir_path, "**/*.png"), recursive=True)
+    image_names = glob.glob(f"{image_dir_path}**/*.jpg",recursive=True)+glob.glob(f"{image_dir_path}**/*.png",recursive=True)
 
     print("Caculating hash value of images...")
     image_hash_list = []
@@ -546,9 +553,7 @@ def filter_similar_image(image_dir_path, save_image_dir_path, threshold=5):
     print("Copying remaining images...")
     for index in range(len(remaining_list)):
         print(f"keep {remaining_list[index]}")
-        save_path = Path(save_image_dir_path) / Path(remaining_list[index]).relative_to(
-            image_dir_path
-        )
+        save_path = Path(save_image_dir_path)/Path(remaining_list[index]).relative_to(image_dir_path)
         save_path.parent.mkdir(parents=True, exist_ok=True)
         shutil.copyfile(remaining_list[index], save_path)
 
@@ -580,7 +585,11 @@ def imread(filename: str, flags: int = cv2.IMREAD_COLOR):
 
 
 def imwrite(filename: str, img: np.ndarray, params=None):
-    cv2.imencode(os.path.splitext(filename)[1], img, params)[1].tofile(filename)
+    try:
+        cv2.imencode(os.path.splitext(filename)[1], img, params)[1].tofile(filename)
+        return True
+    except Exception:
+        return False
 
 
 def pillow_to_numpy(img):
@@ -594,61 +603,3 @@ def numpy_to_pillow(img, mode=None):
     return Image.fromarray(img, mode=mode)
 
 
-def opencv_others(self):
-    """图像处理相关的小功能，一两行能实现的"""
-    images_path = glob.glob("game1/**/*.jpg", recursive=True)
-    images_path.sort(
-        key=cmp_to_key(
-            lambda a, b: int(os.path.basename(a)[:-4]) - int(os.path.basename(b)[:-4])
-        )
-    )
-
-    # colos for display
-    colors = (np.random.rand(32, 3) * 255).astype(dtype=np.int32)
-
-    # 灰度图单通道转3通道
-    image = np.stack((image,) * 3, axis=-1)
-    image = cv2.cvtColor(image, cv2.COLOR_GRAY2BGR)
-
-    # 两图像叠加；dst = src1 * alpha + src2 * beta + gamma
-    dst_image = cv2.addWeighted(img1, 0.7, img2, 0.3, 0)
-
-    # 图像位运算按位取反bitwise_not()、按位与bitwise_and()、或bitwise_or()、异或bitwise_xor()
-    dst_image = cv2.bitwise_and(image, mask_image)
-
-    # scale image pixels value
-    cv2.normalize(src_img, dst_img, 0, 255, cv2.NORM_MINMAX)
-
-    # image slice，图像切片/裁剪，img[y : y+h, x:x+w]   [0:rows, 0:cols]
-    roi_img = src_img[:, 21:106]
-
-    # draw
-    cv2.line(img, ptStart, ptEnd, point_color, thickness, lineType)
-    cv2.circle(img, (int(center_x), int(center_y)), 1, (0, 0, 255), 8)
-    cv2.rectangle(
-        img,
-        (int(left_top_x), int(left_top_y)),
-        (int(right_bottom_x), int(right_bottom_y)),
-        (255, 255, 255),
-        2,
-    )
-    cv2.putText(
-        img,
-        cams_sn[cams_sn_index],
-        (left_top_x, left_top_y),
-        cv2.FONT_HERSHEY_COMPLEX,
-        6,
-        (0, 255, 0),
-        5,
-    )
-    cv2.polylines(image, [points_array], True, (0, 0, 0), 2)
-
-    cv2.namedWindow("show", cv2.WINDOW_NORMAL)
-    cv2.resizeWindow("show", 1224, 1080)
-
-    # mouse callback
-    cv2.setMouseCallback("show", on_EVENT_LBUTTONDOWN)
-    cv2.imshow("show", img)
-    key_num = cv2.waitKey(0)
-    if chr(key_num) == "r":
-        print("press r")

@@ -1,7 +1,29 @@
 import copy
 import cv2
 import numpy as np
-import PIL
+
+
+class colorMap:
+    palette = (2 ** 11 - 1, 2 ** 15 - 1, 2 ** 20 - 1)
+    
+    @staticmethod
+    def color(label):
+        
+        color = [int((p * (label ** 2 - label + 1)) % 255) for p in colorMap.palette]
+        return color
+    
+    @staticmethod
+    def hex2rgb(h):
+        return tuple(int(h[1 + i:1 + i + 2], 16) for i in (0, 2, 4))
+    
+    @staticmethod
+    def rgb2hex(rgb):
+        rgb = rgb.split(',')
+        color = '#'
+        for i in rgb:
+            num = int(i)
+            color += str(hex(num))[-2:].replace('x', '0').upper()
+        return color
 
 def label_colormap(n_label=10):
     """Label colormap.
@@ -103,7 +125,7 @@ def draw_bboxes_and_labels(rgb_image, bboxes, probs, labels, color=None):
     :param labels:
     :return:
     """
-    class_set = list(set(labels))
+    class_set = list(CLASS_SET) or list(set(labels))
     boxes_name = combile_label_prob(labels, probs)
     bgr_image = cv2.cvtColor(rgb_image, cv2.COLOR_RGB2BGR)
 
@@ -331,7 +353,7 @@ def draw_key_point_in_image(image, key_points, pointline=None):
     for person_id, points in enumerate(key_points):
         if points is None:
             continue
-        color = COLOR_MAP[person_id]
+        color = get_color(person_id)
         img = draw_point_line(img, points, pointline, color, check=True)
     return img
 

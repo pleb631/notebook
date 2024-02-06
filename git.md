@@ -2,6 +2,17 @@
 
 ## 常见问题
 
+### 撤回提交、修改commit
+
+```bash
+# 修改最近一次提交
+git commit --amend
+# 撤回提交，但保存本地修改记录
+git reset --soft HEAD^
+#覆盖提交
+git push origin  --force
+```
+
 ### 删除github中的提交历史记录
 
 ```bash
@@ -44,6 +55,69 @@ git pull <远程主机名> <远程分支名>:<本地分支名> #拉取远程并�
 git stash  #将本地暂存在缓存区和提取
 git stash pop
 ```
+
+### 配置git用户名和邮箱
+
+```bash
+git config --global user.name        # 查看
+git config --global user.name 用户名  # 修改
+git config --global user.email       # 查看
+git config --global user.email 邮箱   # 修改
+```
+
+#### 为本地与GitHub的通信配置ssh
+
+**本地git仓库和GitHub上的远程仓库之间的传输是通过SSH加密的，所以，需要一点设置**：
+
+1. **创建ssh key**：
+
+    ```bash
+    ssh-keygen -t rsa -C "youremail@example.com"
+    ```
+
+2. **登录你的GitHub帐号，`Settings -> SSH and GPG keys -> new SSH key` ，将id_rsa.pub的内容复制进去**
+
+> 为什么GitHub需要SSH Key呢？因为GitHub需要识别出你推送的提交确实是你推送的，而不是别人冒充的，而Git支持SSH协议，所以，GitHub只要知道了你的公钥，就可以确认只有你自己才能推送
+
+#### 让本地git仓库和远程仓库同步
+
+> 在有了本地git仓库后，还需创建对应的远程仓库
+
+1. **在GitHub上创建远程仓库**（如果已有则省略）
+2. **为本地仓库设置远程仓库信息**（如果同时需要为本地仓库添加多个远程仓库（如果github+码云），则可以将`origin`分别换成`github`和`gitee`，推送操作时也要修改`origin`。添加后，远程库的名字就是`origin`，这是Git默认的叫法，也可以改成别的，但是`origin`这个名字一看就知道是远程库）
+
+    ```bash
+    git remote add origin https://github.com/用户名/仓库名
+    ```
+
+    * **删除本地仓库的远程仓库信息**：`git remote remove origin`
+    * **修改远端地址**：`git remote set-url 新地址`
+    * **查看远程仓库信息**：`git remote -v`
+
+3. **将本地git仓库push到远程仓库**
+
+    ```bash
+    # 由于远程库是空的，我们第一次推送master分支时，加上了-u参数,Git不但会把本地的
+    # master分支内容推送的远程新的master分支，还会把本地的master分支和远程的master
+    # 分支关联起来，在以后的推送或者拉取时就可以简化命令
+    git push [-u] origin 分支名
+    ```
+
+### 版本回退
+
+```bash
+git reset --hard 版本ID/HEAD形式的版本
+
+git reset --hard HEAD      # 当前版本
+git reset --hard HEAD^     # 上一个版本
+git reset --hard HEAD^^    # 上上个版本
+git reset --hard HEAD~n    # 前n个版本
+```
+
+如果回到过去的版本，想要回到原来新的版本：
+
+* 如果终端未关，可以找到新版本的id，通过上述命令回去新版本
+* 如果终端已关，`git reflog`查看版本，再通过上述命令回去新版本
 
 ## 命令详解
 
@@ -133,7 +207,7 @@ git pull #从远程仓库获取最新版本并合并到本地。 首先会执行
 
 ### git push
 
-- 把本地仓库的分支推送到远程仓库的指定分支
+* 把本地仓库的分支推送到远程仓库的指定分支
 
 ```bash
 git push <远程仓库的别名> <本地分支名>:<远程分支名> #把本地仓库的分支推送到远程仓库的指定分支

@@ -3,9 +3,9 @@ import cv2
 import shutil
 import numpy as np
 
-from .FileUtils import *
-from .ImageVideoUtils import *
-from .Convertion import head_shoulder_box2person_box, colorstr
+from .FileUtils import get_last_k_dir_path
+from .ImageUtils import *
+from .Convertion import colorstr
 
 
 def point_in_mask(point, mask_image):
@@ -135,6 +135,22 @@ class BasicDataVis:
         return image
 
 
+
+class ClsDataVis(BasicDataVis):
+    """分类数据可视化类
+    """
+    def vis(self, vis_data, save_dir_path):
+        '''可视化分类结果
+        '''
+        os.makedirs(save_dir_path, exist_ok=True)
+        for idx, image_path in enumerate(vis_data):
+            gt = vis_data[image_path]['gts']
+            pred = vis_data[image_path]['preds'][0]
+            print(f'{colorstr("Vis ")} {colorstr("red", "bold", "Wrong:")} {idx}/{len(vis_data)} {get_last_k_dir_path(image_path, 3)} {colorstr("green", f"gt:{gt}")} {colorstr("red", f"pred:{pred}")}')
+
+            shutil.copyfile(image_path, os.path.join(save_dir_path, f'{gt}_{pred}_{os.path.basename(image_path)}'))
+            
+            
 class DetDataVis(BasicDataVis):
     """检测数据可视化类"""
 
@@ -153,7 +169,7 @@ class DetDataVis(BasicDataVis):
             cv2.namedWindow("show", cv2.WINDOW_NORMAL)
             cv2.resizeWindow("show", int(1920 / 1.5), int(1080 / 1.5))
 
-        yolo_path = f"{root}/Annotations/"
+        yolo_path = f"{root}/labels/"
         txt_files = os.listdir(os.path.join(yolo_path))
         rand_list = random.sample(range(len(txt_files)), int(len(txt_files) * ratio))
         for index, txt_file in enumerate(txt_files):
@@ -162,7 +178,7 @@ class DetDataVis(BasicDataVis):
             print(index, txt_file)
             image = cv2.imread(
                 os.path.join(
-                    yolo_path.replace("Annotations", "JPEGImages"),
+                    yolo_path.replace("laels", "images"),
                     txt_file.replace(".txt", ".jpg"),
                 )
             )
@@ -212,12 +228,12 @@ class DetDataVis(BasicDataVis):
                 cv2.waitKey(0)
             elif mode == "write":
                 os.makedirs(
-                    os.path.join(yolo_path.replace("Annotations", "show_result_txt")),
+                    os.path.join(yolo_path.replace("labels", "show_result_txt")),
                     exist_ok=True,
                 )
                 cv2.imwrite(
                     os.path.join(
-                        yolo_path.replace("Annotations", "show_result_txt"),
+                        yolo_path.replace("labels", "show_result_txt"),
                         txt_file.replace(".txt", ".jpg"),
                     ),
                     image,
@@ -277,54 +293,6 @@ class DetDataVis(BasicDataVis):
                     image,
                 )
 
-    def show_prelabel(
-        self, prelabel_json_path, img_dir_path, save_img_dir_path, ratio, mode="show"
-    ):
-        """读取预标注文件内容，绘制检测框到图片上，用于验证预标注文件正确性
-
-        Args:
-            prelabel_json_path: str, 预标注文件路径
-            img_dir_path: str, 图片文件路径
-            save_img_dir_path: str, 存储图片路径
-            ratio: float, 需要可视化的数据集比例
-            mode: str, 'show'代表窗口显示结果，'write'代表存储图片至同级show_prelabel目录下
-        """
-        if mode == "show":
-            cv2.namedWindow("show", cv2.WINDOW_NORMAL)
-            cv2.resizeWindow("show", int(1920 / 1.5), int(1080 / 1.5))
-        elif mode == "write":
-            os.makedirs(save_img_dir_path, exist_ok=True)
-
-        prelabel_json_data = read_json(prelabel_json_path, "line")
-        rand_list = random.sample(
-            range(len(prelabel_json_data)), int(len(prelabel_json_data) * ratio)
-        )
-        for idx, image_info in enumerate(prelabel_json_data):
-            if idx not in rand_list:
-                continue
-            print(idx, len(prelabel_json_data))
-            image_path = os.path.join(
-                img_dir_path, os.path.basename(image_info["url_image"])
-            )
-            image = cv2.imread(image_path)
-
-            boxes = image_info["result"]
-            for info in boxes:
-                box = info["data"]
-                comment = info["comment"]
-                color_idx = int(comment) % 20 if comment != "" else 0
-                draw_box_with_text(image, box, comment, color_idx)
-
-            if mode == "show":
-                cv2.imshow("show", image)
-                cv2.waitKey(0)
-            elif mode == "write":
-                cv2.imwrite(
-                    os.path.join(
-                        save_img_dir_path, os.path.basename(image_info["url_image"])
-                    ),
-                    image,
-                )
 
     def badcase_det_box_vis(self, image, correct_boxes, incorrect_boxes, missed_boxes):
         """可视化检测模型的badcase框；绿框表示正确检测到的框，红框代表误检框，蓝框代表漏检框
@@ -368,68 +336,6 @@ class DetDataVis(BasicDataVis):
 
         return image
 
-    def badcase_det_box_hip_vis(self, image, gt_box_hip, pred_box_hip):
-        """可视化检测+臀部点的badcase框；绿框表示正确检测到的框，红框代表误检框，蓝框代表漏检框
-
-        Args:
-            image: np.array, 原始图像
-            gt_box_hip: list, gt框+hip
-            pred_box_hip: list, 预测框+hip
-
-        Returns:
-            image: np.array, 绘制badcase框的图像
-        """
-        # gt
-        cv2.rectangle(
-            image,
-            (int(gt_box_hip[0]), int(gt_box_hip[1])),
-            (int(gt_box_hip[2]), int(gt_box_hip[3])),
-            (0, 255, 0),
-            3,
-        )
-        cv2.circle(
-            image,
-            (int(gt_box_hip[5]), int(gt_box_hip[6])),
-            radius=5,
-            color=(0, 255, 0),
-            thickness=-1,
-        )
-        cv2.line(
-            image,
-            (int(gt_box_hip[5]), int(gt_box_hip[6])),
-            (int((gt_box_hip[0] + gt_box_hip[2]) / 2), int(gt_box_hip[3])),
-            color=(0, 255, 0),
-            thickness=3,
-            lineType=cv2.LINE_AA,
-        )
-
-        # pred
-        cv2.rectangle(
-            image,
-            (int(pred_box_hip[0]), int(pred_box_hip[1])),
-            (int(pred_box_hip[2]), int(pred_box_hip[3])),
-            (0, 0, 255),
-            3,
-        )
-        if pred_box_hip[6] != -1:
-            cv2.circle(
-                image,
-                (int(pred_box_hip[6]), int(pred_box_hip[7])),
-                radius=5,
-                color=(0, 0, 255),
-                thickness=-1,
-            )
-            cv2.line(
-                image,
-                (int(pred_box_hip[6]), int(pred_box_hip[7])),
-                (int((pred_box_hip[0] + pred_box_hip[2]) / 2), int(pred_box_hip[3])),
-                color=(0, 0, 255),
-                thickness=3,
-                lineType=cv2.LINE_AA,
-            )
-
-        person_box = head_shoulder_box2person_box(gt_box_hip[:4], 4.0, 1080, 1920)
-        return crop_image_extend_border(image, person_box, 0.4, 0.4)
 
 
 class ReIDDataVis(BasicDataVis):

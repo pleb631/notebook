@@ -45,7 +45,6 @@ from .ImageUtils import (
     imwrite,
     pillow_to_numpy,
     numpy_to_pillow,
-    opencv_others,
 )
 from .VideoUtils import (
     get_video_features,

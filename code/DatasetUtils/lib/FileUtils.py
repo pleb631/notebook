@@ -1,10 +1,11 @@
 # -*- coding: UTF-8 -*-
 import os
+import shutil
 import json, csv, pickle, yaml
+import zipfile
 import xml.etree.ElementTree as ET
-from .Convertion import (
-    xywh2xyxy,
-)
+from .Convertion import xywh2xyxy
+
 
 
 '''
@@ -202,6 +203,11 @@ def read_xml(xml_path):
     Returns:
         xml_data: list, xml文件内容
     '''
+    def convert_box(size, box):
+          dw, dh = 1. / size[0], 1. / size[1]
+          x, y, w, h = (box[0] + box[1]) / 2.0 - 1, (box[2] + box[3]) / 2.0 - 1, box[1] - box[0], box[3] - box[2]
+          return x * dw, y * dh, w * dw, h * dh
+      
     xml_target = ET.parse(xml_path).getroot()
     file_name = xml_target.find('filename').text
     xml_data = {'file_name': file_name}
@@ -214,14 +220,10 @@ def read_xml(xml_path):
     bndboxes = []
     for obj_node in xml_target.iter('object'):
         name = obj_node.find('name').text
-        bbox = obj_node.find('bndbox')
-
-        pts = ['xmin', 'ymin', 'xmax', 'ymax']
-        bndbox = []
-        for pt in pts:
-            cur_pt = int(bbox.find(pt).text)
-            bndbox.append(cur_pt)
-        bndbox.append(name)
+        xmlbox = obj_node.find('bndbox')
+        box_xyxy = [float(xmlbox.find(x).text) for x in ('xmin', 'xmax', 'ymin', 'ymax')]
+        #box_xywh = convert_box((width, height),box_xyxy)
+        bndboxes.append((name, *box_xyxy))
 
     xml_data['bndboxes'] = bndboxes
 
@@ -310,6 +312,22 @@ def list_files(basePath, validExts=None, contains=None):
                 yield os.path.join(rootDir, filename)
 
 
+
+def get_last_k_dir_path(path, k):
+    '''获取目录中最后k个目录
+
+    Args:
+        path: str, 目录路径
+        k: int, 获取目录数量
+
+    Returns:
+        last_k_dir_path: str, 最后k个目录
+    '''
+    last_k_dir_path = os.sep.join(path.split(os.sep)[-k:])
+
+    return last_k_dir_path
+
+
 '''
 杂项
 '''
@@ -376,3 +394,24 @@ def get_str_of_size(size):
         level = -1
     return '{}.{:>03d} {}'.format(integer, remainder, units[level])
 
+
+
+
+
+def exractfile(file, dest):
+    with zipfile.ZipFile(file, 'r') as zip_ref:
+        zip_ref.extractall(dest)
+
+def others():
+    '''文件处理相关的小功能,一两行能实现的
+    '''
+    # copy file
+    shutil.copyfile(src_file, dst_file)
+    # copy dir, os.path.mkdir is not needed
+    shutil.copytree(src_path, dst_path)
+    # move dir
+    shutil.move(src_path, dst_path)
+    # remove dir
+    shutil.rmtree(src_path)
+    # remove file
+    os.remove(file_path, exist_ok=True)
