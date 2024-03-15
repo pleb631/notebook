@@ -223,7 +223,7 @@ def read_xml(xml_path):
         xmlbox = obj_node.find('bndbox')
         box_xyxy = [float(xmlbox.find(x).text) for x in ('xmin', 'xmax', 'ymin', 'ymax')]
         #box_xywh = convert_box((width, height),box_xyxy)
-        bndboxes.append((name, *box_xyxy))
+        bndboxes.append((*box_xyxy,name))
 
     xml_data['bndboxes'] = bndboxes
 

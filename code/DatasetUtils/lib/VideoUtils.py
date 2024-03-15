@@ -286,32 +286,9 @@ class VideoWriter:
             isColor=is_color)
 
     def write(self, frames):
-        """ 
-        Save frames.
 
-        Args:
-            frames(Tensor|numpy.ndarray): If `frames` is a tensor, it's shape should be like [N, C, H, W].
-                If it is a ndarray, it's shape should be like [H, W, 3] or [H, W]. The value is in [0, 1].
-        """
-        if isinstance(frames, torch.Tensor):
-            if frames.ndim != 4:
-                raise ValueError(
-                    f'The frames should have the shape like [N, C, H, W], but it is {frames.shape}'
-                )
-            n, c, h, w = frames.shape
-            if c not in [1, 3]:
-                raise ValueError(f'the channels of frames should be 1 or 3, but it is {c}')
-            if c == 1 and self.is_color:
-                frames = frames.repeat(1,3,1,1)
-
-            frames = (frames.permute(
-                (0, 2, 3, 1)).numpy() * 255).astype('uint8')
-            for i in range(n):
-                frame = frames[i]
-                self.cap_out.write(frame)
-        else:
-            frames = (frames * 255).astype('uint8')
-            self.cap_out.write(frames)
+        frames = frames.astype('uint8')
+        self.cap_out.write(frames)
 
     def release(self):
         self.cap_out.release()

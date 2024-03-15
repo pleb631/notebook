@@ -28,7 +28,7 @@ Subword主要是处于word和char level两个粒度级别之间的一种方法�
 
 ## 论文
 
-### Bert
+### [Bert](https://arxiv.org/abs/1810.04805)
 
 #### 预训练的任务
 
@@ -46,7 +46,11 @@ Subword主要是处于word和char level两个粒度级别之间的一种方法�
 - SWAG
     任务是问答多选一，将问题与选项用[sep]连接，并预测每个token是得分，取最大评分的选项
 
-### albert
+### [CTRL](https://arxiv.org/pdf/1909.05858.pdf)
+
+在每一个序列的具体内容前加了入类型描述，使得在计算Attention过程中，类型与序列中的所有元素建立联系
+
+### [albert](https://arxiv.org/abs/1909.11942)
 
 ALBERT 是一种轻量级的自监督学习语言表示模型，它在降低参数量的同时保持了性能。
 
@@ -57,23 +61,19 @@ ALBERT 是一种轻量级的自监督学习语言表示模型，它在降低参�
 3. 句子顺序判断（Sentence-Order Prediction，SOP）：
     BERT 使用的 NSP 预训练任务对于下游微调任务效果不佳。ALBERT 引入了 SOP 任务，让模型预测两个相邻句子是否被调换前后顺序。SOP 专注于句子间的连贯性，不依赖主题信息，有效提高了模型性能。
 
-### DeBERTa
+### [DistilBERT](https://arxiv.org/pdf/1910.01108.pdf)
 
-为了解决 BERT 中的位置编码问题，DeBERTa 提出了一种新的位置编码方法，该方法能够更好地捕捉序列中词之间的相对位置信息。
+使用知识蒸馏，使用温度T的softmax概率，而不是原始的softmax概率。损失有三部分构成：
 
-1. 注意力解耦
-    DeBERTa 将注意力机制分为两个部分，内容的注意力加上内容与位置的注意力之和，因为位置是相对位置，相对位置间的注意力无意义，故舍弃
-2. enhanced mask decoder
-    由于某些词的语义相似性，而相对位置难以区分，因此在attention层后面会加上绝对位置区分语义相似性
+1. 蒸馏损失soft loss
+2. 原本bert的自带的hard-loss
+3. Cosine Embedding Loss，利于让student学习和teacher一样的hidden state vector
 
-### longformer
+### [T5](https://arxiv.org/pdf/1910.10683.pdf)
 
-为了解决长文本的建模问题。该架构可以有效地处理超过 2048 个token
+T5是编码器-解码器模型，并将所有NLP问题转换为文本到文本格式
 
-1. 滑动窗口
-    对滑动窗口内的token进行局部注意力计算，而对于比如[cls]标签,则在局部注意力的基础上，对标签也进行全局注意力计算。在QA任务上，就在整个问句上计算全局注意力。视任务不同，需要计算全局注意力的位置也不同
-
-### BART
+### [BART](https://arxiv.org/abs/1910.13461)
 
 提出的是一种符合生成任务的预训练方法，BART的全称是Bidirectional and Auto-Regressive Transformers，即兼具上下文语境信息和自回归特性的Transformer
 
@@ -91,7 +91,38 @@ GPT，BERT与BART的区别：
     4. Sentence Permutation: 根据句号将文档分为多个句子，然后将这些句子随机排列；
     5. Document Rotation: 从document序列中随机选择一个token，然后使得该token作为document的开头
 
+### [longformer](https://arxiv.org/abs/2004.05150)
 
-### BigBird
+为了解决长文本的建模问题。该架构可以有效地处理超过 2048 个token
+
+1. 滑动窗口
+    对滑动窗口内的token进行局部注意力计算，而对于比如[cls]标签,则在局部注意力的基础上，对标签也进行全局注意力计算。在QA任务上，就在整个问句上计算全局注意力。视任务不同，需要计算全局注意力的位置也不同
+
+### [DeBERTa](https://arxiv.org/abs/2006.03654)
+
+为了解决 BERT 中的位置编码问题，DeBERTa 提出了一种新的位置编码方法，该方法能够更好地捕捉序列中词之间的相对位置信息。
+
+1. 注意力解耦
+    DeBERTa 将注意力机制分为两个部分，内容的注意力加上内容与位置的注意力之和，因为位置是相对位置，相对位置间的注意力无意义，故舍弃
+2. enhanced mask decoder
+    由于某些词的语义相似性，而相对位置难以区分，因此在attention层后面会加上绝对位置区分语义相似性
+
+### [BigBird](https://arxiv.org/abs/2007.14062)
 
 为了减少注意力计算的复杂度，提出一种稀疏注意力，用特殊token+滑动窗口token+随机token来计算注意力，从而减少计算量。实验上发现对特殊token的注意力效果提升很明显
+
+### [ConvBERT](https://arxiv.org/pdf/2008.02496.pdf)
+
+轻量级bert
+
+- 使用一维卷积和注意力机制进行混合
+- 在全连接上使用分组
+- 维持了头的嵌入维度，但是减少了头的数量，相当于瓶颈结构
+
+### [CANINE](https://arxiv.org/abs/2103.06874)
+
+使用unicode编码token，使用stride=4的一维卷积对token进行降维，输入长度为2048，深层长度为512
+
+### [ByT5](https://arxiv.org/abs/2105.13626)
+
+byT5是在字节序列而不是句子片段子词标记序列上预训练的T5模型。避免不同tokenizer分词，词表带来的对语言模型的影响，考虑直接使用字节list(uft-8) 进行语言模型的实现。eg.`list("hello".encode("utf-8"))`
