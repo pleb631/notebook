@@ -2,70 +2,68 @@
 
 [OS,shutil,glob,multiprocessing,threading,random,collection,functools,itertools,time,difflib]
 
-# OS
+# | 模块/方法                                                       | 作用                                                                        | 备注                                                                                                                  |
 
-| 模块/方法 | 作用 | 备注 |
-|---|---|---|
-| os.getcwd() | 返回当前工作目录 |  |
-| os.path.abspath()|返回绝对路径| |
-| os.listdir(path) | 列举指定目录中的文件名和目录名 |  |
-| os.mkdir(path) | 创建单层目录 |  |
-| os.makedirs(path,exist_ok=False) | 递归创建目录 |  |
-| os.remove(path) | 删除文件 |  |
-| os.rmdir(path) | 删除单层目录 |  |
-| os.removedirs() | 递归删除目录 |  |
-| os.rename(old,new) | 将老的文件名或目录重新命名为新的文件名或目录 |  |
-| os.path.split(path)  | 将path分割成目录和文件名二元组返回 |  |
-| os.path.dirname(path) | 返回path的目录 |  |
-| os.path.basename(path)  | 回path最后的文件名 |  |
-| os.path.exists(path)  | 如果path存在，返回True；如果path不存在，返回False |  |
-| os.path.join(path1[, path2[, …]])  | 将多个路径组合后返回 |  |
-| os.path.isdir(path) | 是否为目录  |  |
-| os.path.isfile(path) | 是否为文件 |  |
-| os.path.splitext(path) | 把扩展名和其他字符分开 | |
-| os.path.getsize(path)      | 返回path对应文件的大小，以字节为单位<br/>>>>os.path.getsize("D:/PYE/file.txt")<br/>180768 |
-|os.path.relpath(path1,path2)|取path2相对path1的相对路径||
-|os.getcwd()，os.path.abspath('.')，os.path.abspath(os.curdir)|获取当前工作路径|可以使用`print(__file__)`,`__dir__ = os.path.dirname(os.path.abspath(__file__))`来获取当前py文件的路径,使用sys.argv[0]获取原始执行py文件的路径|
+| ----------------------------------------------------------- | ------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------- |
+| os.getcwd()                                                 | 返回当前工作目录                                                                  |                                                                                                                     |
+| os.path.abspath()                                           | 返回绝对路径                                                                    |                                                                                                                     |
+| os.listdir(path)                                            | 列举指定目录中的文件名和目录名                                                           |                                                                                                                     |
+| os.mkdir(path)                                              | 创建单层目录                                                                    |                                                                                                                     |
+| os.makedirs(path,exist_ok=False)                            | 递归创建目录                                                                    |                                                                                                                     |
+| os.remove(path)                                             | 删除文件                                                                      |                                                                                                                     |
+| os.rmdir(path)                                              | 删除单层目录                                                                    |                                                                                                                     |
+| os.removedirs()                                             | 递归删除目录                                                                    |                                                                                                                     |
+| os.rename(old,new)                                          | 将老的文件名或目录重新命名为新的文件名或目录                                                    |                                                                                                                     |
+| os.path.split(path)                                         | 将path分割成目录和文件名二元组返回                                                       |                                                                                                                     |
+| os.path.dirname(path)                                       | 返回path的目录                                                                 |                                                                                                                     |
+| os.path.basename(path)                                      | 回path最后的文件名                                                               |                                                                                                                     |
+| os.path.exists(path)                                        | 如果path存在，返回True；如果path不存在，返回False                                         |                                                                                                                     |
+| os.path.join(path1[, path2[, …]])                           | 将多个路径组合后返回                                                                |                                                                                                                     |
+| os.path.isdir(path)                                         | 是否为目录                                                                     |                                                                                                                     |
+| os.path.isfile(path)                                        | 是否为文件                                                                     |                                                                                                                     |
+| os.path.splitext(path)                                      | 把扩展名和其他字符分开                                                               |                                                                                                                     |
+| os.path.getsize(path)                                       | 返回path对应文件的大小，以字节为单位<br/>>>>os.path.getsize("D:/PYE/file.txt")<br/>180768 |                                                                                                                     |
+| os.path.relpath(path1,path2)                                | 取path2相对path1的相对路径                                                        |                                                                                                                     |
+| os.getcwd()，os.path.abspath('.')，os.path.abspath(os.curdir) | 获取当前工作路径                                                                  | 可以使用`print(__file__)`,`__dir__ = os.path.dirname(os.path.abspath(__file__))`来获取当前py文件的路径,使用sys.argv[0]获取原始执行py文件的路径 |
 
 # shutil
 
-| 模块/方法 | 作用 | 备注 |
-|---|---|---|
-| shutil.copyfile(src, dst) | 复制文件 |  |
-| shutil.copy(src, dst) | 拷贝文件和权限 |  |
-| shutil.rmtree(dir) | 递归的去删除文件 |  |
-| shutil.move(src, dst) | 移动文件 |  |
-| shutil.copytree(src, dst) | 迭代复制文件，如果dst已存在则报错 |  |
+| 模块/方法                     | 作用                 | 备注  |
+| ------------------------- | ------------------ | --- |
+| shutil.copyfile(src, dst) | 复制文件               |     |
+| shutil.copy(src, dst)     | 拷贝文件和权限            |     |
+| shutil.rmtree(dir)        | 递归的去删除文件           |     |
+| shutil.move(src, dst)     | 移动文件               |     |
+| shutil.copytree(src, dst) | 迭代复制文件，如果dst已存在则报错 |     |
 
 # glob
 
-| 模块/方法 | 作用 | 备注 |
-|---|---|---|
-| glob.glob(source,recursive=False) | 匹配满足条件的文件 | "glob.glob('dir/*') 星号(*)匹配零个或多个字符 ,如果recursive=True,则递归寻找，此时source格式应为"./**/file"|
-| glob.glob('dir/file?.txt') 问号(?)匹配任何单个的字符  |
-| glob.glob('dir/*[0-9].*') 匹配一个特定的字符，可以使用一个范围" |
+| 模块/方法                                         | 作用        | 备注                                                                                 |
+| --------------------------------------------- | --------- | ---------------------------------------------------------------------------------- |
+| glob.glob(source,recursive=False)             | 匹配满足条件的文件 | "glob.glob('dir/*') 星号(*)匹配零个或多个字符 ,如果recursive=True,则递归寻找，此时source格式应为"./**/file" |
+| glob.glob('dir/file?.txt') 问号(?)匹配任何单个的字符     |           |                                                                                    |
+| glob.glob('dir/*[0-9].*') 匹配一个特定的字符，可以使用一个范围" |           |                                                                                    |
 
 # random
 
-| 模块/方法 | 作用 | 备注 |
-|---|---|---|
-random.random()|从(0,1)均匀分布随机取数|
-random.chioce(dict)|从列表随机取个元素|
-random.shuffle(dict)|打乱列表顺序
-random.sample(dict,n)|随机采样n个元素
+| 模块/方法                 | 作用             |
+| --------------------- | -------------- |
+| random.random()       | 从(0,1)均匀分布随机取数 |
+| random.chioce(dict)   | 从列表随机取个元素      |
+| random.shuffle(dict)  | 打乱列表顺序         |
+| random.sample(dict,n) | 随机采样n个元素       |
 
 # 多进程和多线程
 
-
-
 # functools
 
-| 模块/方法 | 作用 | 备注 |
-|---|---|---|
-cmp_to_key|为sorted()函数自定义比较方法|
-reduce|对列表逐元素数学操作|
-partial|基于现有函数固定参数生成新的可调用对象|
-@warps|将 被修饰的函数(wrapped) 的一些属性值赋值给 修饰器函数|
+| 模块/方法           | 作用                                |
+| --------------- | --------------------------------- |
+| cmp_to_key      | 为sorted()函数自定义比较方法                |
+| reduce          | 对列表逐元素数学操作                        |
+| partial         | 基于现有函数固定参数生成新的可调用对象               |
+| @warps          | 将 被修饰的函数(wrapped) 的一些属性值赋值给 修饰器函数 |
+| @total_ordering | 用于自动实现类的比较运算                      |
 
 ```python
 #cmp_to_key
@@ -132,23 +130,70 @@ def wrapped():
 print(wrapped.__name__)
 # wrapped
 ```
+
+```python
+"""
+给定一个类，这个类定义了一个或者多个比较排序方法，这个类装饰器将会补充其余的比较方法，减少了自己定义所有比较方法时的工作量。
+
+被修饰的类必须至少定义  __lt__()， __le__()，__gt__()，__ge__() 中的一个，同时，被修饰的类还应该提供 __eq__()方法。
+"""
+from functools import total_ordering
+
+
+@total_ordering
+class Person:
+    # 定义相等的比较函数
+    def __eq__(self, other):
+        return ((self.lastname.lower(), self.firstname.lower()) ==
+                (other.lastname.lower(), other.firstname.lower()))
+
+    # 定义小于的比较函数
+    def __lt__(self, other):
+        return ((self.lastname.lower(), self.firstname.lower()) <
+                (other.lastname.lower(), other.firstname.lower()))
+
+
+p1 = Person()
+p2 = Person()
+
+p1.lastname = "123"
+p1.firstname = "000"
+
+p2.lastname = "1231"
+p2.firstname = "000"
+
+print(p1 < p2)
+print(p1 <= p2)  #
+print(p1 == p2)
+print(p1 > p2)
+print(p1 >= p2)  #
+
+'''
+True
+True
+False
+False
+False
+'''
+```
+
 # time
 
 见 [python.ipynb](ipynb/python.ipynb)
 
 # itertools
 
-| 模块/方法 | 作用 | 备注 |
-|---|---|---|
-combinations(iterable,r) |返回的是可迭代对象所有的长度为 r 的子序列
-permutations(iterable,r=None)|返回的是可迭代元素中的一个排列组合
-combinations_with_replacement(iterable, r) |返回一个可与自身重复的元素组合
-product(*iterables, repeat=1)|返回可迭代对象的笛卡儿积|等价于`((x,y) for x in A for y in B)`
-cycle(iterable)|无限迭代器
-chain(*iterables) |可以把多个可迭代对象组合起来，形成一个更大的迭代器
-groupby(iterable,key=None) |可以把相邻元素按照 key 函数分组，并返回相应的 key 和 groupby，如果key函数为 None，则只有相同的元素才能放在一组。
-accumulate(iterable [,func]) |可以计算出一个迭代器，这个迭代器是由特定的二元函数的累计结果生成的，如果不指定的话，默认函数为求和函数。
-pairwise(iterable)|`pairwise('ABCDEFG') --> AB BC CD DE EF FG`
+| 模块/方法                                      | 作用                                                                    |
+| ------------------------------------------ | --------------------------------------------------------------------- |
+| combinations(iterable,r)                   | 返回的是可迭代对象所有的长度为 r 的子序列                                                |
+| permutations(iterable,r=None)              | 返回的是可迭代元素中的一个排列组合                                                     |
+| combinations_with_replacement(iterable, r) | 返回一个可与自身重复的元素组合                                                       |
+| product(*iterables, repeat=1)              | 返回可迭代对象的笛卡儿积，等价于`((x,y) for x in A for y in B)`                       |
+| cycle(iterable)                            | 无限迭代器                                                                 |
+| chain(*iterables)                          | 可以把多个可迭代对象组合起来，形成一个更大的迭代器                                             |
+| groupby(iterable,key=None)                 | 可以把相邻元素按照 key 函数分组，并返回相应的 key 和 groupby，如果key函数为 None，则只有相同的元素才能放在一组。 |
+| accumulate(iterable [,func])               | 可以计算出一个迭代器，这个迭代器是由特定的二元函数的累计结果生成的，如果不指定的话，默认函数为求和函数。                  |
+| pairwise(iterable)                         | `pairwise('ABCDEFG') --> AB BC CD DE EF FG`                           |
 
 # collection
 
@@ -176,15 +221,15 @@ for k in s:
     d[k] += 1
 sorted(d.items())
 #[('i', 4), ('m', 1), ('p', 2), ('s', 4)]
- ```
+```
 
 ### namedtuple
 
 可命名元祖
 
- ```python
+```python
 
- from collections import namedtuple
+from collections import namedtuple
 
 Color = namedtuple("Color", "r g b alpha")
 
@@ -317,6 +362,8 @@ print("%.2f%%" % num) # 输出0.12%
 ```
 
 3. f-string
+
+[](ipynb\format.ipynb)
 
 ```python
 name = "Charlie"
