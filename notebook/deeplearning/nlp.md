@@ -46,7 +46,7 @@ Subword主要是处于word和char level两个粒度级别之间的一种方法�
 - SWAG
     任务是问答多选一，将问题与选项用[sep]连接，并预测每个token是得分，取最大评分的选项
 
-### [CTRL](https://arxiv.org/pdf/1909.05858.pdf)
+### [CTRL](https://arxiv.org/pdf/1909.05858)
 
 在每一个序列的具体内容前加了入类型描述，使得在计算Attention过程中，类型与序列中的所有元素建立联系
 
@@ -61,7 +61,7 @@ ALBERT 是一种轻量级的自监督学习语言表示模型，它在降低参�
 3. 句子顺序判断（Sentence-Order Prediction，SOP）：
     BERT 使用的 NSP 预训练任务对于下游微调任务效果不佳。ALBERT 引入了 SOP 任务，让模型预测两个相邻句子是否被调换前后顺序。SOP 专注于句子间的连贯性，不依赖主题信息，有效提高了模型性能。
 
-### [DistilBERT](https://arxiv.org/pdf/1910.01108.pdf)
+### [DistilBERT](https://arxiv.org/pdf/1910.01108
 
 使用知识蒸馏，使用温度T的softmax概率，而不是原始的softmax概率。损失有三部分构成：
 
@@ -69,7 +69,7 @@ ALBERT 是一种轻量级的自监督学习语言表示模型，它在降低参�
 2. 原本bert的自带的hard-loss
 3. Cosine Embedding Loss，利于让student学习和teacher一样的hidden state vector
 
-### [T5](https://arxiv.org/pdf/1910.10683.pdf)
+### [T5](https://arxiv.org/pdf/1910.10683)
 
 T5是编码器-解码器模型，并将所有NLP问题转换为文本到文本格式
 
@@ -111,7 +111,7 @@ GPT，BERT与BART的区别：
 
 为了减少注意力计算的复杂度，提出一种稀疏注意力，用特殊token+滑动窗口token+随机token来计算注意力，从而减少计算量。实验上发现对特殊token的注意力效果提升很明显
 
-### [ConvBERT](https://arxiv.org/pdf/2008.02496.pdf)
+### [ConvBERT](https://arxiv.org/pdf/2008.02496)
 
 轻量级bert
 
@@ -126,3 +126,20 @@ GPT，BERT与BART的区别：
 ### [ByT5](https://arxiv.org/abs/2105.13626)
 
 byT5是在字节序列而不是句子片段子词标记序列上预训练的T5模型。避免不同tokenizer分词，词表带来的对语言模型的影响，考虑直接使用字节list(uft-8) 进行语言模型的实现。eg.`list("hello".encode("utf-8"))`
+
+
+### [ELECTRA](https://arxiv.org/pdf/2003.10555)
+
+提出了新的预训练任务和框架，把生成式的Masked language model(MLM)预训练任务改成了判别式的Replaced token detection(RTD)任务，判断当前token是否被语言模型替换过。用生成模型生成句子，然后用判别模型判断句子是否被替换过。实验发现，生成器的大小在判别器的1/4到1/2之间效果是最好的。
+
+### [ERNIE-M](https://arxiv.org/abs/2012.15674)
+
+提出了CAMLM(Cross-attention Masked Language Modeling), 对于平行语料语言A和语言B，语言A的[MASK]只能通过语言B来还原、语言B的[MASK]只能通过语言A来还原。这样是为了避免information leakage，即语言直接通过自己的上下文来还原[MASK]。这样"逼着"模型来学双语的semantic alignment。例如：输入的句子对是<明天会[MASK][MASK]吗，Will it be sunny tomorrow>，模型需要只使用英文句子<Will it be sunny tomorrow>来推断中文句子中掩盖住的词<天晴>，使模型初步建模了语言间的对齐关系。
+
+### [Falcon](https://arxiv.org/abs/2306.01116)
+
+原始多头 (head) 注意力方案每个头都分别有一个查询 (query) 、键 (key) 以及值 (value)，而多查询注意力方案改为在所有头上共享同一个键和值
+
+### [FNet](https://arxiv.org/abs/2105.03824)
+
+使用离散傅里叶变换替代自注意力层

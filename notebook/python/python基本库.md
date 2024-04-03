@@ -1,6 +1,21 @@
-[TOC]
+<!-- TOC -->
+- [OS](#os)
+- [shutil](#shutil)
+- [glob](#glob)
+- [random](#random)
+- [多进程和多线程](#多进程和多线程)
+- [functools](#functools)
+- [time](#time)
+- [itertools](#itertools)
+- [collection](#collection)
+    - [Counter](#counter)
+    - [defaultdict](#defaultdict)
+    - [namedtuple](#namedtuple)
+    - [ChainMap](#chainmap)
+- [difflib](#difflib)
+- [other](#other)
 
-[OS,shutil,glob,multiprocessing,threading,random,collection,functools,itertools,time,difflib]
+
 
 # OS
 

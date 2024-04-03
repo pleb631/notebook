@@ -5,7 +5,7 @@
 | np.stack((arr1,arry2,...),axis=0) | 把指定array按新的维度进行堆叠 | 维度默认为0 |
 | np.linalg.matrix_power（gragh,n） | 计算图节点距离为n的节点       |             |
 | np.ascontiguousarray(array)       | 使array在内存空间中连续       |             |
-|np.alltrue(array）|检查是否所有元素都是True|array.all()同样功能，array.any()至少一个true则输出true
+|np.alltrue(array)|检查是否所有元素都是True|array.all()同样功能，array.any()至少一个true则输出true
 
 ## CheatSheet
 

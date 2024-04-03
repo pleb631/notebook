@@ -1,4 +1,13 @@
-[TOC]
+<!-- TOC -->
+- [python](#python)
+  - [opencv](#opencv)
+    - [imread,imwrite读写入图片失败](#imreadimwrite读写入图片失败)
+    - [lap 安装方法](#lap-安装方法)
+    - [Microsoft Visual C++ 14.0 is required](#microsoft-visual-c-140-is-required)
+    - [acaconda常用命令](#acaconda常用命令)
+    - [Vscode解决 Failed to connect to github.com port 443:connection timed out](#vscode解决-failed-to-connect-to-githubcom-port-443connection-timed-out)
+    - [tensorborad:not found](#tensorboradnot-found)
+
 
 # python
 
@@ -67,7 +76,9 @@ git config --global --unset http.https://github.com.proxy
 ```
 
 ### tensorborad:not found
+
 先找到tensorboard的main.py
+
 ```linux
 python -m pip show tensorboard
 python path/man.py --logdir [args]

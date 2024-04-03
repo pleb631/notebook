@@ -1,6 +1,10 @@
-[TOC]
 
-[tqdm,argparse,pprint,pickledb，pathlib]
+- [tqdm](#tqdm)
+- [argparse](#argparse)
+- [pprint](#pprint)
+- [pickledb](#pickledb)
+- [pathlib](#pathlib)
+
 
 ## tqdm
 
