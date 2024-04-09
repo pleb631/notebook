@@ -58,6 +58,7 @@
     - [go func](#go-func)
     - [chan struct](#chan-struct)
     - [select](#select)
+  - [异常处理](#异常处理)
 - [内置库](#内置库)
 
 ## 变量
@@ -1497,6 +1498,16 @@ func main() {
 在异步通信时，上面func2，func3，func4会阻塞，直到func1发送数据。或者使用close(stopCh) 关闭channel，这样结束阻塞，继续执行任务。
 
 ```go
+stopCh := make(chan struct{})
+close(stopCh)
+x, ok := <-stopCh
+fmt.Print(x,ok)
+// {} false
+```
+
+如果是`make(chan int)`,在关闭channel，会直接返回(0),如果是`make(chan string)` ,会直接返回("")
+
+```go
 
 package main
 
@@ -1548,6 +1559,46 @@ default:
     // 如果没有任何 case 可以执行，则执行 default 分支
 }
 
+```
+
+### 异常处理
+
+panic是Go语言中用于引发错误的内建函数。当程序运行时遇到无法继续执行的错误时，可以使用panic来引发一个异常
+
+```go
+func example() {
+    // 产生一个panic
+    panic("Something went wrong!")
+}
+```
+
+recover是Go语言中用于捕获panic异常的内建函数。在某些情况下，我们希望程序不因为一个panic而完全崩溃，而是能够在panic发生后执行一些清理工作或者采取其他措施。
+
+```go
+package main
+
+import "fmt"
+
+func main(){
+    fmt.Println("c")
+     defer func(){ // 必须要先声明defer，否则不能捕获到panic异常
+        fmt.Println("d")
+        if err:=recover();err!=nil{
+            fmt.Println(err) // 这里的err其实就是panic传入的内容，55
+        }
+        fmt.Println("e")
+    }()
+
+    f() //开始调用f
+    fmt.Println("f") //这里开始下面代码不会再执行
+}
+
+func f(){
+    fmt.Println("a")
+    panic("异常信息")
+    fmt.Println("b") //这里开始下面代码不会再执行
+    fmt.Println("f")
+}
 ```
 
 ## 内置库
