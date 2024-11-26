@@ -402,11 +402,11 @@ def exractfile(file, dest):
     with zipfile.ZipFile(file, 'r') as zip_ref:
         zip_ref.extractall(dest)
 
-def others():
+def others(src_path, dst_path):
     '''文件处理相关的小功能,一两行能实现的
     '''
     # copy file
-    shutil.copyfile(src_file, dst_file)
+    shutil.copyfile(src_path, dst_path)
     # copy dir, os.path.mkdir is not needed
     shutil.copytree(src_path, dst_path)
     # move dir
@@ -414,4 +414,4 @@ def others():
     # remove dir
     shutil.rmtree(src_path)
     # remove file
-    os.remove(file_path, exist_ok=True)
+    os.remove(src_path, exist_ok=True)

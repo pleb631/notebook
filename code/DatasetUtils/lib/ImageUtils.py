@@ -9,6 +9,7 @@ from pathlib import Path
 from .FileUtils import *
 from .Convertion import (
     quadrilateral_points2left_top_first_quadrilateral,
+    xyxy2xywh
 )
 from functools import reduce
 

@@ -70,6 +70,19 @@ kill -9 [pid]
 >>rm -rf all_image_list.txt all_list.txt
 ```
 
+- 测试读写速度
+
+```bash
+time dd if=/dev/zero of=/tmp/test bs=8k count=1000000 #测写
+time dd if=/tmp/test of=/dev/null bs=8k #测读
+
+# time 有计时作用，dd 用于复制，从 if 读出，写到 of；
+# if=/dev/zero 不产生 IO，因此可以用来测试纯写速度；
+# 同理 of=/dev/null 不产生 IO，可以用来测试纯读速度；
+# 将/tmp/test 拷贝到/var 则同时测试了读写速度；
+# bs 是每次读或写的大小，即一个块的大小，count 是读写块的数量。
+```
+
 ---
 
 # CheatSheat
