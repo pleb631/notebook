@@ -5,6 +5,15 @@
 - [css](#css)
   - [语法](#语法)
   - [选择器](#选择器)
+  - [伪类选择器](#伪类选择器)
+    - [动态伪类](#动态伪类)
+    - [结构伪类](#结构伪类)
+    - [否定伪类](#否定伪类)
+    - [UI伪类](#ui伪类)
+    - [表单伪类](#表单伪类)
+    - [目标伪类](#目标伪类)
+    - [语言伪类](#语言伪类)
+    - [伪元素](#伪元素)
 
 <!-- /TOC -->
 
@@ -105,7 +114,7 @@ p.center {
 }
 ```
 
-- 分组选择器
+- 并集选择器
 h1,h2,p都会应用这个样式
 
 ```css
@@ -113,4 +122,253 @@ h1, h2, p {
   text-align: center;
   color: red;
 }
+```
+
+- 交集选择器
+选择具有 class="intro" 的所有 `<p>` 元素
+
+```css
+p.intro {
+  text-align: center;
+  color: red;
+}
+```
+
+- 后代选择器
+选择所有 `<h1>` 元素内的 `<p>` 元素
+
+```css
+h1 p {
+  color: gray;
+  font-size: 20px;
+}
+```
+
+- 子元素选择器
+选择所有 `<h1>` 元素的所有直接子 `<p>` 元素
+
+```css
+h1 > p {
+  color: gray;
+  font-size: 20px;
+}
+```
+
+- 兄弟选择器
+
+```css
+/* 选择所有紧接在 `<h1>` 元素后的 `<p>` 元素 */
+h1 + p {
+  color: gray;
+}
+/* 选择所有 `<h1>` 元素后的 `<p>` 元素 */
+h1~p {
+  color: red;
+}
+```
+
+- 属性选择器
+
+```css
+/*选择所有具有 title 属性的元素*/
+[title] {
+  color: red;
+}
+
+/*选择所有具有 title="W3School" 属性的元素*/
+[title=W3School] {
+  border: 5px solid blue;
+}
+
+/*选择所有具有 title 属性且值以 "W3S" 开头的元素*/
+[title^="W3S"] {
+  color: red;
+}
+
+/*选择所有具有 title 属性且值以 "W3S" 结尾的元素*/
+[title$="W3S"] {
+  color: red;
+}
+
+/*选择所有具有 title 属性且值包含 "W3S" 的元素*/
+[title*="W3S"] {
+  color: red;
+}
+```
+
+## 伪类选择器
+
+### 动态伪类
+
+```css
+/* 选择所有未访问的链接 */
+a:link {
+  color: #FF0000;
+}
+
+/* 选择所有访问过的链接 */
+a:visited {
+  color: #00FF00;
+}
+
+/* 选择鼠标指针浮动在其上的链接 */
+a:hover {
+  color: #FF00FF;
+}
+
+/* 选择被激活的链接 */
+a:active {
+  color: #0000FF;
+}
+
+/*获取焦点*/
+input:focus {
+  background-color: yellow;
+}
+```
+
+### 结构伪类
+
+```css
+/* 选择所有 <p> 元素中的第一个且是 <i> 的元素 */
+p i:first-child {
+  color: red;
+}
+
+/* 选择所有 <p> 元素中的最后一个 且是<i> 元素 */
+p i:last-child {
+  color: red;
+}
+
+/* 选择所有 <p> 元素是它父类的最后一个且是<i> 元素 */
+p :last-child {
+  color: red;
+}
+
+
+/* 选择所有 <p> 元素中的第1个且是<i> 的子元素 */
+p > i:first-child {
+  color: red;
+}
+
+
+/* 选择所有 <p> 元素中的第2个且是<i> 子元素*/
+p > i:nth-child(2) {
+  color: red;
+}
+
+/* 选择所有 <p> 元素中的偶数的且是<i> 子元素*/
+p > i:nth-child(2n) {
+  color: red;
+}
+
+/* 选择所有 <p> 元素中的前5个且是<i> 子元素,格式an+b*/
+p > i:nth-child(-n+5) {
+  color: red;
+}
+
+
+/* 选择所有<p>元素中子元素中同类型元素的第一个*/
+p > i:nth-of-type(1) {
+  color: red;
+}
+
+/* 选择所有<p>元素中子元素中同类型元素的第一个*/
+p > i:first-of-type {
+  color: red;
+}
+/*选择没有兄弟元素的<p>*/
+p:only-child{ 
+  color: red;
+  }
+
+/*选择没有同类型兄弟元素的<p>*/
+p:only-of-type {
+  color: red;
+}
+
+/*选择所有空元素*/
+div:empty {
+  width: 100px;
+  height: 100px;
+  background-color: yellow;
+}
+```
+
+### 否定伪类
+
+```css
+/* 选择所有不包含 class="intro" 的 <p> 元素 */
+p:not(.intro) {
+  color: red;
+}
+```
+
+### UI伪类
+
+```css
+/* 选择所有勾选的复选框 */
+input:checked {
+  width: 100px;
+  height: 100px;
+}
+
+input:enabled {
+  width: 100px;
+  height: 100px;
+}
+
+input:disabled {
+  width: 100px;
+  height: 100px;
+}
+```
+
+### 表单伪类
+
+```css
+/* 选择没有值的输入字段 */
+input:invalid {
+  background-color: yellow;
+}
+
+/* 选择已选中的输入字段 */
+input:valid {
+}
+```
+
+### 目标伪类
+
+```css
+/* 选择当前活动的链接 */
+a:target {
+  background-color: yellow;
+}
+```
+
+### 语言伪类
+
+```css
+/* 选择所有 lang 属性值以 "en" 开头的元素 */
+q:lang(en) {
+  background-color: yellow;
+}
+```
+
+### 伪元素
+
+```css
+/* 选择每个 <p> 元素的首字母 */
+p::first-letter {
+}
+
+/* 选择每个 <p> 元素的首行 */
+p::first-line{
+
+}
+
+/* 在p元素之前插入内容 */
+p::before {
+  content: "Hello, ";
+} 
 ```

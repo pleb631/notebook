@@ -156,7 +156,7 @@ def save_txt(txt_path, info, mode='w'):
         info: list, txt文件内容
         mode: str, 'w'代表覆盖写；'a'代表追加写
     '''
-    with open(txt_path, mode) as txt_file:
+    with open(txt_path, mode,encoding="UTF-8") as txt_file:
         for line in info:
             txt_file.write(line + '\n')
     
