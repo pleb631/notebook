@@ -1,7 +1,7 @@
 <!-- TOC -->
 - [html](#html)
   - [html框架示例](#html框架示例)
-  - [基础的四个标签](#基础的四个标签)
+  - [基础标签](#基础标签)
 - [css](#css)
   - [语法](#语法)
   - [选择器](#选择器)
@@ -41,17 +41,43 @@
 - \<h1> 与 \</h1> 之间的文本被显示为标题
 - \<p> 与 \</p> 之间的文本被显示为段落
 
-## 基础的四个标签
+## 基础标签
 
-**HTML 标题**
-\<h1> - \<h6>
-`<h1>This is a heading</h1>`
-**HTML 段落**
-`<p>This is a paragraph.</p>`
-**HTML 链接**
-`<a href="http://www.w3school.com.cn">This is a link</a>`
-**HTML 图像**
-`<img src="w3school.jpg" width="104" height="142" />`
+- \<html></html>称为根标签，所有的网页标签都在\<html></html>中。
+
+- \<head> 标签用于定义文档的头部，它是所有头部元素的容器。头部元素有\<title>、\<script>、 \<style>、\<link>、 \<meta>等标签
+
+- \<p></p>   段落标签
+
+- \<div></div>  把一些独立的逻辑部分划分出来，放在一个\<div>标签中，这个\<div>标签的作用就相当于一个容器  <div  id="版块名称">…</div>给div命名
+
+- \<span></span> span标签是没有语义的，它的作用就是为了设置单独的样式用的。
+
+- \<h></h>   标题标签，标题标签一共有6个，h1、h2、h3、h4、h5、h6分别为一级标题、二级标题、三级标题、四级标题、五级标题、六级标题。
+
+- \<strong>和\<em>标签，在浏览器中\<em> 默认用斜体表示，\<strong> 用粗体表示。
+
+- \<ul></ul> 无序列表,ol 有序列表
+
+  ```html
+  <ul>
+    <li>信息</li>
+    <li>信息</li>
+    ......
+  </ul>
+  ```
+
+- 表单标签
+
+  ```html
+  <form>
+  姓名：
+  <input type="text" name="myName">
+  <br/>
+  密码：
+  <input type="password" name="pass">
+  </form>
+  ```
 
 # css
 
