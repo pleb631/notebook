@@ -40,6 +40,36 @@
     - [自定义属性](#自定义属性)
   - [定时器](#定时器)
   - [事件监听](#事件监听)
+    - [事件监听对比](#事件监听对比)
+    - [解绑事件](#解绑事件)
+    - [鼠标经过事件的区别](#鼠标经过事件的区别)
+  - [事件对象](#事件对象)
+    - [常见属性](#常见属性)
+  - [环境对象](#环境对象)
+  - [回调函数](#回调函数)
+  - [事件流](#事件流)
+    - [阻止冒泡](#阻止冒泡)
+  - [事件委托](#事件委托)
+  - [其他事件](#其他事件)
+    - [页面加载事件](#页面加载事件)
+  - [日期对象](#日期对象)
+  - [DOM节点](#dom节点)
+    - [查找节点](#查找节点)
+    - [创建节点](#创建节点)
+    - [删除节点](#删除节点)
+  - [BOM](#bom)
+- [模块化](#模块化)
+  - [commonjs](#commonjs)
+    - [导出](#导出)
+    - [导入](#导入)
+    - [扩展](#扩展)
+    - [浏览器端运行](#浏览器端运行)
+  - [ES6 模块化](#es6-模块化)
+    - [初步使用](#初步使用)
+    - [Node中运行ES6模块](#node中运行es6模块)
+    - [ES6导出](#es6导出)
+    - [ES6导入](#es6导入)
+      - [mjs 和es6 语法区别](#mjs-和es6-语法区别)
 
 # 基础
 
@@ -565,8 +595,12 @@ box.classList.toggle('active')
 **语法：**
 
 ```js
-setTimeout(func,间隔时间) //延迟执行
-setInterval(func,间隔时间) //循环执行
+let time1 = setTimeout(func,间隔时间) //延迟执行
+let time2 = setInterval(func,间隔时间) //循环执行
+
+// 清除定时函数
+clearInterval(time2)
+clearTimeout(timer1)
 ```
 
 ## 事件监听
@@ -688,3 +722,447 @@ setInterval(func,间隔时间) //循环执行
 </html>
 
 ```
+
+### 事件监听对比
+
+事件源.on事件 = function(){}
+事件源.addEventListener(事件,事件处理函数)
+
+on方式会被覆盖， addEventListener 方式可绑定多次，拥有事件更多特性。
+
+### 解绑事件
+
+on事件方式，直接使用null覆盖偶就可以实现事件的解绑
+事件源.removeEventListener(事件,事件处理函数)
+
+**注意**：匿名函数无法被解绑
+
+### 鼠标经过事件的区别
+
+1. `mouseover` 和 `mouseout` 会有冒泡效果
+2. `mouseenter 和 mouseleave` 没有冒泡效果
+
+## 事件对象
+
+语法：
+
+```js
+事件源.addEventListener(事件,function(event){})
+```
+
+### 常见属性
+
+type：获取当前的事件类型
+clientX/clientY：获取光标相对于浏览器可见窗口左上角的位置
+offsetX/offsetY：获取光标相对于当前DOM元素左上角的位置
+key：用户按下的键盘键的值，现在不提倡使用keyCode
+
+## 环境对象
+
+指的是函数内部特殊的变量`this`， 它代表着当前函数运行时所处的环境
+
+## 回调函数
+
+当一个函数当做参数来传递给另外一个函数的时候，这个函数就是 回调函数
+
+## 事件流
+
+指的是事件完整执行过程中的流动路径
+
+![](https://i-blog.csdnimg.cn/blog_migrate/461b3b2a0c852ecd2081029b2365fdf6.png)
+
+说明：假设页面里有个div，当触发事件时，会经历两个阶段，分别是捕获阶段、冒泡阶段
+
+简单来说：捕获阶段是从父到子，冒泡阶段是从子到父
+
+实际工作都是使用事件冒泡为主。
+
+addEventListener第三个参数传入 true 代表是 捕获阶段 触发,若传入 false 代表 冒泡阶段 触发，默认就是false
+
+### 阻止冒泡
+
+因为默认有冒泡模式的存在，所以容易导致事件影响到父级元素,若想把事件就限制在当前元素内，就需要阻止事件冒泡
+**语法**:e.stopPropagation()
+
+**注意**:此方法可以阻断事件流动传播，不光在冒泡阶段有效，捕获阶段也有效
+
+我们某些情况下需要阻止**默认行为**的发生，比如 阻止 链接的跳转，表单域跳转
+
+**语法**: e.preventDefault()
+
+## 事件委托
+
+事件委托是利用事件流的特征解决一些开发需求的知识技巧。
+**场景：** 当页面中有很多个按钮，当点击按钮时，需要执行一些操作，但是每个按钮都要注册事件，这样会增加代码量，并且代码冗余，如果使用事件委托，只需要注册一次事件，当触发事件时，会冒泡到父级元素，从而触发父级元素的事件。
+
+**实现**: `e.target.tagName` 可以获得真正触发事件的元素
+
+如：`ul.addEventListener('click' , function(){})` 执行父级点击事件
+
+```html
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>tab栏切换</title>
+    <style>
+      .tab {
+        width: 590px;
+        height: 100px;
+        margin: 20px;
+        border: 1px solid #e4e4e4;
+      }
+      .tab-nav {
+        width: 100%;
+        height: 60px;
+        line-height: 60px;
+        display: flex;
+        justify-content: space-between;
+      }
+      .tab-nav h3 {
+        font-size: 24px;
+        font-weight: normal;
+        margin-left: 20px;
+      }
+      .tab-nav ul {
+        list-style: none;
+        display: flex;
+        justify-content: flex-end;
+      }
+      .tab-nav ul li {
+        margin: 0 20px;
+        font-size: 14px;
+      }
+      .tab-nav ul li a {
+        text-decoration: none;
+        border-bottom: 2px solid transparent;
+        color: #333;
+      }
+      .tab-nav ul li a.active {
+        border-color: #e1251b;
+        color: #e1251b;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="tab">
+      <div class="tab-nav">
+        <h3>每日特价</h3>
+        <ul>
+          <li><a class="active" href="javascript:;" data-id="0">精选</a></li>
+          <li><a href="javascript:;" data-id="1">美食</a></li>
+          <li><a href="javascript:;" data-id="2">百货</a></li>
+          <li><a href="javascript:;" data-id="3">个护</a></li>
+          <li><a href="javascript:;" data-id="4">预告</a></li>
+        </ul>
+      </div>
+    </div>
+
+    <script>
+      const ul = document.querySelector(".tab-nav ul");
+
+      const items = document.querySelectorAll(".tab-content .item");
+
+      ul.addEventListener("click", function (e) {
+        if (e.target.tagName === "A") {
+          document.querySelector(".tab-nav .active").classList.remove("active");
+          e.target.classList.add("active");
+          const i = +e.target.dataset.id;
+        }
+      });
+    </script>
+  </body>
+</html>
+```
+
+## 其他事件
+
+### 页面加载事件
+
+## 日期对象
+
+```javascript
+// 获得当前时间
+const date = new Date()
+
+// 获取指定时间
+const date = new Date('2023-5-25')
+
+// 获取时间戳
+//第一种方法
+console.log(date.getTime())
+
+////第二种方法
+console.log(+new Date())
+
+////第三种方法
+console.log(Date.now())
+```
+
+## DOM节点
+
+DOM树里每一个内容都称之为节点，
+
+1. 元素节点：所有的标签 比如 body、 div，html 是根节点
+2. 属性节点：所有的属性 比如 href
+3. 文本节点：所有的文本
+
+### 查找节点
+
+`子元素.parentNode`, 返回最近一级的父节点 找不到返回为 null
+`子元素.childNodes`, 获得所有子节点、包括文本节点（空格、换行）、注释节点等
+`子元素.children`,仅获得所有元素节点，返回的还是一个 伪数组
+`nextElementSibling` ,下一个兄弟节点
+`previousElementSibling`, 上一个兄弟节点
+
+### 创建节点
+
+**创建**元素节点方法：
+
+```js
+document.createElement('标签名')
+```
+
+**追加**节点:要想在界面看到，还得插入到某个父元素中
+`父元素.appendChild(要插入的元素)`,插入到父元素的最后一个子元素的后面：
+`父元素.insertBefore(要插入的元素,在哪个元素前面)` ,插入到父元素中某个子元素的前面
+
+**克隆**节点:元素.cloneNode(布尔值)
+布尔值为true，则克隆时会包含后代节点一起克隆。若为false(默认)，则克隆时不包含后代节点。
+
+### 删除节点
+
+要删除元素必须通过父元素删除。
+
+**语法：** `父元素.removeChlid(子元素)`， 如不存在父子关系则删除不成功
+
+## BOM
+BOM(Browser Object Model ) 是浏览器对象模型。
+所有通过var定义在全局作用域中的变量、函数都会变成window对象的属性和方法,window对象下的属性和方法调用的时候可以省略window,像document、alert()、console.log()这些都是window的属性,基本BOM属性和方法都是window的
+# 模块化
+
+## commonjs
+
+### 导出
+
+- exports.name = value
+
+  ```js
+  // school.js
+  const name = 'name1'
+  const slogan = '让天下没有难学的技术！'
+  
+  function getTel (){
+    return '010-56253825'
+  }
+  
+  function getCities(){
+    return ['北京','上海','深圳','成都','武汉','西安']
+  }
+  
+  // 通过给exports对象添加属性的方式，来导出数据（注意：此处没有导出getCities）
+  exports.name = name
+  exports.getTel = getTel
+  ```
+
+  ```js
+  // 导入
+  const student = require('./student')
+  console.log(student.getTel())
+  ```
+
+- module.exports = value
+
+  ```js
+  module.exports = {
+    name: name,
+    getTel: getTel
+  }
+
+  ```
+
+注意:
+
+1. 每个模块内部的：this、exports、modules.exports在初始时，都指向同一个空对象，该空对象就是当前模块导出的数据
+2. 无论如何修改导出对象，最终导出的都是module.exports的值。
+3.exports是对module.exports的初始引用，仅为了方便给导出象添加属性，所以不能使用 exports = value的形式导出数据，但是可以使用module.exports = xxxx导出数据
+
+### 导入
+
+```js
+// 直接引入模块
+const school = require('./school')
+ 
+// 引入同时解构出要用的数据
+const { name, slogan, getTel } = require('./school')
+ 
+// 引入同时解构+重命名
+const {name:stuName,motto,getTel:stuTel} = require('./student')
+```
+
+### 扩展
+
+一个 JS 模块在执行时，是被包裹在一个内置函数中执行的，所以每个模块都有自己的作用域，我们可以通过如下方式验证这一说法：
+
+```js
+console.log(arguments)
+console.log(arguments.callee.toString())
+```
+
+内置函数的大致形式如下：
+
+```js
+function (exports, require, module, __filename, __dirname){
+  /*********************/
+}
+```
+
+### 浏览器端运行
+
+Node.js 默认是支持 CommonJS 规范的，但浏览器端不支持，所以需要经过编译，步骤如下：
+
+1. 全局安装 browserify ：npm i browserify -g
+2. 编译
+
+    ```bash
+    browserify index.js -o build.js
+    ```
+
+3. 页面中引入使用
+
+   ```js
+   <script type="text/javascript" src="./build.js"></script>
+   ```
+
+## ES6 模块化
+
+### 初步使用
+
+```js
+//  school.js
+// 导出name
+export let name = {str:'name'}
+// 导出slogan
+export const slogan = '让天下没有难学的技术！'
+ 
+// 导出name
+export function getTel (){
+  return '010-56253825'
+}
+ 
+function getCities(){
+  return ['北京','上海','深圳','成都','武汉','西安']
+
+```
+
+```html
+// 引入
+<script type="module" src="./index.js"></script>
+```
+
+### Node中运行ES6模块
+
+Node.js中运行ES6模块代码有两种方式：
+
+1. 将JavaScript文件后缀从.js 改为.mjs，Node 则会自动识别 ES6 模块。
+2. 在package.json中设置type属性值为module
+
+### ES6导出
+
+ES6 模块化提供 3 种导出方式：①分别导出、②统一导出、③默认导出
+
+分别导出
+
+```js
+
+// 导出name
+export let name = {str:'name'}
+// 导出slogan
+export const slogan = '让天下没有难学的技术！'
+ 
+// 导出getTel
+export function getTel (){
+  return '010-56253825'
+}
+```
+
+统一导出
+
+```js
+const name = {str:'name'}
+const slogan = '让天下没有难学的技术！'
+ 
+function getTel (){
+  return '010-56253825'
+}
+ 
+function getCities(){
+  return ['北京','上海','深圳','成都','武汉','西安']
+}
+ 
+// 统一导出了：name,slogan,getTel
+export {name,slogan,getTel}
+```
+
+默认导出
+
+```js
+const name = '张三'
+const motto = '走自己的路，让别人五路可走！'
+ 
+function getTel (){
+  return '13877889900'
+}
+ 
+function getHobby(){
+  return ['抽烟','喝酒','烫头']
+}
+ 
+//默认导出：name,motto,getTel
+export default {name,motto,getTel}
+```
+
+### ES6导入
+
+导入全部
+可以将模块中的所有导出内容整合到一个对象中
+
+```js
+import * as school from './school.js'
+
+```
+
+命名导入(对应导出方式：分别导出、统一导出)
+
+```js
+import {name,slogan,getTel} from './school'
+import {name as stuName,motto,getTel as stuTel} from './student'
+```
+
+默认导入(对应导出方式：默认导出)
+
+```js
+import student from './student.js' //默认导出的名字可以修改，不是必须为student
+```
+
+命名导入 与 默认导入混合
+
+默认导入的内容必须放在前方
+
+```js
+import getTel,{name,slogan} from './school.js'
+```
+
+动态导入
+
+允许在运行时按需加载模块，返回值是一个 Promise
+
+```js
+const school = await import('./school.js');
+```
+
+#### mjs 和es6 语法区别
+
+1. mjs导出的变量的值传递，es6导出的变量的是引用传递
