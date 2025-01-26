@@ -72,6 +72,15 @@
     - [存储复杂数据类型](#存储复杂数据类型)
 - [进阶语法](#进阶语法)
   - [原型](#原型)
+    - [constructor 属性](#constructor-属性)
+    - [对象原型](#对象原型)
+    - [原型继承](#原型继承)
+    - [原型链](#原型链)
+  - [异常处理](#异常处理)
+    - [throw](#throw)
+    - [try/catch](#trycatch)
+    - [debugger](#debugger)
+  - [深拷贝](#深拷贝)
   - [闭包](#闭包)
   - [箭头函数](#箭头函数)
     - [细节](#细节)
@@ -1209,6 +1218,159 @@ const obj = JSON.parse(localStorage.getItem('user'))
 # 进阶语法
 
 ## 原型
+
+构造函数通过原型分配的函数是所有对象所 **共享的**
+
+JavaScript 规定， 每一个构造函数都有一个 prototype 属性 ，指向另一个对象，所以我们也称为原型对象。这个对象可以挂载函数，对象实例化不会多次创建原型上函数， 节约内存 。
+
+可以把那些不变的方法直接定义在 prototype 对象上，这样所有对象的实例都可以共享这些方法。
+
+构造函数和原型对象中的 **this** 都指向 **实例化的对象。**
+
+```js
+let that;
+function Star(uname) {
+  this.uname = uname;
+}
+
+Star.prototype.sing = function () {
+  that = this;
+  console.log("唱歌");
+};
+
+const ldh = new Star("刘德华");
+ldh.sing();
+console.log(that === ldh); // true
+
+```
+
+### constructor 属性
+
+每个原型对象里面都有个constructor 属性（ constructor 构造函数 ）
+
+**作用：** 该属性 指向 该原型对象的 构造函数， 简单理解，就是指向我的爸爸（构造函数）
+
+```js
+function Star() {}
+Star.prototype = {
+  constructor: Star,
+  sing: function () {
+    console.log("唱歌");
+  },
+  dance: function () {
+    console.log("跳舞");
+  },
+};
+console.log(Star.prototype);
+```
+
+### 对象原型
+
+对象都会有一个属性 `__proto__` 指向构造函数的 prototype 原型对象，之所以我们对象可以使用构造函数 prototype 原型对象的属性和方法，就是因为对象有 `__proto__` 原型的存在。`__proto__`是JS非标准属性,用来表明当前实例对象指向哪个原型对象prototype
+
+### 原型继承
+
+继承是面向对象编程的另一个特征，通过继承进一步提升代码封装的程度，JavaScript 中大多是借助原型对象实现继承的特性。
+
+```js
+function Person() {
+  this.eyes = 2;
+  this.head = 1;
+}
+
+function Woman() {}
+Woman.prototype = Person;
+Woman.prototype.constructor = Woman;
+```
+
+男人和女人都同时使用了同一个对象，根据引用类型的特点，他们指向同一个对象，修改一个就会都影响,所以需要修改，使用构造函数new 每次都会创建一个新的对象
+
+### 原型链
+
+1. 当访问一个对象的属性（包括方法）时，首先查找这个 对象自身 有没有该属性。
+2. 如果没有就查找它的原型（也就是 `__proto__`指向的 prototype 原型对象 ）
+3. 如果还没有就查找原型对象的原型（ Object的原型对象 ）
+4. 依此类推一直找到 Object 为止（ null ）
+5. `__proto__`对象原型的意义就在于为对象成员查找机制提供一个方向，或者说一条路线
+6. 可以使用 instanceof 运算符用于检测构造函数的 prototype 属性是否出现在某个实例对象的原型链上
+
+```js
+function Person() {
+  this.eyes = 2;
+  this.head = 1;
+}
+
+function Woman() {}
+Woman.prototype = new Person();
+Woman.prototype.constructor = Woman;
+Woman.prototype.baby = function () {
+  console.log("宝贝");
+};
+
+function Man() {}
+Man.prototype = new Person();
+Man.prototype.constructor = Man;
+
+const red = new Woman();
+console.log(red.__proto__);
+
+const pink = new Man();
+console.log(pink.__proto__);
+
+```
+
+## 异常处理
+
+### throw
+
+```js
+function foo() {
+  throw new Error("出错了");
+}
+```
+
+**总结：**  
+
+1. `throw` 抛出异常信息，程序也会终止执行  
+2. `throw` 后面跟的是错误提示信息  
+3. `Error` 对象配合 `throw` 使用，能够设置更详细的错误信息
+
+### try/catch
+
+```js
+try {
+  foo();  
+}
+catch (e) {
+  throw new Error('你看看，选择器错误了吧')
+}
+finally {
+alert('弹出对话框')
+}
+```
+
+### debugger
+
+`debugger` 语句用于在浏览器中设置断点，当执行到这个语句时，浏览器会暂停执行，并进入调试模式。
+
+## 深拷贝
+
+1. 递归函数
+2. JSON.parse(JSON.stringify(obj))
+3. js库lodash里面cloneDeep
+
+```js
+const obj = {
+  uname: "pink",
+  age: 18,
+  hobby: ["乒乓球", "足球"],
+  family: {
+    baby: "小pink",
+  },
+};
+
+const o = _.cloneDeep(obj);
+```
 
 ## 闭包
 
