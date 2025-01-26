@@ -6,7 +6,7 @@
     - [const](#const)
   - [基础数据类型](#基础数据类型)
     - [Number](#number)
-    - [string](#string)
+    - [String](#string)
       - [字符串拼接](#字符串拼接)
       - [模板字符串](#模板字符串)
     - [boolean](#boolean)
@@ -26,6 +26,14 @@
     - [声明](#声明)
     - [对象使用](#对象使用)
     - [遍历对象](#遍历对象)
+    - [`new Object`创建对象](#new-object创建对象)
+    - [构造函数创建对象(重点)](#构造函数创建对象重点)
+      - [实例成员和静态成员](#实例成员和静态成员)
+  - [内置构造函数](#内置构造函数)
+    - [Object](#object)
+    - [Array](#array)
+    - [String](#string-1)
+    - [Number](#number-1)
 - [Web APIs](#web-apis)
   - [DOM](#dom)
     - [操作DOM](#操作dom)
@@ -58,6 +66,24 @@
     - [创建节点](#创建节点)
     - [删除节点](#删除节点)
   - [BOM](#bom)
+  - [本地存储](#本地存储)
+    - [localStorage](#localstorage)
+    - [sessionStorage](#sessionstorage)
+    - [存储复杂数据类型](#存储复杂数据类型)
+- [进阶语法](#进阶语法)
+  - [原型](#原型)
+  - [闭包](#闭包)
+  - [箭头函数](#箭头函数)
+    - [细节](#细节)
+  - [this](#this)
+    - [普通函数](#普通函数)
+    - [箭头函数](#箭头函数-1)
+    - [改变this](#改变this)
+      - [call](#call)
+      - [apply](#apply)
+      - [bind](#bind)
+        - [基本写法](#基本写法)
+        - [箭头函数的替代方案](#箭头函数的替代方案)
 - [模块化](#模块化)
   - [commonjs](#commonjs)
     - [导出](#导出)
@@ -119,7 +145,7 @@ console.log("s"+2) //"s2"
 
 NaN 是粘性的。任何对 NaN 的操作都会返回 NaN
 
-### string
+### String
 
 通过单引号('') 、双引号("")或反引号(``) 包裹的数据都叫字符串，单引号和双引号没有本质上的区别，推荐使用单引号。
 
@@ -349,6 +375,8 @@ let fn = function(a,b){}
 ### 声明
 
 ```js
+
+// 对象字面量创建对象
 let obj = {
     uname : 'pink',
     age : 25
@@ -383,6 +411,225 @@ for (let k in obj){
 }
 ```
 
+### `new Object`创建对象
+
+```js
+<script>
+const obj = new Object({ uname: 'pink' })
+console.log(obj)
+```
+
+### 构造函数创建对象(重点)
+
+```js
+function Pig(uname, age) {
+    this.uname = uname
+    this.age = age
+}
+const p = new Pig('佩奇', 6)
+console.log(p)
+```
+
+说明：
+
+1. 使用 new 关键字调用函数的行为被称为 实例化
+2. 实例化构造函数时没有参数时可以省略 ()
+3. 构造函数内部无需写return，返回值即为新创建的对象，即自动返回创建的新对象
+4. 构造函数内部的 return 返回的值无效，所以不要写return
+5. new Object（） new Date（） 也是实例化构造函数
+
+实例化执行过程:
+
+1. 创建新对象
+2. 构造函数this指向新对象
+3. 执行构造函数代码，修改this，添加新的属性
+4. 返回新对象
+
+#### 实例成员和静态成员
+
+实例成员:通过构造函数创建的对象称为实例对象，实例对象中的属性和方法称为实例成员
+
+说明:
+
+1. 实例对象的属性和方法即为实例成员
+2. 为构造函数传入参数，动态创建结构相同但值不同的对象
+3. 构造函数创建的实例对象彼此独立互不影响 。
+
+静态成员:构造函数的属性和方法被称为静态成员
+
+```js
+function Dog(uname, age) {}
+Dog.uname = '旺财'
+Dog.age = 3
+Dog.eat = function () {console.log('吃东西')}
+```
+
+说明:
+
+1. 构造函数的属性和方法被称为静态成员
+2. 一般公共特征的属性或方法静态成员设置为静态成员
+3. 静态成员方法中的 this 指向构造函数本身
+
+## 内置构造函数
+
+### Object
+
+```js
+const o = { uname: 'pink', age: 18 }
+
+// 获得对象中所有属性
+console.log(Object.keys(o))
+
+//获取对象中所有属性值
+console.log(Object.values(o))
+
+// 添加属性
+Object.assign(o, { gender: '女' })
+
+```
+
+### Array
+
+```js
+
+const lis = document.querySelectorAll('ul li')
+// 假数组转为真数组
+const liss = Array.from(lis)
+
+
+const arr = new Array(1, 2, 3, 4, 5)
+
+
+// concat
+// 拼接
+const arr13 = arr.concat([1, 2, 3])
+
+// join
+// 将数组元素拼接成字符串
+const arr14 = arr.join('-')
+
+
+// sort
+// 排序
+const arr9 = arr.sort((a, b) => a - b)
+
+// reverse
+// 反转
+arr.reverse()
+
+// slice
+// 切片
+const arr11 = arr.slice(1, 3)
+
+
+// some
+// 检测是否有元素满足条件
+const arr7 = arr.some((item) => item > 2)
+
+// every
+// 检测是否所有元素满足条件
+const arr8 = arr.every((item) => item > 2)
+
+
+
+// reduce
+// 返回函数累计处理的结果，经常用于求和等
+// arr.reduce(function(累计值, 当前元素){}, 起始值)
+const re = arr.reduce((prev, item) => prev + item)
+
+// map
+// 返回新数组，新数组的元素是处理后的值
+const arr2 = arr.map((item) => item * 2)
+
+// filter
+// 筛选数组元素
+const arr3 = arr.filter((item) => item > 2)
+
+
+// find
+// 返回第一个匹配的元素
+const arr5 = arr.find((item) => item > 2)
+
+// findIndex
+// 返回第一个匹配的元素索引
+const arr6 = arr.findIndex((item) => item > 2)
+```
+
+### String
+
+```js
+// 获取字符串的长度
+let num = string.length; 
+
+
+// 提取从 start 到 end 之间的字符串（不包含 end）
+let newString = string.substring(start, end); 
+
+
+// 提取从 start 到 end 之间的字符串（可以负数索引）
+let newString = string.slice(start, end); 
+
+// 替换字符串中第一次匹配的内容
+let newString = string.replace(searchValue, newValue); 
+
+
+// 替换字符串中所有匹配的内容 (ES2021)
+let newString = string.replaceAll(searchValue, newValue);
+
+// 根据分隔符拆分字符串，返回一个数组
+let newString = string.split(separator); 
+
+// 检查字符串是否包含指定的子字符串
+let result = string.includes(searchValue); 
+
+// 检查字符串是否以指定的子字符串开头
+let result = string.startsWith(searchValue); 
+
+// 检查字符串是否以指定的子字符串结尾
+let result = string.endsWith(searchValue); 
+
+// 将多个字符串连接成一个新的字符串
+let newString = string.concat(otherString); 
+
+// 将字符串转换为大写
+let newString = string.toUpperCase(); 
+
+// 将字符串转换为小写
+let newString = string.toLowerCase(); 
+
+// 获取指定索引位置的字符
+let result = string.charAt(index); 
+
+// 去除字符串两端的空格
+let newString = string.trim(); 
+
+// 查找指定子字符串首次出现的位置 (没有找到返回 -1)
+let result = string.indexOf(searchValue); 
+
+// 查找指定子字符串最后一次出现的位置 (没有找到返回 -1)
+let result = string.lastIndexOf(searchValue); 
+
+// 使用正则表达式匹配字符串 (返回数组)
+let result = string.match(regex); 
+
+// 查找符合正则表达式的内容，返回位置（没有找到返回 -1）
+let result = string.search(regex); 
+
+// 将字符串重复指定次数
+let newString = string.repeat(count); 
+
+```
+
+### Number
+
+```js
+const num = 10.923
+
+//保留几位小数
+console.log(num.toFixed(1))
+
+```
+
 # Web APIs
 
 ## DOM
@@ -415,35 +662,20 @@ document 提供的属性和方法都是用来访问和操作网页内容的。�
 
     ```html
     <body>
-
-    <div class="box">123</div>
-
-    <div class="box">abc</div>
-
-    <ul class="nav">
-
-    <li>测试1</li>
-
-    <li>测试2</li>
-
-    <li>测试3</li>
-
-    </ul>
-
-    <script>
-
-    const box = document.querySelector('.box')
-
-    console.log(box)
-
-    const li = document.querySelector('ul li:first-child')
-
-    console.log(li)
-
-    </script>
-
+        <div class="box">123</div>
+        <div class="box">abc</div>
+        <ul class="nav">
+            <li>测试1</li>
+            <li>测试2</li>
+            <li>测试3</li>
+        </ul>
+        <script>
+            const box = document.querySelector('.box')
+            console.log(box)
+            const li = document.querySelector('ul li:first-child')
+            console.log(li)
+        </script>
     </body>
-
     ```
 
 2. 选择匹配的多个元素
@@ -771,7 +1003,7 @@ key：用户按下的键盘键的值，现在不提倡使用keyCode
 
 ![](https://i-blog.csdnimg.cn/blog_migrate/461b3b2a0c852ecd2081029b2365fdf6.png)
 
-说明：假设页面里有个div，当触发事件时，会经历两个阶段，分别是捕获阶段、冒泡阶段
+说明:假设页面里有个div，当触发事件时，会经历两个阶段，分别是捕获阶段、冒泡阶段
 
 简单来说：捕获阶段是从父到子，冒泡阶段是从子到父
 
@@ -939,8 +1171,266 @@ document.createElement('标签名')
 **语法：** `父元素.removeChlid(子元素)`， 如不存在父子关系则删除不成功
 
 ## BOM
+
 BOM(Browser Object Model ) 是浏览器对象模型。
 所有通过var定义在全局作用域中的变量、函数都会变成window对象的属性和方法,window对象下的属性和方法调用的时候可以省略window,像document、alert()、console.log()这些都是window的属性,基本BOM属性和方法都是window的
+
+## 本地存储
+
+### localStorage
+
+**作用:** 可以将数据永久存储在本地(用户的电脑), 除非手动删除，否则关闭页面也会存在
+
+**特性：** 可以多窗口（页面）共享（同一浏览器可以共享）、以键值对的形式存储使用
+
+**语法:**
+
+存储数据：`localStorage.setItem(key, value)`
+获取数据： `localStorage.getItem(key)`
+删除数据：`localStorage.removeItem(key)`
+
+### sessionStorage
+
+**特性：**
+
+生命周期为关闭浏览器窗口,在同一个窗口(页面)下数据可以共享,以键值对的形式存储使用,用法跟 localStorage 基本相同
+
+### 存储复杂数据类型
+
+本地只能存储字符串,无法存储复杂数据类型。
+
+**解决：** 需要将复杂数据类型转换成JSON字符串,在存储到本地
+
+```js
+localStorage.setItem('user', JSON.stringify({name: 'name1', age: 18}))
+const obj = JSON.parse(localStorage.getItem('user'))
+```
+
+# 进阶语法
+
+## 原型
+
+## 闭包
+
+**概念：**一个函数对周围状态的引用捆绑在一起，内层函数中访问到其外层函数的作用域
+
+**简单理解：** **闭包 =  内层函数 + 外层函数的变量**
+
+**闭包作用：** 封闭数据，提供操作，外部也可以访问函数内部的变量
+
+```js
+function count() {
+    let i = 0
+    function fn() {
+        i++
+        console.log(`函数被调用了${i}次`)
+    }
+    return fn
+}
+const fun = count()
+```
+
+## 箭头函数
+
+基本写法
+
+```js
+const fn=() => {
+}
+fn()
+```
+
+带一个参数
+
+```js
+const fn = x => {}
+```
+
+函数体只有一行代码，可以写到一行上，并且无需写 return 直接返回值
+
+```js
+const fn = (x,y) => x + y
+```
+
+### 细节
+
+1. 箭头函数 没有 arguments 动态参数，但是 有剩余参数 ..args
+
+    ```js
+    const getSum = (...arr) => {
+        let sum = 0
+        for (let i = 0; i < arr.length; i++) {
+            sum += arr[i]
+        }
+        return sum
+    }
+    const result = getSum(2, 3, 4)
+    console.log(result)
+    ```
+
+2. 箭头函数不会创建自己的 this ，它只会从自己的作用域链的上一层沿用 this。
+
+  ```js
+  const obj = {
+      uname: '老师',
+      sayHi: function () {
+          console.log(this)
+          let i = 10
+          const count = () => {
+              console.log(this)
+          }
+          count()
+      }
+  }
+  obj.sayHi()
+  ```
+
+## this
+
+### 普通函数
+
+普通函数的调用方式决定了 this 的值，即【谁调用 this 的值指向谁】
+
+普通函数没有明确调用者时 this 值为 window，严格模式下没有调用者时 this 的值为 undefined
+
+```js
+let obj = {say:function fn() {
+  console.log(this)
+}}
+obj.say() //指向obj
+
+function fn() {
+  console.log(this)
+}
+fn() //指向window
+```
+
+### 箭头函数
+
+箭头函数本身中并不存在this
+
+1. 箭头函数会默认帮我们绑定外层 this 的值，所以在箭头函数中 this 的值和外层的 this 是一样的  
+2. 箭头函数中的this引用的就是最近作用域中的this  
+3. 向外层作用域中，一层一层查找this，直到有this的定义
+
+```js
+const person = {
+    name: 'Alice',
+    age: 30,
+    sayHello: function() {
+        console.log(this); // 指向 person 对象
+        const innerFunction = () => {
+            console.log(this); // 由于箭头函数没有自己的 this，继承自外部函数，仍指向 person 对象
+        };
+        innerFunction();
+    }
+};
+
+person.sayHello(); //指向person
+
+
+const person = {
+    name: 'Alice',
+    age: 30,
+    sayHello: () => {
+        console.log(this);
+    }
+}
+person.sayHello(); // 指向window
+```
+
+### 改变this
+
+#### call
+
+语法:`fun.call(thisArg, arg1, arg2, ...)`
+thisArg：在 fun 函数运行时指定的 this 值  
+arg1，arg2：传递的其他参数  
+返回值就是函数的返回值，因为它就是调用函数
+
+```js
+let obj = {say:function fn() {
+    console.log(this)
+    }}
+obj.say() //指向obj
+obj.say.call(this) //指向window
+```
+
+#### apply
+
+语法:`fun.apply(thisArg, [argsArray])`
+thisArg：在fun函数运行时指定的this值
+argsArray：传递的值，必须包含在数组里面
+返回值就是函数的返回值，因为它就是调用函数  
+apply 主要跟数组有关系，比如使用 Math.max() 求数组的最大值
+
+call和apply的区别：
+
+- 都是调用函数，都能改变this指向  
+- 参数不一样，apply传递的必须是数组
+
+#### bind
+
+bind() 方法不会调用函数。但是能改变函数内部this 指向  
+语法:`fun.bind(thisArg, arg1, arg2, ...)`
+
+##### 基本写法
+
+```js
+const obj = {
+    age: 18
+}
+function fn() {
+    console.log(this)
+
+}
+const fun = fn.bind(obj)
+fun()
+
+function fn(x,y) {
+    console.log(this)
+    console.log(x+y)
+}
+const fun1 = fn.bind(obj,1)
+fun1(2)
+```
+
+##### 箭头函数的替代方案
+
+原始写法:
+
+```html
+<body>
+    <button>发送短信</button>
+    <script>
+        document.querySelector('button').addEventListener('click', function () {
+            this.disabled = true
+            window.setTimeout(()=> {
+                console.log(this)
+                this.disabled = false
+            }, 2000)
+        })
+    </script>
+</body>
+```
+
+bind 写法
+
+```html
+<body>
+    <button>发送短信</button>
+    <script>
+        document.querySelector('button').addEventListener('click', function () {
+            this.disabled = true
+            window.setTimeout(function () {
+                this.disabled = false
+            }.bind(this), 2000)
+        })
+    </script>
+</body>
+
+```
+
 # 模块化
 
 ## commonjs
@@ -985,7 +1475,7 @@ BOM(Browser Object Model ) 是浏览器对象模型。
 
 注意:
 
-1. 每个模块内部的：this、exports、modules.exports在初始时，都指向同一个空对象，该空对象就是当前模块导出的数据
+1. 每个模块内部的:this、exports、modules.exports在初始时，都指向同一个空对象，该空对象就是当前模块导出的数据
 2. 无论如何修改导出对象，最终导出的都是module.exports的值。
 3.exports是对module.exports的初始引用，仅为了方便给导出象添加属性，所以不能使用 exports = value的形式导出数据，但是可以使用module.exports = xxxx导出数据
 
@@ -1053,7 +1543,7 @@ export function getTel (){
 }
  
 function getCities(){
-  return ['北京','上海','深圳','成都','武汉','西安']
+  return ['北京','上海','深圳','成都','武汉','西安']}
 
 ```
 
