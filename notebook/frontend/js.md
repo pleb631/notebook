@@ -1010,7 +1010,7 @@ key：用户按下的键盘键的值，现在不提倡使用keyCode
 
 指的是事件完整执行过程中的流动路径
 
-![](https://i-blog.csdnimg.cn/blog_migrate/461b3b2a0c852ecd2081029b2365fdf6.png)
+![img](https://raw.githubusercontent.com/pleb631/ImgManager/main/img/461b3b2a0c852ecd2081029b2365fdf6.png)
 
 说明:假设页面里有个div，当触发事件时，会经历两个阶段，分别是捕获阶段、冒泡阶段
 
