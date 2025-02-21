@@ -1740,15 +1740,16 @@ animation: atguigu 3s 0.5s linear 2 alternate-reverse forwards;
 
 only 用于防止某些老旧浏览器应用某些特定的样式。通过添加 only，只有支持该媒体查询的浏览器才会应用这些样式。其他不支持该查询的浏览器会忽略这些样式。
 
-类型 解释
+| 类型        | 解释                               |
+|-------------|------------------------------------|
+| all         | 所有设备                           |
+| braille     | 盲文                               |
+| embossed    | 盲文打印                           |
+| handheld    | 手持设备                           |
+| print       | 文档打印或打印预览模式             |
+| projection  | 项目演示，比如幻灯                 |
+| screen      | 彩色电脑屏幕                       |
+| speech      | 演讲                               |
+| tty         | 固定字母间距的网格的媒体，比如电传打字机 |
+| tv          | 电视                               |
 
-> all 所有设备
-> braille 盲文
-> embossed 盲文打印
-> handheld 手持设备
-> print 文档打印或打印预览模式
-> projection 项目演示，比如幻灯
-> screen 彩色电脑屏幕
-> speech 演讲
-> tty 固定字母间距的网格的媒体，比如电传打字机
-> tv 电视
