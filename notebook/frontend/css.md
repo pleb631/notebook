@@ -54,9 +54,26 @@
     - [3D变换](#3d变换)
     - [过渡](#过渡)
     - [动画](#动画)
+      - [动画的基本使用](#动画的基本使用)
+      - [动画的其他属性](#动画的其他属性)
+      - [动画复合属性](#动画复合属性)
     - [多列布局](#多列布局)
     - [伸缩盒子](#伸缩盒子)
+      - [属性](#属性)
+      - [flex-direction](#flex-direction)
+      - [flex-wrap](#flex-wrap)
+      - [flex-flow](#flex-flow)
+      - [justify-content](#justify-content)
+      - [align-items](#align-items)
+      - [align-content](#align-content)
+      - [order](#order)
+      - [flex-grow](#flex-grow)
+      - [flex-shrink](#flex-shrink)
+      - [flex-basis](#flex-basis)
+      - [flex](#flex)
+      - [align-self](#align-self)
     - [响应式布局](#响应式布局)
+    - [媒体查询](#媒体查询)
 
 # css
 
@@ -1080,7 +1097,9 @@ outline 复合属性
 1. 线性渐变
     语法
     `background-image: linear-gradient(red,yellow,green);`
+
     ![img](https://raw.githubusercontent.com/pleb631/ImgManager/main/img/linear-css.png)
+
     关键词指定方向
 
     ```css
@@ -1089,6 +1108,7 @@ outline 复合属性
     ```
 
     角度设置方向
+
     ![img](https://raw.githubusercontent.com/pleb631/ImgManager/main/img/1739871045752.png)
 
     ```css
@@ -1104,6 +1124,7 @@ outline 复合属性
 
 2. 径向渐变
     多个颜色之间的渐变， 默认从圆心四散
+
     ![img](https://raw.githubusercontent.com/pleb631/ImgManager/main/img/1739871133642.png)
 
     ```css
@@ -1152,14 +1173,582 @@ outline 复合属性
 二维坐标系如下图所示
 ![img](https://raw.githubusercontent.com/pleb631/ImgManager/main/img/1739871278657.png)
 
+1. 2D位移
+    语法：`transform: translateX(30px) translateY(40px);`
+
+    | 值        | 含义                                                                 |
+    |-----------|----------------------------------------------------------------------|
+    | translateX | 设置水平方向位移，需指定长度值；若指定的是百分比，是参考自身宽度的百分比。 |
+    | translateY | 设置垂直方向位移，需指定长度值；若指定的是百分比，是参考自身高度的百分比。 |
+    | translate  | 一个值代表水平方向，两个值代表：水平和垂直方向。                      |
+
+    注意点：
+
+      1. 位移与相对定位很相似，都不脱离文档流，不会影响到其它元素。
+      2. 与相对定位的区别：相对定位的百分比值，参考的是其父元素；定位的百分比值，参考的是
+      其自身。
+      3. 浏览器针对位移有优化，与定位相比，浏览器处理位移的效率更高。
+      4. 位移对行内元素无效。
+      5. 位移配合定位，可实现元素水平垂直居中
+
+2. 2D缩放
+    让元素放大或缩小
+
+    | 值        | 含义                                                                 |
+    |-----------|----------------------------------------------------------------------|
+    | scaleX    | 设置水平方向的缩放比例，值为一个数字，1表示不缩放，大于1放大，小于1缩小。 |
+    | scaleY    | 设置垂直方向的缩放比例，值为一个数字，1表示不缩放，大于1放大，小于1缩小。 |
+    | scale     | 同时设置水平方向、垂直方向的缩放比例，一个值代表同时设置水平和垂直缩放；两个值分别代表：水平缩放、垂直缩放。 |
+
+    注意点：
+
+    1. scale 的值，是支持写负数的，但几乎不用，因为容易让人产生误解。
+    2. 借助缩放，可实现小于 12px 的文字
+
+3. 2D旋转
+    让元素在二维平面内，顺时针旋转或逆时针旋转
+    语法：`rotate(20deg)`
+    rotate 设置旋转角度，需指定一个角度值( deg )，正值顺时针，负值逆时针
+
+4. 变换原点
+
+    元素变换时，默认的原点是元素的中心，使用 transform-origin 可以设置变换的原点。
+    修改变换原点对位移没有影响， 对旋转和缩放会产生影响。
+    如果提供两个值，第一个用于横坐标，第二个用于纵坐标。
+    如果只提供一个，若是像素值，表示横坐标，纵坐标取 50% ；若是关键词，则另一个坐标取 50%
+
+    1. transform-origin: 50% 50% ， 变换原点在元素的中心位置，百分比是相对于自
+    身。—— 默认值
+    2. transform-origin: left top ，变换原点在元素的左上角 。
+    3. transform-origin: 50px 50px ， 变换原点距离元素左上角 50px 50px 的位置。
+    4. transform-origin: 0 ，只写一个值的时候，第二个值默认为 50% 。
+
 ### 3D变换
+
+1. 开启3D空间
+    重要原则：元素进行 3D 变换的首要操作：父元素必须开启 3D 空间！
+    使用 transform-style 开启 3D 空间，可选值如下：
+    flat ： 让子元素位于此元素的二维平面内（ 2D 空间）—— 默认值
+    preserve-3d ： 让子元素位于此元素的三维空间内（ 3D 空间）
+
+2. 设置景深
+    何为景深？—— 指定观察者与 z=0 平面的距离，能让发生 3D 变换的元素，产生透视效果，看来更加立
+    体。
+    使用 perspective 设置景深，可选值如下：
+
+    - none ： 不指定透视 ——（默认值）
+    - 长度值 ： 指定观察者距离 z=0 平面的距离，不允许负值。
+
+    注意： perspective 设置给发生 3D 变换元素的父元素
+
+3. 透视点位置
+    所谓透视点位置，就是观察者位置；默认的透视点在元素的中心。
+    使用 perspective-origin 设置观察者位置（透视点的位置），例如：
+    >/*相对坐标轴往右偏移400px， 往下偏移300px（相当于人蹲下300像素，然后向右移动400像素看元素）*/
+    > perspective-origin: 400px 300px;
+    注意：通常情况下，我们不需要调整透视点位置
+
+4. 3D位移
+
+    3D 位移是在 2D 位移的基础上，可以让元素沿 z 轴位移
+
+    | 值          | 含义                                                                 |
+    |-------------|----------------------------------------------------------------------|
+    | translateZ  | 设置 z 轴位移，需指定长度值，正值向屏幕外，负值向屏幕里，且不能写百分比。 |
+    | translate3d | 第1个参数对应 x 轴，第2个参数对应 y 轴，第3个参数对应 z 轴，且均不能省略。 |
+
+5. 3D 旋转
+
+    3D 旋转是在 2D 旋转的基础上，可以让元素沿 x 轴和 y 轴旋转
+
+    | 值        | 含义                                                                 |
+    |-----------|----------------------------------------------------------------------|
+    | rotateX   | 设置 x 轴旋转角度，需指定一个角度值(deg)，面对 x 轴正方向：正值顺时针，负值逆时针。 |
+    | rotateY   | 设置 y 轴旋转角度，需指定一个角度值(deg)，面对 y 轴正方向：正值顺时针，负值逆时针。 |
+    | rotate3d  | 前 3 个参数分别表示坐标轴：x, y, z，第 4 个参数表示旋转的角度，参数不允许省略。例如：transform: rotate3d(1,1,1,30deg)，意思是：x、y、z 分别旋转 30 度。 |
+
+6. 3D 缩放
+    3D 缩放是在 2D 缩放的基础上，可以让元素沿 z 轴缩放
+
+    | 值          | 含义                                                                 |
+    |-------------|----------------------------------------------------------------------|
+    | scaleZ      | 设置 z 轴方向的缩放比例，值为一个数字，1表示不缩放，大于1放大，小于1缩小。 |
+    | scale3d     | 第1个参数对应 x 轴，第2个参数对应 y 轴，第3个参数对应 z 轴，参数不允许省略。 |
+
+7. 背部可见性
+
+    使用 backface-visibility 指定元素背面，在面向用户时是否可见，常用值如下：
+    - visible ： 指定元素背面可见，允许显示正面的镜像。—— 默认值
+    - hidden ： 指定元素背面不可见
+    注意： backface-visibility 需要加在发生 3D 变换元素的自身上
 
 ### 过渡
 
+过渡可以在不使用 Flash 动画，不使用 JavaScript 的情况下，让元素从一种样式，平滑过渡为另一
+种样式。
+
+1. transition-property
+    作用：定义哪个属性需要过渡，只有在该属性中定义的属性（比如宽、高、颜色等）才会以有过渡
+    效果。
+    常用值：
+
+    - none ：不过渡任何属性。
+    - all ：过渡所有能过渡的属性。
+    - 具体某个属性名 ，例如： width 、 heigth ，若有多个以逗号分隔。
+
+    不是所有的属性都能过渡，值为数字，或者值能转为数字的属性，都支持过渡，否则不支持
+    过渡。
+    常见的支持过渡的属性有：颜色、长度值、百分比、 z-index 、 opacity 、 2D 变换属
+    性、 3D 变换属性、阴影。
+
+2. transition-duration
+    作用：设置过渡的持续时间，即：一个状态过渡到另外一个状态耗时多久。
+    常用值：
+
+    - 0 ：没有任何过渡时间 —— 默认值。
+    - s 或 ms ：秒或毫秒。
+    - 列表 ：如果想让所有属性都持续一个时间，那就写一个值。如果想让每个属性持续不同的时间那就写一个时间的列表。
+
+3. transition-delay
+    作用：指定开始过渡的延迟时间，单位： s 或 ms
+
+4. transition-timing-function
+    作用：设置过渡的类型
+    常用值：
+
+    - ease ： 平滑过渡 —— 默认值
+    - linear ： 线性过渡
+    - ease-in ： 慢 → 快
+    - ease-out ： 快 → 慢
+    - ease-in-out ： 慢 → 快 → 慢
+    - step-start ： 等同于 steps(1, start)
+    - step-end ： 等同于 steps(1, end)
+    - steps( integer,?) ： 接受两个参数的步进函数。第一个参数必须为正整数，指定函数的步数。第二个参数取值可以是 start 或 end ，指定每一步的值发生变化的时间点。第二个参数默认值为 end 。
+    - cubic-bezie ( number, number, number, number)： 特定的贝塞尔曲线类型。
+  在线制作贝赛尔曲线： [https://cubic-bezier.com](https://cubic-bezier.com)
+
+5. 复合属性
+transition 复合属性
+如果设置了一个时间，表示 duration ；如果设置了两个时间，第一是 duration ，第二个是
+delay ；其他值没有顺序要求。
+
+```css
+transition:1s 1s linear al
+```
+
 ### 动画
+
+#### 动画的基本使用
+
+1. 定义关键帧
+   - 简单方式
+
+    ```css
+    /*写法一*/
+    @keyframes 动画名 {
+    from {
+    /*property1:value1*/
+    /*property2:value2*/
+    }
+    to {
+    /*property1:value1*/
+    }
+    }
+    ```
+
+   - 复杂方式
+
+    ```css
+    @keyframes 动画名 {
+        0% {
+        /*property1:value1*/
+        }
+        40% {
+        /*property1:value1*/
+        }
+        80% {
+        /*property1:value1*/
+        }
+        100% {
+        /*property1:value1*/
+        }
+        }
+        ```
+
+2. 应用动画
+
+- animation-name ：给元素指定具体的动画（具体的关键帧）
+- animation-duration ：设置动画所需时间
+- animation-delay ：设置动画延迟
+
+```css
+.box {
+/* 指定动画 */
+animation-name: testKey;
+/* 设置动画所需时间 */
+animation-duration: 5s;
+/* 设置动画延迟 */
+animation-delay: 0.5s;
+}
+```
+
+#### 动画的其他属性
+
+1. animation-timing-function ，设置动画的类型，常用值如下
+
+   - ease ： 平滑过渡 —— 默认值
+   - linear ： 线性过渡
+   - ease-in ： 慢 → 快
+   - ease-out ： 快 → 慢
+   - ease-in-out ： 慢 → 快 → 慢
+   - step-start ： 等同于 steps(1, start)
+   - step-end ： 等同于 steps(1, end)
+   - steps( integer,?) ： 接受两个参数的步进函数。第一个参数必须为正整数，指定函数的步数。第二个参数取值可以是 start 或 end ，指定每一步的值发生变化的时间点。第二个参数默认值为 end 。
+   - cubic-bezie ( number, number, number, number)： 特定的贝塞尔曲线类型。
+
+2. animation-iteration-count ，指定动画的播放次数
+   - number ：动画循环次数
+   - infinite ： 无限循环
+
+3. animation-direction ，指定动画方向
+
+   - normal ： 正常方向 (默认)
+   - reverse ： 反方向运行
+   - alternate ： 动画先正常运行再反方向运行，并持续交替运行  
+   - alternate-reverse ： 动画先反运行再正方向运行，并持续交替运行
+
+4. animation-fill-mode ，设置动画之外的状态
+   - forwards ： 设置对象状态为动画结束时的状态
+   - backwards ： 设置对象状态为动画开始时的状态
+
+5. animation-play-state ，设置动画的播放状态
+   - running ： 运动 (默认)
+   - paused ： 暂停
+
+#### 动画复合属性
+
+只设置一个时间表示 duration ，设置两个时间分别是： duration 和 delay ，其他属性没有数量和
+顺序要求。
+
+```css
+.inner {
+animation: atguigu 3s 0.5s linear 2 alternate-reverse forwards;
+}
+```
+
+备注： animation-play-state 一般单独使用。
 
 ### 多列布局
 
+作用：专门用于实现类似于报纸的布局
+常用属性如下：
+
+- column-count ：指定列数，值是数字。
+- column-width ：指定列宽，值是长度。
+- columns ：同时指定列宽和列数，复合属性；值没有数量和顺序要求。
+- column-gap ：设置列边距，值是长度。
+- column-rule-style ：设置列与列之间边框的风格，值与 border-style 一致。
+- column-rule-width ：设置列与列之间边框的宽度，值是长度。
+- column-rule-color ：设置列与列之间边框的颜色。
+- coumn-rule ：设置列边框，复合属性。
+- column-span 指定是否跨列；值: none 、 all
+
 ### 伸缩盒子
 
+`Flexible Box` 简称 `flex`，意为”弹性布局”，可以简便、完整、响应式地实现各种页面布局
+
+采用Flex布局的元素，称为`flex`容器`container`
+
+它的所有子元素自动成为容器成员，称为`flex`项目`item`
+
+容器中默认存在两条轴，主轴和交叉轴，呈90度关系。项目默认沿主轴排列，通过`flex-direction`来决定主轴的方向
+
+每根轴都有起点和终点，这对于元素的对齐非常重要
+
+#### 属性
+
+关于`flex`常用的属性，我们可以划分为容器属性和容器成员属性
+
+容器属性有：
+
+- flex-direction
+- flex-wrap
+- flex-flow
+- justify-content
+- align-items
+- align-content
+
+#### flex-direction
+
+决定主轴的方向(即项目的排列方向)
+
+```css
+.container {   
+    flex-direction: row | row-reverse | column | column-reverse;  
+} 
+```
+
+属性对应如下：
+
+- row（默认值）：主轴为水平方向，起点在左端
+- row-reverse：主轴为水平方向，起点在右端
+- column：主轴为垂直方向，起点在上沿。
+- column-reverse：主轴为垂直方向，起点在下沿
+
+#### flex-wrap
+
+弹性元素永远沿主轴排列，那么如果主轴排不下，通过`flex-wrap`决定容器内项目是否可换行
+
+```css
+.container {  
+    flex-wrap: nowrap | wrap | wrap-reverse;
+}  
+```
+
+属性对应如下：
+
+- nowrap（默认值）：不换行
+- wrap：换行，第一行在容器最上面
+- wrap-reverse：反向换行，第一行在容器最下面
+
+默认情况是不换行，但这里也不会任由元素直接溢出容器，会涉及到元素的弹性伸缩
+
+#### flex-flow
+
+是`flex-direction`属性和`flex-wrap`属性的简写形式，默认值为`row nowrap`
+
+```css
+.box {
+  flex-flow: <flex-direction> || <flex-wrap>;
+}
+```
+
+#### justify-content
+
+定义了项目在主轴上的对齐方式
+
+```css
+.box {
+    justify-content: flex-start | flex-end | center | space-between | space-around;
+}
+```
+
+属性对应如下：
+
+- flex-start（默认值）：左对齐
+- flex-end：右对齐
+- center：居中
+- space-between：两端对齐，项目之间的间隔都相等
+- space-around：两个项目两侧间隔相等
+
+#### align-items
+
+定义项目在交叉轴上如何对齐
+
+```css
+.box {
+  align-items: flex-start | flex-end | center | baseline | stretch;
+}
+```
+
+属性对应如下：
+
+- flex-start：交叉轴的起点对齐
+- flex-end：交叉轴的终点对齐
+- center：交叉轴的中点对齐
+- baseline: 项目的第一行文字的基线对齐
+- stretch（默认值）：如果项目未设置高度或设为auto，将占满整个容器的高度
+
+#### align-content
+
+定义了多根轴线的对齐方式。如果项目只有一根轴线，该属性不起作用
+
+```css
+.box {
+    align-content: flex-start | flex-end | center | space-between | space-around | stretch;
+}
+```
+
+属性对应如吓：
+
+- flex-start：与交叉轴的起点对齐
+- flex-end：与交叉轴的终点对齐
+- center：与交叉轴的中点对齐
+- space-between：与交叉轴两端对齐，轴线之间的间隔平均分布
+- space-around：每根轴线两侧的间隔都相等。所以，轴线之间的间隔比轴线与边框的间隔大一倍
+- stretch（默认值）：轴线占满整个交叉轴
+
+容器成员属性如下：
+
+- `order`
+- `flex-grow`
+- `flex-shrink`
+- `flex-basis`
+- `flex`
+- `align-self`
+
+#### order
+
+定义项目的排列顺序。数值越小，排列越靠前，默认为0
+
+```css
+.item {
+    order: <integer>;
+}
+```
+
+#### flex-grow
+
+上面讲到当容器设为`flex-wrap: nowrap;`不换行的时候，容器宽度有不够分的情况，弹性元素会根据`flex-grow`来决定
+
+定义项目的放大比例（容器宽度>元素总宽度时如何伸展）
+
+默认为`0`，即如果存在剩余空间，也不放大
+
+```css
+.item {
+    flex-grow: <number>;
+}
+```
+
+规则：
+
+1. 若所有伸缩项目的 flex-grow 值都为 1 ，则：它们将等分剩余空间（如果有空间的话）。
+2. 若三个伸缩项目的 flex-grow 值分别为： 1 、 2 、 3 ，则：分别瓜分到： 1/6 、 2/6 、
+3/6 的空间
+
+#### flex-shrink
+
+定义了项目的缩小比例（容器宽度<元素总宽度时如何收缩），默认为1，即如果空间不足，该项目将缩小
+
+```css
+.item {
+    flex-shrink: <number>; /* default 1 */
+}
+```
+
+如果所有项目的`flex-shrink`属性都为1，当空间不足时，都将等比例缩小
+
+如果一个项目的`flex-shrink`属性为0，其他项目都为1，则空间不足时，前者不缩小
+
+>例如：
+>三个收缩项目，宽度分别为： 200px 、 300px 、 200px ，它们的 flex-shrink 值分别
+>为： 1 、 2 、 3
+>若想刚好容纳下三个项目，需要总宽度为 700px ，但目前容器只有 400px ，还差 300px
+>所以每个人都要收缩一下才可以放下，具体收缩的值，这样计算：
+>
+>1. 计算分母： (200×1) + (300×2) + (200×3) = 1400
+>2. 计算比例：
+> 项目一： (200×1) / 1400 = 比例值1
+> 项目二： (300×2) / 1400 = 比例值2
+> 项目三： (200×3) / 1400 = 比例值3
+>3. 计算最终收缩大小：
+> 项目一需要收缩： 比例值1 × 300
+> 项目二需要收缩： 比例值2 × 300
+> 项目三需要收缩： 比例值3 × 300
+
+#### flex-basis
+
+设置的是元素在主轴上的初始尺寸，所谓的初始尺寸就是元素在`flex-grow`和`flex-shrink`生效前的尺寸
+
+浏览器根据这个属性，计算主轴是否有多余空间，默认值为`auto`，即项目的本来大小，如设置了`width`则元素尺寸由`width/height`决定（主轴方向），没有设置则由内容决定
+
+```css
+.item {
+   flex-basis: <length> | auto; /* default auto */
+}
+```
+
+当设置为0的是，会根据内容撑开
+
+它可以设为跟`width`或`height`属性一样的值（比如350px），则项目将占据固定空间
+
+#### flex
+
+`flex`属性是`flex-grow`, `flex-shrink` 和 `flex-basis`的简写，默认值为`0 1 auto`，也是比较难懂的一个复合属性
+
+```css
+.item {
+  flex: none | [ <'flex-grow'> <'flex-shrink'>? || <'flex-basis'> ]
+}
+```
+
+一些属性有：
+
+- flex: 1 = flex: 1 1 0%
+- flex: 2 = flex: 2 1 0%
+- flex: auto = flex: 1 1 auto
+- flex: none = flex: 0 0 auto，常用于固定尺寸不伸缩
+
+`flex:1` 和 `flex:auto` 的区别，可以归结于`flex-basis:0`和`flex-basis:auto`的区别
+
+当设置为0时（绝对弹性元素），此时相当于告诉`flex-grow`和`flex-shrink`在伸缩的时候不需要考虑我的尺寸
+
+当设置为`auto`时（相对弹性元素），此时则需要在伸缩时将元素尺寸纳入考虑
+
+注意：建议优先使用这个属性，而不是单独写三个分离的属性，因为浏览器会推算相关值
+
+#### align-self
+
+允许单个项目有与其他项目不一样的对齐方式，可覆盖`align-items`属性
+
+默认值为`auto`，表示继承父元素的`align-items`属性，如果没有父元素，则等同于`stretch`
+
+```css
+.item {
+    align-self: auto | flex-start | flex-end | center | baseline | stretch;
+}
+```
+
 ### 响应式布局
+
+### 媒体查询
+
+`CSS3`中的增加了更多的媒体查询，就像`if`条件表达式一样，我们可以设置不同类型的媒体条件，并根据对应的条件，给相应符合条件的媒体调用相对应的样式表
+
+使用`@Media`查询，可以针对不同的媒体类型定义不同的样式，如：
+
+```css
+@media screen and (max-width: 1920px) { ... }
+```
+
+当视口在375px - 600px之间，设置特定字体大小18px
+
+```css
+@media screen (min-width: 375px) and (max-width: 600px) {
+  body {
+    font-size: 18px;
+  }
+}
+```
+
+@media only screen and
+
+> only (限定某种设备)  
+> screen 是媒体类型里的一种
+> and 被称为关键字，其他关键字还包括 not (排除某种设备)
+
+运算符
+
+| 值   | 含义 |
+|------|------|
+| and  | 并且 |
+| ,    | 或   |
+| or   | 或   |
+| not  | 否定 |
+| only | 肯定 |
+
+only 用于防止某些老旧浏览器应用某些特定的样式。通过添加 only，只有支持该媒体查询的浏览器才会应用这些样式。其他不支持该查询的浏览器会忽略这些样式。
+
+类型 解释
+
+> all 所有设备
+> braille 盲文
+> embossed 盲文打印
+> handheld 手持设备
+> print 文档打印或打印预览模式
+> projection 项目演示，比如幻灯
+> screen 彩色电脑屏幕
+> speech 演讲
+> tty 固定字母间距的网格的媒体，比如电传打字机
+> tv 电视
