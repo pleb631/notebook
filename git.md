@@ -2,6 +2,14 @@
 
 ## 常见问题
 
+### 本地已发生改动后合并远程更新
+
+目标| 推荐命令|
+|---|---|
+保留本地改动，合并远程更新| git stash → git pull → git stash pop
+本地已提交，优雅合并远程| git pull --rebase
+本地改动不要了，直接远程最新| git fetch → git reset --hard origin/<branch>
+
 ### 撤回提交、修改commit
 
 ```bash
