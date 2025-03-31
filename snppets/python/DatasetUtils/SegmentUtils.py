@@ -158,7 +158,7 @@ def segMaskB2I(mask_path, save_path):
     # cv2.drawContours(mask, contours, -1, (125,125,125), 1)
     # cv2.imshow('src',mask)
     # cv2.waitKey()
-    _savePalette(mask, save_path)
+
 
 
 

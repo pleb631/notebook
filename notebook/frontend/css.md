@@ -779,11 +779,11 @@ margin：外边距（盒子之间距离）
 2. 行内元素
 
     ```css
-
+    
     /*作用在父元素上*/
-
+    
     text-align: center;
-
+    
     ```
 
 ## 浮动
@@ -996,7 +996,7 @@ border-radius: 20px;
     url(../images/bg-rt.png) no-repeat right top,
     url(../images/bg-lb.png) no-repeat left bottom,
     url(../images/bg-rb.png) no-repeat right bottom;
-
+    
     ```
 
 ### 边框属性
@@ -1186,11 +1186,12 @@ outline 复合属性
 
       1. 位移与相对定位很相似，都不脱离文档流，不会影响到其它元素。
       2. 与相对定位的区别：相对定位的百分比值，参考的是其父元素；定位的百分比值，参考的是
-      其自身。
+    
+        其自身。
       3. 浏览器针对位移有优化，与定位相比，浏览器处理位移的效率更高。
       4. 位移对行内元素无效。
       5. 位移配合定位，可实现元素水平垂直居中
-
+    
 2. 2D缩放
     让元素放大或缩小
 
@@ -1325,7 +1326,7 @@ outline 复合属性
     - step-end ： 等同于 steps(1, end)
     - steps( integer,?) ： 接受两个参数的步进函数。第一个参数必须为正整数，指定函数的步数。第二个参数取值可以是 start 或 end ，指定每一步的值发生变化的时间点。第二个参数默认值为 end 。
     - cubic-bezie ( number, number, number, number)： 特定的贝塞尔曲线类型。
-  在线制作贝赛尔曲线： [https://cubic-bezier.com](https://cubic-bezier.com)
+    在线制作贝赛尔曲线： [https://cubic-bezier.com](https://cubic-bezier.com)
 
 5. 复合属性
 transition 复合属性
@@ -1338,7 +1339,7 @@ transition:1s 1s linear al
 
 ### 动画
 
-#### 动画的基本使用
+#### 基本使用
 
 1. 定义关键帧
    - 简单方式
@@ -1373,7 +1374,7 @@ transition:1s 1s linear al
         /*property1:value1*/
         }
         }
-        ```
+    ```
 
 2. 应用动画
 
@@ -1392,7 +1393,7 @@ animation-delay: 0.5s;
 }
 ```
 
-#### 动画的其他属性
+#### 其他属性
 
 1. animation-timing-function ，设置动画的类型，常用值如下
 
@@ -1425,7 +1426,7 @@ animation-delay: 0.5s;
    - running ： 运动 (默认)
    - paused ： 暂停
 
-#### 动画复合属性
+#### 复合属性
 
 只设置一个时间表示 duration ，设置两个时间分别是： duration 和 delay ，其他属性没有数量和
 顺序要求。
@@ -1465,20 +1466,9 @@ animation: atguigu 3s 0.5s linear 2 alternate-reverse forwards;
 
 每根轴都有起点和终点，这对于元素的对齐非常重要
 
-#### 属性
+#### 主轴
 
-关于`flex`常用的属性，我们可以划分为容器属性和容器成员属性
-
-容器属性有：
-
-- flex-direction
-- flex-wrap
-- flex-flow
-- justify-content
-- align-items
-- align-content
-
-#### flex-direction
+##### 主轴方向
 
 决定主轴的方向(即项目的排列方向)
 
@@ -1495,7 +1485,7 @@ animation: atguigu 3s 0.5s linear 2 alternate-reverse forwards;
 - column：主轴为垂直方向，起点在上沿。
 - column-reverse：主轴为垂直方向，起点在下沿
 
-#### flex-wrap
+##### 换行方式
 
 弹性元素永远沿主轴排列，那么如果主轴排不下，通过`flex-wrap`决定容器内项目是否可换行
 
@@ -1513,7 +1503,7 @@ animation: atguigu 3s 0.5s linear 2 alternate-reverse forwards;
 
 默认情况是不换行，但这里也不会任由元素直接溢出容器，会涉及到元素的弹性伸缩
 
-#### flex-flow
+##### 主轴换行
 
 是`flex-direction`属性和`flex-wrap`属性的简写形式，默认值为`row nowrap`
 
@@ -1523,7 +1513,7 @@ animation: atguigu 3s 0.5s linear 2 alternate-reverse forwards;
 }
 ```
 
-#### justify-content
+##### 主轴对齐
 
 定义了项目在主轴上的对齐方式
 
@@ -1541,9 +1531,13 @@ animation: atguigu 3s 0.5s linear 2 alternate-reverse forwards;
 - space-between：两端对齐，项目之间的间隔都相等
 - space-around：两个项目两侧间隔相等
 
-#### align-items
 
-定义项目在交叉轴上如何对齐
+
+#### 侧轴对齐方式
+
+##### 单行主轴
+
+定义单行主轴在交叉轴上如何对齐
 
 ```css
 .box {
@@ -1559,9 +1553,9 @@ animation: atguigu 3s 0.5s linear 2 alternate-reverse forwards;
 - baseline: 项目的第一行文字的基线对齐
 - stretch（默认值）：如果项目未设置高度或设为auto，将占满整个容器的高度
 
-#### align-content
+##### 多行主轴
 
-定义了多根轴线的对齐方式。如果项目只有一根轴线，该属性不起作用
+定义了多行主轴的对齐方式。如果项目只有一根轴线，该属性不起作用
 
 ```css
 .box {
@@ -1578,7 +1572,7 @@ animation: atguigu 3s 0.5s linear 2 alternate-reverse forwards;
 - space-around：每根轴线两侧的间隔都相等。所以，轴线之间的间隔比轴线与边框的间隔大一倍
 - stretch（默认值）：轴线占满整个交叉轴
 
-容器成员属性如下：
+#### 容器成员属性
 
 - `order`
 - `flex-grow`
@@ -1587,7 +1581,7 @@ animation: atguigu 3s 0.5s linear 2 alternate-reverse forwards;
 - `flex`
 - `align-self`
 
-#### order
+##### 排列顺序
 
 定义项目的排列顺序。数值越小，排列越靠前，默认为0
 
@@ -1597,7 +1591,9 @@ animation: atguigu 3s 0.5s linear 2 alternate-reverse forwards;
 }
 ```
 
-#### flex-grow
+##### 伸缩性
+
+###### flex-grow
 
 上面讲到当容器设为`flex-wrap: nowrap;`不换行的时候，容器宽度有不够分的情况，弹性元素会根据`flex-grow`来决定
 
@@ -1617,7 +1613,7 @@ animation: atguigu 3s 0.5s linear 2 alternate-reverse forwards;
 2. 若三个伸缩项目的 flex-grow 值分别为： 1 、 2 、 3 ，则：分别瓜分到： 1/6 、 2/6 、
 3/6 的空间
 
-#### flex-shrink
+###### flex-shrink
 
 定义了项目的缩小比例（容器宽度<元素总宽度时如何收缩），默认为1，即如果空间不足，该项目将缩小
 
@@ -1647,7 +1643,7 @@ animation: atguigu 3s 0.5s linear 2 alternate-reverse forwards;
 > 项目二需要收缩： 比例值2 × 300
 > 项目三需要收缩： 比例值3 × 300
 
-#### flex-basis
+###### flex-basis
 
 设置的是元素在主轴上的初始尺寸，所谓的初始尺寸就是元素在`flex-grow`和`flex-shrink`生效前的尺寸
 
@@ -1663,7 +1659,7 @@ animation: atguigu 3s 0.5s linear 2 alternate-reverse forwards;
 
 它可以设为跟`width`或`height`属性一样的值（比如350px），则项目将占据固定空间
 
-#### flex
+###### 符合属性flex
 
 `flex`属性是`flex-grow`, `flex-shrink` 和 `flex-basis`的简写，默认值为`0 1 auto`，也是比较难懂的一个复合属性
 
@@ -1688,7 +1684,7 @@ animation: atguigu 3s 0.5s linear 2 alternate-reverse forwards;
 
 注意：建议优先使用这个属性，而不是单独写三个分离的属性，因为浏览器会推算相关值
 
-#### align-self
+##### align-self
 
 允许单个项目有与其他项目不一样的对齐方式，可覆盖`align-items`属性
 

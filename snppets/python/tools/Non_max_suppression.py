@@ -11,7 +11,7 @@ def non_max_suppression(dets, thresh=0.3):
     x2 = dets[:, 2]  # xmax
     y2 = dets[:, 3]  # ymax
     scores = dets[:, 4]
-    areas = (x2 - x1 + 1) * (y2 - y1 + 1)
+    areas = (x2 - x1) * (y2 - y1)
     # argsort()返回数组值从小到大的索引值
     order = scores.argsort()[::-1]    
     keep = []

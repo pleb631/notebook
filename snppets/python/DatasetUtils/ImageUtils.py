@@ -5,6 +5,8 @@ import os
 import numpy as np
 from PIL import Image
 from pathlib import Path
+from urllib.request import urlopen
+
 
 from .FileUtils import *
 from .Convertion import (
@@ -12,14 +14,6 @@ from .Convertion import (
     xyxy2xywh
 )
 from functools import reduce
-
-
-def on_EVENT_LBUTTONDOWN(event, x, y, flags, param):
-    global image_path
-
-    if event == cv2.EVENT_LBUTTONDOWN:
-        print(image_path)
-        print(x, y)
 
 
 def get_image_features(image, mode="cv2"):
@@ -142,6 +136,47 @@ def point_in_mask(point, mask_image):
         return mask_image[int(point[1]), int(point[0])] > 128
 
 
+def is_point_in_polygon(point,entrance,im_h,im_w):
+    mask = np.zeros((im_h,im_w,1), np.uint8)
+    cv2.fillPoly(mask, [entrance], 255)
+    p = tuple(map(int,point))
+    if mask[p] == 255:
+        return True
+    else:
+        return False
+    
+def fit_line_and_judge(point1, point2, point):
+    """
+    根据两点 (point1, point2) 拟合直线，并判断第三个点 (point) 在直线的左侧、右侧或在线上。
+    
+    参数：
+        point1: (x1, y1) 第一个点的坐标
+        point2: (x2, y2) 第二个点的坐标
+        point: (x, y) 要判断的点的坐标
+        
+    返回：
+        flag: 1 (右侧), -1 (左侧), 0 (直线上)
+    """
+    from scipy import optimize
+    def fx(x, A, B):
+        return A * x + B
+        
+    x0 = [point1[0], point2[0]]
+    y0 = [point1[1], point2[1]]
+    
+    # 拟合直线 y = Ax + B
+    (A1, B1), _ = optimize.curve_fit(fx, x0, y0)
+    
+    # 计算点 point 到直线的相对位置
+    judge_value = A1 * point[0] + B1 - point[1]
+    
+    if judge_value > 0:
+        return 1  # 右侧
+    elif judge_value < 0:
+        return -1  # 左侧
+    else:
+        return 0  # 直线上
+    
 def gray2heatmap(image):
     """将灰度图转换为热力图
 
@@ -604,3 +639,96 @@ def numpy_to_pillow(img, mode=None):
     return Image.fromarray(img, mode=mode)
 
 
+
+
+
+def translate(image, x, y):
+    # define the translation matrix and perform the translation
+    M = np.float32([[1, 0, x], [0, 1, y]])
+    shifted = cv2.warpAffine(image, M, (image.shape[1], image.shape[0]))
+
+    # return the translated image
+    return shifted
+
+def rotate(image, angle, center=None, scale=1.0):
+    # grab the dimensions of the image
+    (h, w) = image.shape[:2]
+
+    # if the center is None, initialize it as the center of
+    # the image
+    if center is None:
+        center = (w // 2, h // 2)
+
+    # perform the rotation
+    M = cv2.getRotationMatrix2D(center, angle, scale)
+    rotated = cv2.warpAffine(image, M, (w, h))
+
+    # return the rotated image
+    return rotated
+
+def rotate_bound(image, angle):
+    # grab the dimensions of the image and then determine the
+    # center
+    (h, w) = image.shape[:2]
+    (cX, cY) = (w / 2, h / 2)
+
+    # grab the rotation matrix (applying the negative of the
+    # angle to rotate clockwise), then grab the sine and cosine
+    # (i.e., the rotation components of the matrix)
+    M = cv2.getRotationMatrix2D((cX, cY), -angle, 1.0)
+    cos = np.abs(M[0, 0])
+    sin = np.abs(M[0, 1])
+
+    # compute the new bounding dimensions of the image
+    nW = int((h * sin) + (w * cos))
+    nH = int((h * cos) + (w * sin))
+
+    # adjust the rotation matrix to take into account translation
+    M[0, 2] += (nW / 2) - cX
+    M[1, 2] += (nH / 2) - cY
+
+    # perform the actual rotation and return the image
+    return cv2.warpAffine(image, M, (nW, nH))
+
+
+def skeletonize(image, size, structuring=cv2.MORPH_RECT):
+    # determine the area (i.e. total number of pixels in the image),
+    # initialize the output skeletonized image, and construct the
+    # morphological structuring element
+    area = image.shape[0] * image.shape[1]
+    skeleton = np.zeros(image.shape, dtype="uint8")
+    elem = cv2.getStructuringElement(structuring, size)
+
+    # keep looping until the erosions remove all pixels from the
+    # image
+    while True:
+        # erode and dilate the image using the structuring element
+        eroded = cv2.erode(image, elem)
+        temp = cv2.dilate(eroded, elem)
+
+        # subtract the temporary image from the original, eroded
+        # image, then take the bitwise 'or' between the skeleton
+        # and the temporary image
+        temp = cv2.subtract(image, temp)
+        skeleton = cv2.bitwise_or(skeleton, temp)
+        image = eroded.copy()
+
+        # if there are no more 'white' pixels in the image, then
+        # break from the loop
+        if area == area - cv2.countNonZero(image):
+            break
+
+    # return the skeletonized image
+    return skeleton
+
+
+
+def url_to_image(url, readFlag=cv2.IMREAD_COLOR):
+    # download the image, convert it to a NumPy array, and then read
+    # it into OpenCV format
+    resp = urlopen(url)
+    image = np.asarray(bytearray(resp.read()), dtype="uint8")
+    image = cv2.imdecode(image, readFlag)
+
+    # return the image
+    return image

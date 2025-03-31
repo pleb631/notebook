@@ -62,25 +62,35 @@ def label_colormap(n_label=10):
 
     return cmap
 
-COLOR_MAP = label_colormap(200)
-
-
-def show_image(title, image, type="rgb", waitKey=0):
+def get_color_map_list(num_classes, custom_color=None):
     """
-    调用OpenCV显示RGB图片
-    :param title: 图像标题
-    :param image: 输入RGB图像
-    :param type:'rgb' or 'bgr'
-    :return:
+    Returns the color map for visualizing the segmentation mask,
+    which can support arbitrary number of classes.
+
+    Args:
+        num_classes (int): Number of classes.
+        custom_color (list, optional): Save images with a custom color map. Default: None, use paddleseg's default color map.
+
+    Returns:
+        (list). The color map.
     """
-    img = copy.copy(image)
-    channels = img.shape[-1]
-    if channels == 3 and type == "rgb":
-        img = cv2.cvtColor(img, cv2.COLOR_RGB2BGR)  # 将BGR转为RGB
-    if title:
-        cv2.imshow(title, img)
-        cv2.waitKey(waitKey)
-        cv2.destroyAllWindows()
+
+    num_classes += 1
+    color_map = num_classes * [0, 0, 0]
+    for i in range(num_classes):
+        j = 0
+        lab = i
+        while lab:
+            color_map[i * 3] |= ((lab >> 0) & 1) << (7 - j)
+            color_map[i * 3 + 1] |= ((lab >> 1) & 1) << (7 - j)
+            color_map[i * 3 + 2] |= ((lab >> 2) & 1) << (7 - j)
+            j += 1
+            lab >>= 3
+    color_map = color_map[3:]
+
+    if custom_color:
+        color_map[: len(custom_color)] = custom_color
+    return color_map
 
 
 ##检测
@@ -125,7 +135,7 @@ def draw_bboxes_and_labels(rgb_image, bboxes, probs, labels, color=None):
     :param labels:
     :return:
     """
-    class_set = list(CLASS_SET) or list(set(labels))
+    class_set = list(set(labels))
     boxes_name = combile_label_prob(labels, probs)
     bgr_image = cv2.cvtColor(rgb_image, cv2.COLOR_RGB2BGR)
 
@@ -199,40 +209,6 @@ def draw_bbox_text(img, bbox, color, name, drawType="custom", top=True):
         )
     return img
 
-
-def draw_boxList(boxList, rgb_image):
-    """
-    [xmin,ymin,xmax,ymax]
-    :param win_name:
-    :param boxList:
-    :param rgb_image:
-    :return:
-    """
-    bgr_image = cv2.cvtColor(rgb_image, cv2.COLOR_RGB2BGR)
-    for item in boxList:
-        name = item["label"]
-        xmin = item["xtl"]
-        xmax = item["xbr"]
-        ymin = item["ytl"]
-        ymax = item["ybr"]
-        box = [xmin, ymin, xmax, ymax]
-        box = [int(float(b)) for b in box]
-        cv2.rectangle(
-            bgr_image, (box[0], box[1]), (box[2], box[3]), (0, 255, 0), 2, 8, 0
-        )
-        cv2.putText(
-            bgr_image,
-            name,
-            (box[0], box[1]),
-            cv2.FONT_HERSHEY_SIMPLEX,
-            0.8,
-            (0, 0, 255),
-            thickness=2,
-        )
-
-    rgb_image = cv2.cvtColor(bgr_image, cv2.COLOR_BGR2RGB)
-
-    return rgb_image
 
 
 ##关键点
@@ -339,23 +315,6 @@ def draw_text_line(img, point, text_line: str, bg_color=(255, 0, 0), drawType="c
     return img
 
 
-def draw_key_point_in_image(image, key_points, pointline=None):
-    """
-    :param key_points: list(ndarray(19,2)) or ndarray(n_person,19,2)
-    :param image:
-    :param pointline: `auto`->pointline = circle_line(len(points), iscircle=True)
-    :return:
-    """
-    if pointline is None:
-        pointline = []
-    img = copy.deepcopy(image)
-    person_nums = len(key_points)
-    for person_id, points in enumerate(key_points):
-        if points is None:
-            continue
-        color = get_color(person_id)
-        img = draw_point_line(img, points, pointline, color, check=True)
-    return img
 
 
 def draw_point_line(img, points, pointline=None, color=(0, 255, 0), texts=None, drawType="simple", check=True):
@@ -460,78 +419,5 @@ def get_pseudo_color_map(pred, color_map=None):
     pred_mask.putpalette(color_map)
     return pred_mask
 
-
-def get_color_map_list(num_classes, custom_color=None):
-    """
-    Returns the color map for visualizing the segmentation mask,
-    which can support arbitrary number of classes.
-
-    Args:
-        num_classes (int): Number of classes.
-        custom_color (list, optional): Save images with a custom color map. Default: None, use paddleseg's default color map.
-
-    Returns:
-        (list). The color map.
-    """
-
-    num_classes += 1
-    color_map = num_classes * [0, 0, 0]
-    for i in range(num_classes):
-        j = 0
-        lab = i
-        while lab:
-            color_map[i * 3] |= ((lab >> 0) & 1) << (7 - j)
-            color_map[i * 3 + 1] |= ((lab >> 1) & 1) << (7 - j)
-            color_map[i * 3 + 2] |= ((lab >> 2) & 1) << (7 - j)
-            j += 1
-            lab >>= 3
-    color_map = color_map[3:]
-
-    if custom_color:
-        color_map[: len(custom_color)] = custom_color
-    return color_map
-
-
-def image_with_translucent_mask(image, mode, mask_info, color, alpha, beta, gamma):
-    """原图上绘制半透明mask图像
-    dst = src1 * alpha + src2 * beta + gamma
-    若需要覆盖操作，使用src_image[h_start:h_end,w_start:w_end,:] = box_image
-
-    Args:
-        image: np.array, 原图
-        mode: str, 'rect'代表矩形mask；'circle'代表圆形mask；'polygon'代表多边形mask；'img'代表图像mask
-        mask_info: 对应的mask信息
-        color: tuple, 几何图形mask颜色
-        alpha: float, 图像1的权重
-        beta: float, 图像2的权重
-        gamma: float, 偏移量
-
-    Returns:
-        dst_image: np.array, 添加mask后的图形
-    """
-    empty_image = np.zeros((image.shape), dtype=np.uint8)
-
-    if mode == "rect":
-        mask_image = cv2.rectangle(
-            empty_image,
-            (int(mask_info[0]), int(mask_info[1])),
-            (int(mask_info[2]), int(mask_info[3])),
-            color,
-            thickness=-1,
-        )
-    elif mode == "circle":
-        mask_image = cv2.circle(
-            empty_image,
-            (int(mask_info[0]), int(mask_info[1])),
-            radius=mask_info[2],
-            color=color,
-            thickness=-1,
-        )
-    elif mode == "polygon":
-        mask_image = cv2.fillPoly(empty_image, mask_info, color)
-    elif mode == "img":
-        mask_image = mask_info
-
-    return cv2.addWeighted(image, alpha, mask_image, beta, gamma)
 
 
