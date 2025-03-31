@@ -1,1 +1,0 @@
-![2023-03-02-22-01-52](https://cdn.jsdelivr.net/gh/pleb631/ImgManager@main/img/2023-03-02-22-01-52.png)
