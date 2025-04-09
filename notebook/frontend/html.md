@@ -119,7 +119,11 @@
 语法格式：
 
 ```html
-<a href="跳转目标" target="目标窗口的弹出方式">文本或图像</a>
+<a
+    href="跳转目标"
+    target="目标窗口的弹出方式"
+    >文本或图像</a
+>
 ```
 
 > href：用于指定链接目标的 url 地址，（必须属性）当为标签应用 href 属性时，它就具有了超链接的功能
@@ -145,11 +149,11 @@
 
 ```html
 <table>
-  <tr>
-    <td>单元格内的文字</td>
+    <tr>
+        <td>单元格内的文字</td>
+        ...
+    </tr>
     ...
-  </tr>
-  ...
 </table>
 ```
 
@@ -170,43 +174,43 @@
 //
 border为表格外边宽，cellspacing为单元格间距，cellpadding为单元边沿与其内容之间的空白
 <table
-  width="500"
-  height="300"
-  border="1"
-  cellpadding="20"
-  cellspacing="0"
-  align="center"
+    width="500"
+    height="300"
+    border="1"
+    cellpadding="20"
+    cellspacing="0"
+    align="center"
 >
-  <tr>
-    <th>姓名</th>
-    <th>性别</th>
-    <th>年龄</th>
-  </tr>
-  <tr>
-    <td>刘德华</td>
-    <td>男</td>
-    <td>55</td>
-  </tr>
-  <tr>
-    <td>郭富城</td>
-    <td>男</td>
-    <td>52</td>
-  </tr>
-  <tr>
-    <td>张学友</td>
-    <td>男</td>
-    <td>58</td>
-  </tr>
-  <tr>
-    <td>黎明</td>
-    <td>男</td>
-    <td>18</td>
-  </tr>
-  <tr>
-    <td>刘晓庆</td>
-    <td>女</td>
-    <td>63</td>
-  </tr>
+    <tr>
+        <th>姓名</th>
+        <th>性别</th>
+        <th>年龄</th>
+    </tr>
+    <tr>
+        <td>刘德华</td>
+        <td>男</td>
+        <td>55</td>
+    </tr>
+    <tr>
+        <td>郭富城</td>
+        <td>男</td>
+        <td>52</td>
+    </tr>
+    <tr>
+        <td>张学友</td>
+        <td>男</td>
+        <td>58</td>
+    </tr>
+    <tr>
+        <td>黎明</td>
+        <td>男</td>
+        <td>18</td>
+    </tr>
+    <tr>
+        <td>刘晓庆</td>
+        <td>女</td>
+        <td>63</td>
+    </tr>
 </table>
 ```
 
@@ -217,22 +221,28 @@ border为表格外边宽，cellspacing为单元格间距，cellpadding为单元�
 语法：只需用表头标签替代相应的单元格标签即可。
 
 ```html
-<table width="500" border="1" align="center" cellspacing="0" cellpadding="0">
-  <tr>
-    <th>姓名</th>
-    <th>性别</th>
-    <th>电话</th>
-  </tr>
-  <tr>
-    <td>小王</td>
-    <td>女</td>
-    <td>110</td>
-  </tr>
-  <tr>
-    <td>小明</td>
-    <td>男</td>
-    <td>120</td>
-  </tr>
+<table
+    width="500"
+    border="1"
+    align="center"
+    cellspacing="0"
+    cellpadding="0"
+>
+    <tr>
+        <th>姓名</th>
+        <th>性别</th>
+        <th>电话</th>
+    </tr>
+    <tr>
+        <td>小王</td>
+        <td>女</td>
+        <td>110</td>
+    </tr>
+    <tr>
+        <td>小明</td>
+        <td>男</td>
+        <td>120</td>
+    </tr>
 </table>
 ```
 
@@ -242,9 +252,9 @@ border为表格外边宽，cellspacing为单元格间距，cellpadding为单元�
 
 ```html
 <table>
-  <caption>
-    我是表格标题
-  </caption>
+    <caption>
+        我是表格标题
+    </caption>
 </table>
 ```
 
@@ -268,24 +278,24 @@ border为表格外边宽，cellspacing为单元格间距，cellpadding为单元�
 
 ```html
 <table>
-  <thead>
-    <tr>
-      <th>月份</th>
-      <th>存款</th>
-      <th rowspan="3">节假日的储蓄！</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <td>一月</td>
-      <td>￥3000</td>
-      <td rowspan="0">￥6000</td>
-    </tr>
-    <tr>
-      <td>二月</td>
-      <td>￥4000</td>
-    </tr>
-  </tbody>
+    <thead>
+        <tr>
+            <th>月份</th>
+            <th>存款</th>
+            <th rowspan="3">节假日的储蓄！</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td>一月</td>
+            <td>￥3000</td>
+            <td rowspan="0">￥6000</td>
+        </tr>
+        <tr>
+            <td>二月</td>
+            <td>￥4000</td>
+        </tr>
+    </tbody>
 </table>
 ```
 
@@ -301,10 +311,10 @@ border为表格外边宽，cellspacing为单元格间距，cellpadding为单元�
 
 ```html
 <ul>
-  <li>列表项1</li>
-  <li>列表项2</li>
-  <li>列表项3</li>
-  ......
+    <li>列表项1</li>
+    <li>列表项2</li>
+    <li>列表项3</li>
+    ......
 </ul>
 ```
 
@@ -314,10 +324,10 @@ border为表格外边宽，cellspacing为单元格间距，cellpadding为单元�
 
 ```html
 <ol>
-  <li>列表项1</li>
-  <li>列表项2</li>
-  <li>列表项3</li>
-  ......
+    <li>列表项1</li>
+    <li>列表项2</li>
+    <li>列表项3</li>
+    ......
 </ol>
 ```
 
@@ -329,14 +339,14 @@ border为表格外边宽，cellspacing为单元格间距，cellpadding为单元�
 
 ```html
 <dl>
-  <dt>名词1</dt>
-  <dd>名词1解释1</dd>
-  <dd>名词1解释2</dd>
-  ...
-  <dt>名词2</dt>
-  <dd>名词2解释1</dd>
-  <dd>名词2解释2</dd>
-  ...
+    <dt>名词1</dt>
+    <dd>名词1解释1</dd>
+    <dd>名词1解释2</dd>
+    ...
+    <dt>名词2</dt>
+    <dd>名词2解释1</dd>
+    <dd>名词2解释2</dd>
+    ...
 </dl>
 ```
 
@@ -355,8 +365,11 @@ border为表格外边宽，cellspacing为单元格间距，cellpadding为单元�
 
 ```html
 <form action="https://www.baidu.com/s">
-  <input type="text" name="wd" />
-  <button>去百度搜索</button>
+    <input
+        type="text"
+        name="wd"
+    />
+    <button>去百度搜索</button>
 </form>
 ```
 
@@ -365,7 +378,10 @@ border为表格外边宽，cellspacing为单元格间距，cellpadding为单元�
 - 语法：
 
 ```html
-<input type="属性值" value="你好" />
+<input
+    type="属性值"
+    value="你好"
+/>
 ```
 
 - 标签为单标签
@@ -374,49 +390,73 @@ border为表格外边宽，cellspacing为单元格间距，cellpadding为单元�
 
 1. type 属性
 
-   - 这个属性通过改变值，可以决定了你属于那种 input 表单。
-   - 比如 `type = 'text'` 就表示 文本框 可以做 用户名,昵称等。
-   - 比如 `type = 'password'` 就是表示密码框用户输入的内是不可见的。
+    - 这个属性通过改变值，可以决定了你属于那种 input 表单。
+    - 比如 `type = 'text'` 就表示 文本框 可以做 用户名,昵称等。
+    - 比如 `type = 'password'` 就是表示密码框用户输入的内是不可见的。
 
-   ```html
-   用户名: <input type="text" /> 密 码：<input type="password" />
-   ```
+    ```html
+    用户名: <input type="text" /> 密 码：<input type="password" />
+    ```
 
 2. value 属性值
 
-   ```html
-   用户名:<input type="text" name="username" value="请输入用户名" />
-   ```
+    ```html
+    用户名:<input
+        type="text"
+        name="username"
+        value="请输入用户名"
+    />
+    ```
 
-   - value 默认的文本值。有些表单想刚打开页面就默认显示几个文字，就可以通过这个 value 来设置。
+    - value 默认的文本值。有些表单想刚打开页面就默认显示几个文字，就可以通过这个 value 来设置。
 
 3. name 属性
 
-   ```html
-   用户名:<input type="text" name="“username”" />
-   ```
+    ```html
+    用户名:<input
+        type="text"
+        name="“username”"
+    />
+    ```
 
-   > name 表单的名字， 这样，后台可以通过这个 name 属性找到这个表单。页面中的表单很多，name 主要作用就是用于区别不同的表单。
+    > name 表单的名字， 这样，后台可以通过这个 name 属性找到这个表单。页面中的表单很多，name 主要作用就是用于区别不同的表单。
 
-   - name 属性后面的值，是我们自己定义的。
-   - radio 如果是一组，我们必须给他们命名相同的名字 name 这样就可以多个选其中的一个啦
+    - name 属性后面的值，是我们自己定义的。
+    - radio 如果是一组，我们必须给他们命名相同的名字 name 这样就可以多个选其中的一个啦
 
-   ```html
-   <input type="radio" name="sex" />男 <input type="radio" name="sex" />女
-   ```
+    ```html
+    <input
+        type="radio"
+        name="sex"
+    />男
+    <input
+        type="radio"
+        name="sex"
+    />女
+    ```
 
-   - name 属性，我们现在用的较少， 但是，当我们学 ajax 和后台的时候，是必须的。
+    - name 属性，我们现在用的较少， 但是，当我们学 ajax 和后台的时候，是必须的。
 
 4. checked 属性
 
-   - 表示默认选中状态。较常见于单选按钮和复选按钮。
+    - 表示默认选中状态。较常见于单选按钮和复选按钮。
 
-   ```html
-   性 别: <input type="radio" name="sex" value="男" checked="checked" />男
-   <input type="radio" name="sex" value="女" />女
-   ```
+    ```html
+    性 别:
+    <input
+        type="radio"
+        name="sex"
+        value="男"
+        checked="checked"
+    />男
+    <input
+        type="radio"
+        name="sex"
+        value="女"
+    />女
+    ```
 
-   > 上面这个，表示就默认选中了男这个单选按钮
+    > 上面这个，表示就默认选中了男这个单选按钮
 
 ### label 标签
 
@@ -430,17 +470,27 @@ label 标签为 input 元素定义标注（标签）。
 
 1. 第一种用法就是用 label 直接包括 input 表单。
 
-   ```html
-   <label>
-     用户名： <input type="type" name="usename" value="请输入用户名" />
-   </label>
-   ```
+    ```html
+    <label>
+        用户名：
+        <input
+            type="type"
+            name="usename"
+            value="请输入用户名"
+        />
+    </label>
+    ```
 
 2. 第二种用法 for 属性规定 label 与哪个表单元素绑定。
 
-   ```html
-   <label for="sex">男</label> <input type="radio" name="sex" id="sex" />
-   ```
+    ```html
+    <label for="sex">男</label>
+    <input
+        type="radio"
+        name="sex"
+        id="sex"
+    />
+    ```
 
 > 当我们鼠标点击 label 标签里面的文字时，光标会定位到指定的表单里面
 
@@ -456,7 +506,7 @@ label 标签为 input 元素定义标注（标签）。
 
 - 作用：
 
-  > 通过 textarea 控件可以轻松地创建多行文本输入框.cols="每行中的字符数" rows="显示的行数" ,实际开发不用
+    > 通过 textarea 控件可以轻松地创建多行文本输入框.cols="每行中的字符数" rows="显示的行数" ,实际开发不用
 
 ### select 下拉列表
 
@@ -464,10 +514,10 @@ label 标签为 input 元素定义标注（标签）。
 
 ```html
 <select>
-  <option>选项1</option>
-  <option>选项2</option>
-  <option>选项3</option>
-  ...
+    <option>选项1</option>
+    <option>选项2</option>
+    <option>选项3</option>
+    ...
 </select>
 ```
 
@@ -526,11 +576,21 @@ label 标签为 input 元素定义标注（标签）。
 
 ```html
 <body>
-  <span>手机电量：</span>
-  <meter max="100" min="0" value="90" low="10" high="20" optimum="90"></meter>
-  <br />
-  <span>当前进度：</span>
-  <progress max="100" value="20"></progress>
+    <span>手机电量：</span>
+    <meter
+        max="100"
+        min="0"
+        value="90"
+        low="10"
+        high="20"
+        optimum="90"
+    ></meter>
+    <br />
+    <span>当前进度：</span>
+    <progress
+        max="100"
+        value="20"
+    ></progress>
 </body>
 ```
 
@@ -543,8 +603,8 @@ label 标签为 input 元素定义标注（标签）。
 
 ```html
 <ruby>
-  <span>魑魅魍魉</span>
-  <rt>chī mèi wǎng liǎng</rt>
+    <span>魑魅魍魉</span>
+    <rt>chī mèi wǎng liǎng</rt>
 </ruby>
 ```
 
@@ -557,17 +617,20 @@ label 标签为 input 元素定义标注（标签）。
 | summary  | 写在 details 里面，用于指定问题或专有名词 | 双        |
 
 ```html
-<input type="text" list="mydata" />
+<input
+    type="text"
+    list="mydata"
+/>
 <datalist id="mydata">
-  <option value="周冬雨">周冬雨</option>
-  <option value="周杰伦">周杰伦</option>
-  <option value="温兆伦">温兆伦</option>
-  <option value="马冬梅">马冬梅</option>
+    <option value="周冬雨">周冬雨</option>
+    <option value="周杰伦">周杰伦</option>
+    <option value="温兆伦">温兆伦</option>
+    <option value="马冬梅">马冬梅</option>
 </datalist>
 
 <details>
-  <summary>如何走上人生巅峰？</summary>
-  <p>一步一步走呗</p>
+    <summary>如何走上人生巅峰？</summary>
+    <p>一步一步走呗</p>
 </details>
 ```
 
@@ -627,7 +690,7 @@ preload 属性解释:
 - **metadata**: 仅预先获取视频的元数据（例如长度）。
 - **auto**: 可以下载整个视频文件，即使用户不希望使用它。
 
-  2.`<audio>`音频标签属性
+    2.`<audio>`音频标签属性
 
 | 属性     | 值                     | 描述                                          |
 | -------- | ---------------------- | --------------------------------------------- |
@@ -650,16 +713,22 @@ preload 属性解释:
 
 ```html
 <!--设置IE总是使用最新的文档模式进行渲染-->
-<meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+<meta
+    http-equiv="X-UA-Compatible"
+    content="IE=Edge"
+/>
 <!--优先使用 webkit ( Chromium ) 内核进行渲染, 针对360等壳浏览器-->
-<meta name="renderer" content="webkit" />
+<meta
+    name="renderer"
+    content="webkit"
+/>
 ```
 
 使用 html5shiv 让低版本浏览器认识 H5 的语义化标签。
 
 ```html
 <!--[if lt ie 9]>
-  <script src="../sources/js/html5shiv.js"></script>
+    <script src="../sources/js/html5shiv.js"></script>
 <![endif]-->
 ```
 
@@ -674,7 +743,7 @@ preload 属性解释:
 
 ```html
 <!--[if lt ie 9]>
-  <script src="../sources/js/html5shiv.js"></script>
+    <script src="../sources/js/html5shiv.js"></script>
 <![endif]-->
 <!--[if IE 8]>仅IE8可见<![endif]-->
 <!--[if gt IE 8]>仅IE8以上可见<![endif]—>

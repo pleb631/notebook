@@ -12,34 +12,41 @@
     - [目标伪类](#目标伪类)
     - [语言伪类](#语言伪类)
     - [伪元素](#伪元素)
+  - [长度距离](#长度距离)
+  - [样式的继承和默认样式](#样式的继承和默认样式)
+    - [样式继承的区别](#样式继承的区别)
+    - [默认样式](#默认样式)
   - [常用属性](#常用属性)
     - [字体](#字体)
     - [文本](#文本)
-      - [文本颜色](#文本颜色)
-      - [文本间距](#文本间距)
-      - [文本修饰](#文本修饰)
-      - [文本对齐](#文本对齐)
-      - [行间距](#行间距)
-    - [列表相关](#列表相关)
+    - [列表](#列表)
     - [表格](#表格)
     - [背景](#背景)
     - [鼠标](#鼠标)
-  - [长度距离](#长度距离)
   - [标签显示模式（display）](#标签显示模式display)
     - [块级元素(block)](#块级元素block)
     - [行内元素(inline)](#行内元素inline)
     - [行内块元素(inline-block)](#行内块元素inline-block)
+    - [隐藏元素的方式](#隐藏元素的方式)
   - [盒子模型](#盒子模型)
     - [盒子边框](#盒子边框)
     - [内边距](#内边距)
     - [外边距](#外边距)
     - [水平居中](#水平居中)
+    - [margin 注意事项](#margin-注意事项)
+    - [margin 塌陷和合并问题](#margin-塌陷和合并问题)
+  - [布局问题](#布局问题)
+    - [元素之间的空白问题](#元素之间的空白问题)
+    - [行内块的幽灵空白问题](#行内块的幽灵空白问题)
   - [浮动](#浮动)
+    - [元素浮动后的特点](#元素浮动后的特点)
+    - [浮动产生的影响](#浮动产生的影响)
   - [定位](#定位)
     - [定位模式 (position)](#定位模式-position)
     - [相对单位](#相对单位)
     - [绝对定位](#绝对定位)
     - [固定定位](#固定定位)
+    - [粘性定位](#粘性定位)
     - [z-index](#z-index)
 - [css3](#css3)
   - [私有前缀](#私有前缀)
@@ -54,24 +61,39 @@
     - [3D变换](#3d变换)
     - [过渡](#过渡)
     - [动画](#动画)
-      - [动画的基本使用](#动画的基本使用)
-      - [动画的其他属性](#动画的其他属性)
-      - [动画复合属性](#动画复合属性)
+      - [基本使用](#基本使用)
+      - [其他属性](#其他属性)
+      - [复合属性](#复合属性)
     - [多列布局](#多列布局)
-    - [伸缩盒子](#伸缩盒子)
-      - [属性](#属性)
-      - [flex-direction](#flex-direction)
-      - [flex-wrap](#flex-wrap)
-      - [flex-flow](#flex-flow)
-      - [justify-content](#justify-content)
-      - [align-items](#align-items)
-      - [align-content](#align-content)
-      - [order](#order)
-      - [flex-grow](#flex-grow)
-      - [flex-shrink](#flex-shrink)
-      - [flex-basis](#flex-basis)
-      - [flex](#flex)
-      - [align-self](#align-self)
+    - [Flex布局](#flex布局)
+      - [主轴](#主轴)
+        - [主轴方向](#主轴方向)
+        - [换行方式](#换行方式)
+        - [主轴换行](#主轴换行)
+        - [主轴对齐](#主轴对齐)
+      - [侧轴对齐方式](#侧轴对齐方式)
+        - [单行主轴](#单行主轴)
+        - [多行主轴](#多行主轴)
+      - [容器成员属性](#容器成员属性)
+        - [排列顺序](#排列顺序)
+        - [伸缩性](#伸缩性)
+          - [flex-grow](#flex-grow)
+          - [flex-shrink](#flex-shrink)
+          - [flex-basis](#flex-basis)
+          - [符合属性flex](#符合属性flex)
+        - [align-self](#align-self)
+    - [Grid布局](#grid布局)
+      - [行高和宽高](#行高和宽高)
+      - [区域定义areas](#区域定义areas)
+      - [复合属性 grid-template](#复合属性-grid-template)
+      - [grid-column-start 和 grid-column-end](#grid-column-start-和-grid-column-end)
+      - [复合属性grid-area](#复合属性grid-area)
+      - [自动布局(grid-auto-flow)](#自动布局grid-auto-flow)
+      - [行间距和列间距](#行间距和列间距)
+      - [单元格对齐](#单元格对齐)
+      - [容器对齐](#容器对齐)
+      - [隐式创建](#隐式创建)
+      - [justify-self、align-self](#justify-selfalign-self)
     - [响应式布局](#响应式布局)
     - [媒体查询](#媒体查询)
 
@@ -395,6 +417,40 @@ p::before {
 } 
 ```
 
+## 长度距离
+
+「px」：绝对单位，页面按精确像素展示
+「em」：相对单位，基准点为当前节点或父节点字体的大小，如果自身定义了`font-size`按自身来计算，整个页面内`1em`不是一个固定的值
+「rem」：相对单位，可理解为`root em`, 相对根节点`html`的字体大小来计算
+「%」：参考父元素设置的百分比
+
+## 样式的继承和默认样式
+
+有些样式会继承，元素如果本身设置了某个样式，就使用本身设置的样式；但如果本身没有设置某个样
+式，会从父元素开始一级一级继承（优先继承离得近的祖先元素）
+
+### 样式继承的区别
+
+会继承的 css 属性
+
+>字体属性、文本属性（除了vertical-align）、文字颜色 等
+
+不会继承的 css 属性
+
+> 边框、背景、内边距、外边距、宽高、溢出方式 等。
+
+一个规律：能继承的属性，都是不影响布局的，简单说：都是和盒子模型没关系的。
+
+### 默认样式
+
+元素一般都些默认的样式，例如：
+
+1. \<a> 元素：下划线、字体颜色、鼠标小手。
+2. \<h1> ~ \<h6> 元素： 文字加粗、文字大小、上下外边距。
+3. \<p> 元素：上下外边距
+4. \<ul> 、 ol 元素：左内边距
+5. body 元素： 8px 外边距（4个方向）
+
 ## 常用属性
 
 ### 字体
@@ -423,9 +479,15 @@ p::before {
 }
 ```
 
+1. Chrome 浏览器支持的最小文字为 12px ，默认的文字大小为 16px ，并且 0px 会自动
+消失。
+2. 不同浏览器默认的字体大小可能不一致，所以最好给一个明确的值，不要用默认大
+小。
+3. 通常以给 body 设置 font-size 属性，这样 body 中的其他元素就都可以继承了
+
 ### 文本
 
-#### 文本颜色
+文本颜色
 
 ```css
 
@@ -438,7 +500,7 @@ p::before {
 .at3 {color: #00f;}
 ```
 
-#### 文本间距
+文本间距
 
 ```css
 /* 字母间距 */
@@ -448,7 +510,7 @@ p::before {
 .at2 {word-spacing: 20px;}
 ```
 
-#### 文本修饰
+ 文本修饰
 
 ```css
 /* 上划的绿色虚线 */
@@ -472,7 +534,7 @@ p::before {
 }
 ```
 
-#### 文本对齐
+文本对齐
 
 ```css
 /* 缩进 */
@@ -488,7 +550,9 @@ div { text-indent: 120px;}
 /* middle top bottom */
 ```
 
-#### 行间距
+行高
+
+控制一行的高度
 
 ```css
 /* 第一种写法，值为像素 */
@@ -504,7 +568,23 @@ div { text-indent: 120px;}
 /* line-height: 150%; */
 ```
 
-### 列表相关
+**行高注意事项**：
+
+1. line-height 过小会怎样？—— 文字产生重叠，且最小值是 0 ，不能为负数。
+2. line-height 是可以继承的，且为了能更好的呈现文字，最好写数值。
+3. line-height 和 height 是什么关系？
+
+- 设置了 height ，那么高度就是 height 的值。
+- 不设置 height 的时候，会根据 line-height 计算高度。
+
+**应用场景**：
+
+1. 对于多行文字：控制行与行之间的距离。
+2. 对于单行文字：让 height 等于 line-height ，可以实现文字垂直居中。
+备注：由于字体设计原因，靠上述办法实现的居中，并不是绝对的垂直居中，但如果
+一行中都是文字，不会太影响观感。
+
+### 列表
 
 ```css
 /* 列表符号 */
@@ -569,7 +649,7 @@ div {
     /* 设置背景图片的重复方式 */
     background-repeat: no-repeat;
     /* 控制背景图片的位置——第一种写法：用关键词 */
-    background-position: center;
+    background-position: center |top right;
     /* 控制背景图片的位置——第二种写法：用具体的像素值 */
     background-position: 100px 200px;
     /* 复合属性 */
@@ -601,13 +681,6 @@ div {
   <li style="cursor:not-allowed">我是文本</li>
 </ul>
 ```
-
-## 长度距离
-
-「px」：绝对单位，页面按精确像素展示
-「em」：相对单位，基准点为当前节点或父节点字体的大小，如果自身定义了`font-size`按自身来计算，整个页面内`1em`不是一个固定的值
-「rem」：相对单位，可理解为`root em`, 相对根节点`html`的字体大小来计算
-「%」：参考父元素设置的百分比
 
 ## 标签显示模式（display）
 
@@ -672,6 +745,57 @@ div {
 1. 和相邻行内元素（行内块）在一行上,但是之间会有空白缝隙。一行可以显示多个
 2. 默认宽度就是它本身内容的宽度。
 3. 高度，行高、外边距以及内边距都可以控制。
+
+### 隐藏元素的方式
+
+- 方式一：visibility 属性
+  visibility 属性默认值是 show ，如果设置为 hidden ，元素会隐藏。
+  元素看不见了，还占有原来的位置（**元素的大小依然保持**）。
+  
+- 方式二： display 属性
+  设置 display:none ，就可以让元素隐藏。
+  彻底地隐藏，不但看不见，也不占用任何位置，没有大小宽高
+  
+- 方式三：opacity:0
+
+  `opacity`属性表示元素的透明度，将元素的透明度设置为0后，在我们用户眼中，元素也是隐藏的
+
+- 方式四：设置height、width属性为0
+
+  ```css
+  .hiddenBox {
+      margin:0;     
+      border:0;
+      padding:0;
+      height:0;
+      width:0;
+      overflow:hidden;
+  }
+  ```
+
+  特点：元素不可见，不占据页面空间，无法响应点击事件
+  
+- 方式五：position:absolute
+
+  ```css
+    .hide {
+       position: absolute;
+       top: -9999px;
+       left: -9999px;
+    }
+  ```
+  
+  特点：元素不可见，不影响页面布局
+  
+|                        | display: none | visibility: hidden | opacity: 0 |
+| :--------------------- | :------------ | :----------------- | :--------- |
+| 页面中                 | 不存在        | 存在               | 存在       |
+| 重排                   | 会            | 不会               | 不会       |
+| 重绘                   | 会            | 会                 | 不一定     |
+| 自身绑定事件           | 不触发        | 不触发             | 可触发     |
+| transition             | 不支持        | 支持               | 支持       |
+| 子元素可复原           | 不能          | 能                 | 不能       |
+| 被遮挡的元素可触发事件 | 能            | 能                 | 不能       |
 
 ## 盒子模型
 
@@ -786,7 +910,90 @@ margin：外边距（盒子之间距离）
     
     ```
 
+### margin 注意事项
+
+> 1. 子元素的 margin ，是参考父元素的 content 计算的。（因为是父亲的 content 中承装着子元素）
+> 2. 上 margin 、左 margin ：影响自己的位置；下 margin 、右 margin ：影响后面兄弟元素的位置。
+> 3. 块级元素、行内块元素，均可以完美地设置四个方向的 margin ；但行内元素，左右margin 可以完美设置，上下 margin 设置无效。
+> 4. margin 的值也可以是 auto ，如果给一个块级元素设置左右 margin 都为 auto ，该块级元素会在父元素中水平居中。
+> 5. margin 的值可以是负值
+
+### margin 塌陷和合并问题
+
+**什么是 margin 塌陷？**
+第一个子元素的上 margin 会作用在父元素上，最后一个子元素的下 margin 会作用在父元素上。
+**如何解决 margin 塌陷？**
+
+- 方案一： 给父元素设置不为 0 的 padding 。
+
+- 方案二： 给父元素设置宽度不为 0 的 border 。
+
+- 方案三：给父元素设置 css 样式 overflow:hidden
+
+  **什么是 margin 合并？**
+  上面兄弟元素的下外边距和下面兄弟元素的上外边距会合并，取一个最大的值，而不是相加。
+  **如何解决 margin 塌陷？**
+  无需解决，布局的时候上下的兄弟元素，只给一个设置上下外边距就可以了。
+
+## 布局问题
+
+### 元素之间的空白问题
+
+产生的原因：
+行内元素、行内块元素，彼此之间的换行会被浏览器解析为一个空白字符。
+解决方案：
+
+- 方案一： 去掉换行和空格（不推荐）。
+- 方案二： 给父元素设置 font-size:0 ，再给需要显示文字的元素，单独设置字体大小（推荐）
+
+### 行内块的幽灵空白问题
+
+产生原因：
+行内块元素与文本的基线对齐，而文本的基线与文本最底端之间是有一定距离的。
+解决方案：
+
+- 方案一： 给行内块设置 vertical ，值不为 baseline 即可，设置为 middel 、 bottom 、top 均可。
+- 方案二： 若父元素中只有一张图片，设置图片为display:block 。
+- 方案三： 给父元素设置 font-size: 0 。如果该行内块内部还有文本，则需单独设置 font-size 。
+
 ## 浮动
+
+### 元素浮动后的特点
+
+1. 脱离文档流。
+2. 不管浮动前是什么元素，浮动后：默认宽与高都是被内容撑开（尽可能小），而且可以设置宽高。
+3. 不会独占一行，可以与其他元素共用一行。
+4. 不会 margin 合并，也不会 margin 塌陷，能够完美的设置四个方向的 margin 和 padding 。
+5. 不会像行内块一样被当做文本处理（没有行内块的空白问题）
+
+### 浮动产生的影响
+
+对兄弟元素的影响： 后面的兄弟元素，会占据浮动元素之前的位置，在浮动元素的下面；对前面的兄弟
+无影响。
+对父元素的影响： 不能撑起父元素的高度，导致父元素高度塌陷；但父元素的宽度依然束缚浮动的元
+素。
+
+解决方案：
+
+1. 方案一： 给父元素指定高度。
+
+2. 方案二： 给父元素也设置浮动，带来其他影响。
+
+3. 方案三： 给父元素设置 overflow:hidden。
+
+4. 方案四： 在所有浮动元素的最后面，添加一个块级元素，并给该块级元素设置 clear:both。
+
+5. 方案五： 给浮动元素的父元素，设置伪元素，通过伪元素清除浮动，原理与方案四相同。===>推荐使用
+
+   ```css
+   .outer::after {
+               content: '';
+               display: block;
+               clear: both;
+           }
+   ```
+
+>布局中的一个原则：设置浮动的时候，兄弟元素要么全都浮动，要么全都不浮动。
 
 ## 定位
 
@@ -836,6 +1043,22 @@ margin：外边距（盒子之间距离）
 
 1. `left: 50%;`：让盒子的左侧移动到父级元素的水平中心位置；
 2. `margin-left: -100px;`：让盒子向左移动自身宽度的一半
+
+### 粘性定位
+
+如何设置为粘性定位？
+给元素设置 position:sticky 即可实现粘性定位。
+可以使用 left 、 right 、 top 、 bottom 四个属性调整位置，不过最常用的是 top 值。
+
+粘性定位的参考点在哪里？
+离它最近的一个拥有“滚动机制”的祖先元素，即便这个祖先不是最近的真实可滚动祖先。
+
+粘性定位元素的特点
+不会脱离文档流，它是一种专门用于窗口滚动时的新的定位方式。
+最常用的值是 top 值。
+粘性定位和浮动可以同时设置，但不推荐这样做。
+粘性定位的元素，也能通过 margin 调整位置，但不推荐这样做。
+粘性定位和相对定位的特点基本一致，不同的是：粘性定位可以在元素到达某个位置时将其固定
 
 ### z-index
 
@@ -983,6 +1206,7 @@ border-radius: 20px;
 4. backgorund 复合属性
     语法：`background: color url repeat position / size origin clip`
     注意：
+
     1. origin 和 clip 的值如果一样，如果只写一个值，则 origin 和 clip 都设置；如
     果设置了两个值，前面的是 origin ，后面的 clip 。
     2. size 的值必须写在 position 值的后面，并且用 / 分开。
@@ -1185,13 +1409,11 @@ outline 复合属性
     注意点：
 
       1. 位移与相对定位很相似，都不脱离文档流，不会影响到其它元素。
-      2. 与相对定位的区别：相对定位的百分比值，参考的是其父元素；定位的百分比值，参考的是
-    
-        其自身。
+      2. 与相对定位的区别：相对定位的百分比值，参考的是其父元素；定位的百分比值，参考的是其自身。
       3. 浏览器针对位移有优化，与定位相比，浏览器处理位移的效率更高。
       4. 位移对行内元素无效。
       5. 位移配合定位，可实现元素水平垂直居中
-    
+
 2. 2D缩放
     让元素放大或缩小
 
@@ -1454,7 +1676,7 @@ animation: atguigu 3s 0.5s linear 2 alternate-reverse forwards;
 - coumn-rule ：设置列边框，复合属性。
 - column-span 指定是否跨列；值: none 、 all
 
-### 伸缩盒子
+### Flex布局
 
 `Flexible Box` 简称 `flex`，意为”弹性布局”，可以简便、完整、响应式地实现各种页面布局
 
@@ -1530,8 +1752,6 @@ animation: atguigu 3s 0.5s linear 2 alternate-reverse forwards;
 - center：居中
 - space-between：两端对齐，项目之间的间隔都相等
 - space-around：两个项目两侧间隔相等
-
-
 
 #### 侧轴对齐方式
 
@@ -1696,6 +1916,315 @@ animation: atguigu 3s 0.5s linear 2 alternate-reverse forwards;
 }
 ```
 
+### Grid布局
+
+`Grid` 布局即网格布局，是目前唯一一种 `CSS` 二维布局。利用 `Grid` 布局，我们可以轻松实现类似下图布局
+
+![img](https://raw.githubusercontent.com/pleb631/ImgManager/main/img/v2-33e0b6ebf2d1e2da6ebbe01f7541d9bb_r.jpg)
+
+开启方法:
+
+```css
+.wrapper {
+  display: grid; /* wrapper为块级元素 */
+}
+
+.wrapper-1 {
+  display: inline-grid; /* wrapper为行内元素 */
+}
+
+```
+
+#### 行高和宽高
+
+`grid-template-columns` 属性设置列宽，`grid-template-rows` 属性设置行高
+
+**固定的列宽和行高**
+
+```css
+.wrapper {
+  display: grid;
+  /*  声明了三列，宽度分别为 200px 100px 200px */
+  grid-template-columns: 200px 100px 200px;
+  grid-gap: 5px;
+  /*  声明了两行，行高分别为 50px 50px  */
+  grid-template-rows: 50px 50px;
+}
+```
+
+以上表示固定列宽为 200px 100px 200px，行高为 50px 50px
+
+![img](https://raw.githubusercontent.com/pleb631/ImgManager/main/img/v2-a72a30faf3c8c10defeda087ec3452a4_720w.jpg)
+
+**repeat() 函数**：可以简化重复的值。该函数接受两个参数，第一个参数是重复的次数，第二个参数是所要重复的值。比如上面行高都是一样的，我们可以这么去实现，实际效果是一模一样的
+
+```css
+.wrapper-1 {
+  display: grid;
+  grid-template-columns: 200px 100px 200px;
+  grid-gap: 5px;
+  /*  2行，而且行高都为 50px  */
+  grid-template-rows: repeat(2, 50px);
+}
+```
+
+**auto-fill 关键字**：表示自动填充，让一行（或者一列）中尽可能的容纳更多的单元格。`grid-template-columns: repeat(auto-fill, 200px)` 表示列宽是 200 px，但列的数量是不固定的，只要浏览器能够容纳得下，就可以放置元素，代码以及效果如下图所示：
+
+```css
+.wrapper-2 {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, 200px);
+  grid-gap: 5px;
+  grid-auto-rows: 50px;
+}
+```
+
+![img](https://raw.githubusercontent.com/pleb631/ImgManager/main/img/v2-18b04dd95f90539b9a6b3ca3987b3573_b.jpg)
+
+**fr 关键字**：`Grid` 布局还引入了一个另外的长度单位来帮助我们创建灵活的网格轨道。`fr` 单位代表网格容器中可用空间的一等份。`grid-template-columns: 200px 1fr 2fr` 表示第一个列宽设置为 200px，后面剩余的宽度分为两部分，宽度分别为剩余宽度的 1/3 和 2/3。代码以及效果如下图所示：
+
+```css
+.wrapper-3 {
+  display: grid;
+  grid-template-columns: 200px 1fr 2fr;
+  grid-gap: 5px;
+  grid-auto-rows: 50px;
+}
+```
+
+**minmax() 函数**：我们有时候想给网格元素一个最小和最大的尺寸，`minmax()` 函数产生一个长度范围，表示长度就在这个范围之中都可以应用到网格项目中。它接受两个参数，分别为最小值和最大值。`grid-template-columns: 1fr 1fr minmax(300px, 2fr)` 的意思是，第三个列宽最少也是要 300px，但是最大不能大于第一第二列宽的两倍。代码以及效果如下：
+
+```text
+.wrapper-4 {
+  display: grid;
+  grid-template-columns: 1fr 1fr minmax(300px, 2fr);
+  grid-gap: 5px;
+  grid-auto-rows: 50px;
+}
+```
+
+**auto 关键字**：由浏览器决定长度。通过 `auto` 关键字，我们可以轻易实现三列或者两列布局。`grid-template-columns: 100px auto 100px` 表示第一第三列为 100px，中间由浏览器决定长度，代码以及效果如下：
+
+```css
+.wrapper-5 {
+  display: grid;
+  grid-template-columns: 100px auto 100px;
+  grid-gap: 5px;
+  grid-auto-rows: 50px;
+}
+```
+
+#### 区域定义areas
+
+`grid-template-areas` 属性用于定义区域，一个区域由一个或者多个单元格组成
+
+一般这个属性跟网格元素的 `grid-area` 一起使用，我们在这里一起介绍。 `grid-area` 属性指定项目放在哪一个区域
+
+```css
+.wrapper {
+  display: grid;
+  grid-gap: 10px;
+  grid-template-columns: 120px  120px  120px;
+  grid-template-areas:
+    ". header  header"
+    "sidebar content content";
+  background-color: #fff;
+  color: #444;
+}
+```
+
+上面代码表示划分出 6 个单元格，其中值得注意的是 `.` 符号代表空的单元格，也就是没有用到该单元格。
+
+```css
+.sidebar {
+  grid-area: sidebar;
+}
+
+.content {
+  grid-area: content;
+}
+
+.header {
+  grid-area: header;
+}
+```
+
+以上代码表示将类 `.sidebar` `.content` `.header`所在的元素放在上面 `grid-template-areas` 中定义的 `sidebar` `content` `header` 区域中
+
+![img](https://raw.githubusercontent.com/pleb631/ImgManager/main/img/v2-634c4e8808f2e271cafd85318fca62a2_720w.jpg)
+
+#### 复合属性 grid-template
+
+```css
+.wrapper {
+  grid-template:
+  "a a a" 40px    /*设置行高40px*/
+  "b c c" 40px    /*设置行高40px*/
+  "b c c" 40px / 1fr 2fr 3fr;  /*设置宽度分别占1fr 2fr 3fr*/
+}
+
+
+/* 为 grid-template-rows / grid-template-columns */
+grid-template: 100px 1fr / 50px 1fr;
+```
+
+#### grid-column-start 和 grid-column-end
+
+可以指定网格项目所在的四个边框，分别定位在哪根网格线，从而指定项目的位置
+
+- grid-column-start 属性：左边框所在的垂直网格线
+- grid-column-end 属性：右边框所在的垂直网格线
+- grid-row-start 属性：上边框所在的水平网格线
+- grid-row-end 属性：下边框所在的水平网格线
+  
+```css
+.wrapper {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  grid-gap: 20px;
+  grid-auto-rows: minmax(100px, auto);
+}
+.one {
+  grid-column-start: 1;
+  grid-column-end: 2;
+  background: #19CAAD;
+}
+.two { 
+  grid-column-start: 2;
+  grid-column-end: 4;
+  grid-row-start: 1;
+  grid-row-end: 2;
+  /*   如果有重叠，就使用 z-index */
+  z-index: 1;
+  background: #8CC7B5;
+}
+.three {
+  grid-column-start: 3;
+  grid-column-end: 4;
+  grid-row-start: 1;
+  grid-row-end: 4;
+  background: #D1BA74;
+}
+.four {
+  grid-column-start: 1;
+  grid-column-end: 2;
+  grid-row-start: 2;
+  grid-row-end: 5;
+  background: #BEE7E9;
+}
+.five {
+  grid-column-start: 2;
+  grid-column-end: 2;
+  grid-row-start: 2;
+  grid-row-end: 5;
+  background: #E6CEAC;
+}
+.six {
+  grid-column: 3;
+  grid-row: 4;
+  background: #ECAD9E;
+}
+```
+
+上面代码中，类 `.two` 所在的网格项目，垂直网格线是从 2 到 4，水平网格线是从 1 到 2。其中它跟 `.three` （垂直网格线是从3 到 4，水平网格线是从 1 到 4） 是有冲突的。可以设置 `z-index` 去决定它们的层级关系
+![img](https://raw.githubusercontent.com/pleb631/ImgManager/main/img/v2-ab4fd8b109bc014a728784cbf6889573_720w.jpg)
+
+#### 复合属性grid-area
+
+1. 配合 `grid-template-areas` 属性，可以定义网格布局中未使用的单元格如何自动放置。表示方法见[区域定义areas](#区域定义areas)
+2. grid-area 还是 grid-row-start / grid-column-start / grid-row-end / grid-column-end 的缩写形式 缩写格式如下
+
+    ```css
+    .wrapper {
+      grid-area:1 / 1 / 2 / 3;
+    }
+    ```
+
+#### 自动布局(grid-auto-flow)
+
+`grid-auto-flow` 属性定义了网格布局中未使用的单元格如何自动放置。它接受两个值，分别是 `row` 和 `column`。`row` 表示先从左到右，`column` 表示先从上到下。
+具体可以参考 [MDN](https://developer.mozilla.org/zh-CN/docs/Web/CSS/grid-auto-flow)
+
+grid-auto-flow 有一个dense 属性，当网格布局中未使用的单元格数量大于1时，会自动填充，但是会变成乱序。
+
+![img](https://raw.githubusercontent.com/pleb631/ImgManager/main/img/20250408180607760.png)
+
+#### 行间距和列间距
+
+`grid-row-gap` 属性、`grid-column-gap` 属性分别设置行间距和列间距。`grid-gap` 属性是两者的简写形式。
+
+`grid-row-gap: 10px` 表示行间距是 10px，`grid-column-gap: 20px` 表示列间距是 20px。`grid-gap: 10px 20px` 实现的效果是一样的
+
+```css
+.wrapper {
+  display: grid;
+  grid-template-columns: 200px 100px 100px;
+  grid-gap: 10px 20px;
+  grid-auto-rows: 50px;
+}
+
+.wrapper-1 {
+  display: grid;
+  grid-template-columns: 200px 100px 100px;
+  grid-auto-rows: 50px;
+  grid-row-gap: 10px;
+  grid-column-gap: 20px;
+}
+```
+
+#### 单元格对齐
+
+`justify-items` 属性设置单元格内容的水平位置（左中右），`align-items` 属性设置单元格的垂直位置（上中下）
+
+```css
+.container {
+  justify-items: start | end | center | stretch;
+  align-items: start | end | center | stretch;
+}
+```
+
+#### 容器对齐
+
+`justify-content` 属性是整个内容区域在容器里面的水平位置（左中右），`align-content` 属性是整个内容区域的垂直位置（上中下）。它们都有如下的属性值。
+
+```css
+.container {
+  justify-content: start | end | center | stretch | space-around | space-between | space-evenly;
+  align-content: start | end | center | stretch | space-around | space-between | space-evenly;  
+}
+```
+
+![img](https://raw.githubusercontent.com/pleb631/ImgManager/main/img/v2-3c3f572d0b5a75843a15f9ebeb331397_720w.jpg)
+
+#### 隐式创建
+
+**隐式和显示网格**：显式网格包含了你在 `grid-template-columns` 和 `grid-template-rows` 属性中定义的行和列。如果你在网格定义之外又放了一些东西，或者因为内容的数量而需要的更多网格轨道的时候，网格将会在隐式网格中创建行和列
+
+假如有多余的网格（也就是上面提到的隐式网格），那么它的行高和列宽可以根据 `grid-auto-columns` 属性和 `grid-auto-rows` 属性设置。它们的写法和`grid-template-columns` 和 `grid-template-rows` 完全相同。如果不指定这两个属性，浏览器完全根据单元格内容的大小，决定新增网格的列宽和行高
+
+```css
+.wrapper {
+  display: grid;
+  grid-template-columns: 200px 100px;
+/*  只设置了两行，但实际的数量会超出两行，超出的行高会以 grid-auto-rows 算 */
+  grid-template-rows: 100px 100px;
+  grid-gap: 10px 20px;
+  grid-auto-rows: 50px;
+}
+```
+
+`grid-template-columns` 属性和 `grid-template-rows` 属性只是指定了两行两列，但实际有九个元素，就会产生隐式网格。通过 `grid-auto-rows` 可以指定隐式网格的行高为 50px
+
+![img](https://raw.githubusercontent.com/pleb631/ImgManager/main/img/v2-5efa2666aefd27af1cab5c9df65c23ff_720w.jpg)
+
+#### justify-self、align-self
+
+`justify-self` 属性设置单元格内容的水平位置（左中右），跟 `justify-items` 属性的用法完全一致，但只作用于单个项目
+
+`align-self` 属性设置单元格内容的垂直位置（上中下），跟align-items属性的用法完全一致，也是只作用于单个项目
+
+place-self是`align-items`和`justify-items`的复合属性
+
 ### 响应式布局
 
 ### 媒体查询
@@ -1748,4 +2277,3 @@ only 用于防止某些老旧浏览器应用某些特定的样式。通过添加
 | speech      | 演讲                               |
 | tty         | 固定字母间距的网格的媒体，比如电传打字机 |
 | tv          | 电视                               |
-
