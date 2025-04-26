@@ -38,6 +38,7 @@
   - [布局问题](#布局问题)
     - [元素之间的空白问题](#元素之间的空白问题)
     - [行内块的幽灵空白问题](#行内块的幽灵空白问题)
+    - [图片和文字对齐问题](#图片和文字对齐问题)
   - [浮动](#浮动)
     - [元素浮动后的特点](#元素浮动后的特点)
     - [浮动产生的影响](#浮动产生的影响)
@@ -955,6 +956,28 @@ margin：外边距（盒子之间距离）
 - 方案一： 给行内块设置 vertical ，值不为 baseline 即可，设置为 middel 、 bottom 、top 均可。
 - 方案二： 若父元素中只有一张图片，设置图片为display:block 。
 - 方案三： 给父元素设置 font-size: 0 。如果该行内块内部还有文本，则需单独设置 font-size 。
+
+### 图片和文字对齐问题
+
+1. 让带有宽度的块级元素水平居中对齐：margin:0 auto;
+
+2. 让文字水平居中对齐：text-align:center;
+
+3. 让块级元素垂直居中： 子绝父相，子：top:50%;transform: translateY(-50%);/margin-top:-(子高度的一半) 或者使用后面的弹性布局在父元素中添加display: flex;align-items: center;
+
+4. 让文字垂直居中： line-height=父元素的高；
+
+5. vertical-align 垂直对齐：控制图片/表单与文字的对齐
+
+   ![](https://raw.githubusercontent.com/pleb631/ImgManager/main/img/20250420103425.png)
+
+​  基线对齐：
+
+![](https://raw.githubusercontent.com/pleb631/ImgManager/main/img/eaaa67dce683b965184bd0bd767c5b4f.png)
+
+底线对齐：
+
+![](https://raw.githubusercontent.com/pleb631/ImgManager/main/img/20250420103740.png)
 
 ## 浮动
 

@@ -1,80 +1,119 @@
+<!-- TOC -->
+
+- [Web API](#web-api)
+  - [DOM](#dom)
+    - [操作 DOM](#操作-dom)
+      - [CSS 选择器](#css-选择器)
+      - [其他方法](#其他方法)
+  - [元素属性](#元素属性)
+    - [常用属性](#常用属性)
+    - [元素样式属性](#元素样式属性)
+      - [通过 style 属性操作 CSS](#通过-style-属性操作-css)
+      - [用类名(className) 操作 CSS](#用类名classname-操作-css)
+    - [表单元素属性](#表单元素属性)
+    - [自定义属性](#自定义属性)
+  - [定时器](#定时器)
+  - [事件监听](#事件监听)
+    - [事件监听对比](#事件监听对比)
+    - [解绑事件](#解绑事件)
+    - [鼠标经过事件的区别](#鼠标经过事件的区别)
+  - [事件对象](#事件对象)
+    - [常见属性](#常见属性)
+  - [环境对象](#环境对象)
+  - [回调函数](#回调函数)
+  - [事件流](#事件流)
+    - [阻止冒泡](#阻止冒泡)
+  - [事件委托](#事件委托)
+  - [其他事件](#其他事件)
+    - [页面加载事件](#页面加载事件)
+  - [日期对象](#日期对象)
+  - [DOM 节点](#dom-节点)
+    - [查找节点](#查找节点)
+    - [创建节点](#创建节点)
+    - [删除节点](#删除节点)
+  - [BOM](#bom)
+  - [本地存储](#本地存储)
+    - [localStorage](#localstorage)
+    - [sessionStorage](#sessionstorage)
+    - [存储复杂数据类型](#存储复杂数据类型)
+
 # Web API
 
 ## DOM
 
-**DOM 对象**：浏览器根据 html 标签生成的 JS对象
+**DOM 对象**：浏览器根据 html 标签生成的 JS 对象
 
 所有的标签属性都可以在这个对象上面找到，修改这个对象的属性会自动映射到标签身上。
 
 **DOM 的核心思想**：把网页内容当做 对象 来处理
 
-**document 对象**:是 DOM 提供的一个 对象 网页所有内容都在document里面。
+**document 对象**:是 DOM 提供的一个 对象 网页所有内容都在 document 里面。
 
 document 提供的属性和方法都是用来访问和操作网页内容的。例：`document.write()`
 
-### 操作DOM
+### 操作 DOM
 
-#### CSS选择器
+#### CSS 选择器
 
 1. 选择匹配的第一个元素
 
    语法：
 
    ```js
-   document.querySelector(CSS选择器)
+   document.querySelector(CSS选择器);
    ```
 
-   **参数:** 包含一个或多个有效的CSS选择器,如类名 .box，id名 #nav
-   **返回值：** 返回CSS选择器匹配的 第一个元素 (HTMLElement对象)
+   **参数:** 包含一个或多个有效的 CSS 选择器,如类名 .box，id 名 #nav
+   **返回值：** 返回 CSS 选择器匹配的 第一个元素 (HTMLElement 对象)
 
    ```html
    <body>
-       <div class="box">123</div>
-       <div class="box">abc</div>
-       <ul class="nav">
-           <li>测试1</li>
-           <li>测试2</li>
-           <li>测试3</li>
-       </ul>
-       <script>
-           const box = document.querySelector('.box')
-           console.log(box)
-           const li = document.querySelector('ul li:first-child')
-           console.log(li)
-       </script>
+     <div class="box">123</div>
+     <div class="box">abc</div>
+     <ul class="nav">
+       <li>测试1</li>
+       <li>测试2</li>
+       <li>测试3</li>
+     </ul>
+     <script>
+       const box = document.querySelector(".box");
+       console.log(box);
+       const li = document.querySelector("ul li:first-child");
+       console.log(li);
+     </script>
    </body>
    ```
 
 2. 选择匹配的多个元素
 
    ```js
-   document.querySelectorAll(CSS选择器)
+   document.querySelectorAll(CSS选择器);
    ```
 
-   **返回值：** CSS选择器匹配的NodeList对象集合
+   **返回值：** CSS 选择器匹配的 NodeList 对象集合
 
    获取的对象集合不可修改，里面的元素可以修改。
 
    querySelectAll() 得到的是一个 **伪数组** ： 有长度有索引号，但是没有 pop() push() 等数组方法。
 
    ```js
-   const lis = document.querySelectorAll('.nav li')
+   const lis = document.querySelectorAll(".nav li");
    for (let i = 0; i < lis.length; i++) {
-   console.log(lis[i])
+     console.log(lis[i]);
    }
    ```
 
 #### 其他方法
 
 ```js
-document.getElementById(id)
-document.getElementsByClassName(className)
-document.getElementsByTagName('div')
+document.getElementById(id);
+document.getElementsByClassName(className);
+document.getElementsByTagName("div");
 
 //特殊元素
-document.images //<img> 标签
-document.forms //表单元素
-document.links // <a> 标签
+document.images; //<img> 标签
+document.forms; //表单元素
+document.links; // <a> 标签
 ```
 
 ## 元素属性
@@ -86,7 +125,7 @@ document.links // <a> 标签
 
 ### 元素样式属性
 
-#### 通过style属性操作CSS
+#### 通过 style 属性操作 CSS
 
 **语法：** `对象.style.样式属性 = 值`
 
@@ -94,67 +133,62 @@ document.links // <a> 标签
 
 1. 修改样式通过 style 属性引出
 2. 如果属性有 `-` 连接符，需要转换为 小驼峰 命名法
-3. 赋值的时候，需要的时候不要忘记加 css单位
-4. JS修改style样式操作，产生的是行内样式，CSS权重比较高
+3. 赋值的时候，需要的时候不要忘记加 css 单位
+4. JS 修改 style 样式操作，产生的是行内样式，CSS 权重比较高
 
-#### 用类名(className) 操作CSS
+#### 用类名(className) 操作 CSS
 
 **语法** :`元素.className = css类名`
 
 **注意：**
 
-1. 由于 class 是关键字, 所以使用  className  去代替, className 是使用新值 换 旧值, 如果需要添加一个类，需要保留之前的类名， 直接使用 className 赋值会覆盖以前的类名。
-2. 通过 classList 操作类控制CSS,可以解决className 容易覆盖以前的类名的问题，可以通过classList方式追加和删除类名。
+1. 由于 class 是关键字, 所以使用   className  去代替, className 是使用新值 换 旧值, 如果需要添加一个类，需要保留之前的类名， 直接使用 className 赋值会覆盖以前的类名。
+2. 通过 classList 操作类控制 CSS,可以解决 className 容易覆盖以前的类名的问题，可以通过 classList 方式追加和删除类名。
 
 ```html
 <!DOCTYPE html>
 
 <html lang="en">
+  <head>
+    <meta charset="UTF-8" />
 
-<head>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
 
-<meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-<meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>Document</title>
 
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+      .box {
+        width: 200px;
+        height: 200px;
+        color: #333;
+      }
 
-<title>Document</title>
+      .active {
+        color: red;
+        background-color: pink;
+      }
+    </style>
+  </head>
 
-<style>
+  <body>
+    <div class="box active">文字</div>
+    <script>
+      const box = document.querySelector(".box");
 
-.box {
-width: 200px;
-height: 200px;
-color: #333;
-}
+      // 第一种写法
+      box.className = "box active";
 
-.active {
-color: red;
-background-color: pink;
-}
-</style>
-</head>
+      // 第二种写法
+      li.classList.add("active");
+      li.classList.remove("active");
 
-<body>
-<div class="box active">文字</div>
-<script>
-const box = document.querySelector('.box')
-
-// 第一种写法
-box.className = 'box active'
-
-// 第二种写法
-li.classList.add('active')
-li.classList.remove('active')
-
-// 第三种写法
-// toggle意思是如果有这个类名，就删除，如果没有这个类名，就添加
-box.classList.toggle('active')
-
-
-</script>
-</body>
+      // 第三种写法
+      // toggle意思是如果有这个类名，就删除，如果没有这个类名，就添加
+      box.classList.toggle("active");
+    </script>
+  </body>
 </html>
 ```
 
@@ -162,7 +196,7 @@ box.classList.toggle('active')
 
 表单很多情况也需要修改属性，比如点击眼睛，可以看到密码，本质是把表单类型转换为文本框。
 
-表单属性中添加就有效果，移除就没有效果，一律使用布尔值表示。如果为true代表添加了该属性， 如果是false 代表移除了该属性。比如： disabled、checked、selected
+表单属性中添加就有效果，移除就没有效果，一律使用布尔值表示。如果为 true 代表添加了该属性， 如果是 false 代表移除了该属性。比如： disabled、checked、selected
 
 ```html
 <body>
@@ -172,20 +206,20 @@ box.classList.toggle('active')
     button.disabled = true;
   </script>
 </body>
-
 ```
 
 ### 自定义属性
 
-在html5中推出来了专门的data-自定义属性，在标签上一律 以data-开头 ，在DOM对象上一律以 dataset.属性 获取，比如：
+在 html5 中推出来了专门的 data-自定义属性，在标签上一律 以 data-开头 ，在 DOM 对象上一律以 dataset.属性 获取，比如：
 
 ```html
 <body>
-<div data-id="123" data-name="pink">123</div>
-<script>
-    const div = document.querySelector('div')
-    console.log(div.dataset.id)
-</script>
+  <div data-id="123" data-name="pink">123</div>
+  <script>
+    const div = document.querySelector("div");
+    console.log(div.dataset.id);
+  </script>
+</body>
 ```
 
 ## 定时器
@@ -194,12 +228,12 @@ box.classList.toggle('active')
 **语法：**
 
 ```js
-let time1 = setTimeout(func,间隔时间) //延迟执行
-let time2 = setInterval(func,间隔时间) //循环执行
+let time1 = setTimeout(func, 间隔时间); //延迟执行
+let time2 = setInterval(func, 间隔时间); //循环执行
 
 // 清除定时函数
-clearInterval(time2)
-clearTimeout(timer1)
+clearInterval(time2);
+clearTimeout(timer1);
 ```
 
 ## 事件监听
@@ -207,12 +241,12 @@ clearTimeout(timer1)
 就是让程序检测是否有事件产生，一旦有事件触发，就立即调用一个函数做出响应，也称为 绑定事件或者注册事件
 
 ```js
-元素对象.addEventListener('事件类型', func)
+元素对象.addEventListener("事件类型", func);
 ```
 
 **事件监听三要素：**
 
-1. 事件源: 事件被触发的对象 。dom元素被事件触发了，要获取dom元素
+1. 事件源: 事件被触发的对象 。dom 元素被事件触发了，要获取 dom 元素
 2. 事件类型: 用什么方式触发，比如鼠标单击 click、鼠标经过 mouseover 等
 3. 事件调用的函数: 要做什么事
 
@@ -288,9 +322,9 @@ clearTimeout(timer1)
       let random = 0;
       const qs = document.querySelector(".qs");
       const start = document.querySelector(".start");
-      let run=false;
+      let run = false;
       start.addEventListener("click", function () {
-        if(run){
+        if (run) {
           return;
         }
         run = true;
@@ -308,30 +342,29 @@ clearTimeout(timer1)
       const end = document.querySelector(".end");
 
       end.addEventListener("click", function () {
-        if(!run){
+        if (!run) {
           return;
         }
         clearInterval(timerId);
         arr.splice(random, 1);
-        run=false;
+        run = false;
         console.log(arr);
       });
     </script>
   </body>
 </html>
-
 ```
 
 ### 事件监听对比
 
-事件源.on事件 = function(){}
+事件源.on 事件 = function(){}
 事件源.addEventListener(事件,事件处理函数)
 
-on方式会被覆盖， addEventListener 方式可绑定多次，拥有事件更多特性。
+on 方式会被覆盖， addEventListener 方式可绑定多次，拥有事件更多特性。
 
 ### 解绑事件
 
-on事件方式，直接使用null覆盖偶就可以实现事件的解绑
+on 事件方式，直接使用 null 覆盖偶就可以实现事件的解绑
 事件源.removeEventListener(事件,事件处理函数)
 
 **注意**：匿名函数无法被解绑
@@ -346,15 +379,15 @@ on事件方式，直接使用null覆盖偶就可以实现事件的解绑
 语法：
 
 ```js
-事件源.addEventListener(事件,function(event){})
+事件源.addEventListener(事件, function (event) {});
 ```
 
 ### 常见属性
 
 type：获取当前的事件类型
 clientX/clientY：获取光标相对于浏览器可见窗口左上角的位置
-offsetX/offsetY：获取光标相对于当前DOM元素左上角的位置
-key：用户按下的键盘键的值，现在不提倡使用keyCode
+offsetX/offsetY：获取光标相对于当前 DOM 元素左上角的位置
+key：用户按下的键盘键的值，现在不提倡使用 keyCode
 
 ## 环境对象
 
@@ -370,13 +403,13 @@ key：用户按下的键盘键的值，现在不提倡使用keyCode
 
 ![img](https://raw.githubusercontent.com/pleb631/ImgManager/main/img/461b3b2a0c852ecd2081029b2365fdf6.png)
 
-说明:假设页面里有个div，当触发事件时，会经历两个阶段，分别是捕获阶段、冒泡阶段
+说明:假设页面里有个 div，当触发事件时，会经历两个阶段，分别是捕获阶段、冒泡阶段
 
 简单来说：捕获阶段是从父到子，冒泡阶段是从子到父
 
 实际工作都是使用事件冒泡为主。
 
-addEventListener第三个参数传入 true 代表是 捕获阶段 触发,若传入 false 代表 冒泡阶段 触发，默认就是false
+addEventListener 第三个参数传入 true 代表是 捕获阶段 触发,若传入 false 代表 冒泡阶段 触发，默认就是 false
 
 ### 阻止冒泡
 
@@ -484,25 +517,25 @@ addEventListener第三个参数传入 true 代表是 捕获阶段 触发,若传�
 
 ```javascript
 // 获得当前时间
-const date = new Date()
+const date = new Date();
 
 // 获取指定时间
-const date = new Date('2023-5-25')
+const date = new Date("2023-5-25");
 
 // 获取时间戳
 //第一种方法
-console.log(date.getTime())
+console.log(date.getTime());
 
 ////第二种方法
-console.log(+new Date())
+console.log(+new Date());
 
 ////第三种方法
-console.log(Date.now())
+console.log(Date.now());
 ```
 
-## DOM节点
+## DOM 节点
 
-DOM树里每一个内容都称之为节点，
+DOM 树里每一个内容都称之为节点，
 
 1. 元素节点：所有的标签 比如 body、 div，html 是根节点
 2. 属性节点：所有的属性 比如 href
@@ -521,7 +554,7 @@ DOM树里每一个内容都称之为节点，
 **创建**元素节点方法：
 
 ```js
-document.createElement('标签名')
+document.createElement("标签名");
 ```
 
 **追加**节点:要想在界面看到，还得插入到某个父元素中
@@ -529,7 +562,7 @@ document.createElement('标签名')
 `父元素.insertBefore(要插入的元素,在哪个元素前面)` ,插入到父元素中某个子元素的前面
 
 **克隆**节点:元素.cloneNode(布尔值)
-布尔值为true，则克隆时会包含后代节点一起克隆。若为false(默认)，则克隆时不包含后代节点。
+布尔值为 true，则克隆时会包含后代节点一起克隆。若为 false(默认)，则克隆时不包含后代节点。
 
 ### 删除节点
 
@@ -540,7 +573,7 @@ document.createElement('标签名')
 ## BOM
 
 BOM(Browser Object Model ) 是浏览器对象模型。
-所有通过var定义在全局作用域中的变量、函数都会变成window对象的属性和方法,window对象下的属性和方法调用的时候可以省略window,像document、alert()、console.log()这些都是window的属性,基本BOM属性和方法都是window的
+所有通过 var 定义在全局作用域中的变量、函数都会变成 window 对象的属性和方法,window 对象下的属性和方法调用的时候可以省略 window,像 document、alert()、console.log()这些都是 window 的属性,基本 BOM 属性和方法都是 window 的
 
 ## 本地存储
 
@@ -566,10 +599,9 @@ BOM(Browser Object Model ) 是浏览器对象模型。
 
 本地只能存储字符串,无法存储复杂数据类型。
 
-**解决：** 需要将复杂数据类型转换成JSON字符串,在存储到本地
+**解决：** 需要将复杂数据类型转换成 JSON 字符串,在存储到本地
 
 ```js
-localStorage.setItem('user', JSON.stringify({name: 'name1', age: 18}))
-const obj = JSON.parse(localStorage.getItem('user'))
+localStorage.setItem("user", JSON.stringify({ name: "name1", age: 18 }));
+const obj = JSON.parse(localStorage.getItem("user"));
 ```
-

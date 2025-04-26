@@ -1,27 +1,10 @@
-# Copyright (c) 2020 PaddlePaddle Authors. All Rights Reserved.
-#
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-#    http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
-
 import six
 import codecs
 import os
 from ast import literal_eval
-from typing import Any, Dict, Optional
+from typing import Dict, Optional
 
 import yaml
-
-import config_checker as checker
-
 
 _INHERIT_KEY = '_inherited_'
 _BASE_KEY = '_base_'
@@ -31,38 +14,10 @@ class NoAliasDumper(yaml.SafeDumper):
         return True
     
 class Config(object):
-    """
-    Configuration parsing.
-
-    The following hyper-parameters are available in the config file:
-        batch_size: The number of samples per gpu.
-        iters: The total training steps.
-        train_dataset: A training data config including type/data_root/transforms/mode.
-            For data type, please refer to paddleseg.datasets.
-            For specific transforms, please refer to paddleseg.transforms.transforms.
-        val_dataset: A validation data config including type/data_root/transforms/mode.
-        optimizer: A optimizer config. Please refer to paddleseg.optimizers.
-        loss: A loss config. Multi-loss config is available. The loss type order is 
-            consistent with the seg model outputs, where the coef term indicates the 
-            weight of corresponding loss. Note that the number of coef must be the 
-            same as the number of model outputs, and there could be only one loss type 
-            if using the same loss type among the outputs, otherwise the number of
-            loss type must be consistent with coef.
-        model: A model config including type/backbone and model-dependent arguments.
-            For model type, please refer to paddleseg.models.
-            For backbone, please refer to paddleseg.models.backbones.
-
-    Args:
-        path (str) : The path of config file, supports yaml format only.
-        opts (list, optional): Use opts to update the key-value pairs of all options.
-
-    """
-
     def __init__(
             self,
             path: str,
-            opts: Optional[list]=None,
-            checker: Optional[checker.ConfigChecker]=None, ):
+            opts: Optional[list]=None,):
         assert os.path.exists(path), \
             'Config path ({}) does not exist'.format(path)
         assert path.endswith('yml') or path.endswith('yaml'), \
@@ -94,13 +49,6 @@ class Config(object):
     @classmethod
     def _parse_from_yaml(cls, path: str, *args, **kwargs) -> dict:
         return parse_from_yaml(path, *args, **kwargs)
-
-    @classmethod
-    def _build_default_checker(cls):
-        rules = []
-        rules.append(checker.DefaultPrimaryRule())
-
-        return checker.ConfigChecker(rules, allow_update=True)
 
     def __str__(self) -> str:
         # Use NoAliasDumper to avoid yml anchor 
@@ -173,8 +121,3 @@ def update_config_dict(dic: dict,
             tmp_dic[key_list[-1]] = value
 
     return dic
-
-
-if __name__ =='__main__':
-    config = Config(r'D:\objectdetection\other\config1\test.yml')
-    print(config)

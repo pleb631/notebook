@@ -1,32 +1,34 @@
-# Copyright (c) 2020 PaddlePaddle Authors. All Rights Reserved.
-#
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-#    http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
-
 import sys
 import time
+from rich.console import Console
+from rich.text import Text
 
-levels = {0: 'ERROR', 1: 'WARNING', 2: 'INFO', 3: 'DEBUG'}
+levels = {
+    0: ('ERROR', 'bold red'),
+    1: ('WARNING', 'bold yellow'),
+    2: ('INFO', 'bold green'),
+    3: ('DEBUG', 'bold cyan'),
+}
+
 log_level = 2
-
+console = Console()
 
 def log(level=2, message=""):
-    current_time = time.time()
-    time_array = time.localtime(current_time)
-    current_time = time.strftime("%Y-%m-%d %H:%M:%S", time_array)
-    if log_level >= level:
-        print("{} [{}]\t{}".format(current_time, levels[level], message)
-              .encode("utf-8").decode("latin1"))
-        sys.stdout.flush()
+    if log_level < level:
+        return
+
+    level_name, level_style = levels.get(level, ('INFO', 'bold green'))
+    current_time = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
+
+    # 构建一行文字，带颜色但不换行
+    text = Text()
+    text.append(f"{current_time} ", style="dim")                         # 时间灰色
+    text.append(f"[{level_name:<7}] ", style=level_style)               # 等宽格式对齐
+    text.append(message, style="white")                                  # 正文白色（可调）
+
+    console.print(text, highlight=False, soft_wrap=False, overflow="ignore", end="")
+    console.print("")  # 手动换行（避免 rich 自动多段输出换行）
+    sys.stdout.flush()
 
 def debug(message=""):
     log(level=3, message=message)
