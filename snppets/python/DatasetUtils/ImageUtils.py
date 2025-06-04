@@ -6,7 +6,8 @@ import numpy as np
 from PIL import Image
 from pathlib import Path
 from urllib.request import urlopen
-
+import base64
+from .calibration import gen_perspective_image
 
 from .FileUtils import *
 from .Convertion import (
@@ -17,28 +18,41 @@ from functools import reduce
 
 
 def get_image_features(image, mode="cv2"):
-    """获取图像的属性
-    读取图像+获取属性总时间，PIL格式比opencv格式快4倍；如果只是获取分辨率，建议使用PIL格式
+    """
+    获取图像的属性。
 
     Args:
-        cv2_image: np.array, cv2读取的图像
-        mode: str, 若为'cv2'，读取opencv格式的图像；若为'PIL'，读取PIL格式的图像高宽；若为'PIL_channel'，读取PIL格式的图像高宽及通道
+        image: 输入图像对象，根据mode不同类型不同。
+            - mode='cv2'时，image为np.array格式（H, W, C）
+            - mode='PIL'或'PIL_channel'时，image为PIL.Image.Image对象
+        mode: str, 读取模式，支持 "cv2"、"PIL"、"PIL_channel"
 
     Returns:
-        height: int, 图像高
-        width: int, 图像宽
-        channel: int, 图像通道数
+        若mode为"cv2"或"PIL_channel"，返回(height, width, channel)
+        若mode为"PIL"，返回(height, width)
     """
     if mode == "cv2":
-        height, width, channel = image.shape
-        return height, width, channel
+        if hasattr(image, 'shape') and len(image.shape) == 3:
+            height, width, channel = image.shape
+            return height, width, channel
+        else:
+            raise ValueError("cv2模式下，输入必须是3维numpy数组")
     elif mode == "PIL":
-        width, height = image.size
-        return height, width
+        if hasattr(image, 'size'):
+            width, height = image.size
+            return height, width
+        else:
+            raise ValueError("PIL模式下，输入必须是PIL.Image对象")
     elif mode == "PIL_channel":
-        width, height = image.size
-        channel = len(image.split())
-        return height, width, channel
+        if hasattr(image, 'size') and hasattr(image, 'split'):
+            width, height = image.size
+            channel = len(image.split())
+            return height, width, channel
+        else:
+            raise ValueError("PIL_channel模式下，输入必须是PIL.Image对象")
+    else:
+        raise ValueError(f"不支持的mode类型: {mode}")
+
 
 
 def fftCacul(img):
@@ -79,40 +93,38 @@ def is_valid_jpg(jpg_file_path):
     Returns:
         bool, True则合法，False则非法
     """
-    if os.path.getsize(jpg_file_path) == 0:
+    if not os.path.isfile(jpg_file_path) or os.path.getsize(jpg_file_path) == 0:
         return False
-    elif jpg_file_path.split(".")[-1].lower() == "jpg":
-        with open(jpg_file_path, "rb") as f:
-            f.seek(-2, 2)
-            f_end = f.read()
-            return f_end == b"\xff\xd9"  # 判定jpg是否包含结束字段
-    else:
-        return False
+    if jpg_file_path.lower().endswith('.jpg'):
+        try:
+            with open(jpg_file_path, 'rb') as f:
+                f.seek(-2, os.SEEK_END)
+                return f.read() == b'\xff\xd9'
+        except OSError:
+            return False
+    return False
 
 
 def plt2cv(fig):
     """
-    fig = plt.figure()
-    image = fig2data(fig)
-    @brief Convert a Matplotlib figure to a 4D numpy array with RGBA channels and return it
-    @param fig a matplotlib figure
-    @return a numpy 3D array of RGBA values
-    """
-    import PIL.Image as Image
+    将 Matplotlib Figure 转换为 numpy 数组（RGBA格式）。
 
-    # draw the renderer
+    Args:
+        fig: matplotlib.figure.Figure 对象
+
+    Returns:
+        numpy.ndarray，形状为 (height, width, 4)，数据类型uint8，RGBA通道
+    """
     fig.canvas.draw()
 
-    # Get the RGBA buffer from the figure
     w, h = fig.canvas.get_width_height()
-    buf = np.fromstring(fig.canvas.tostring_argb(), dtype=np.uint8)
-    buf.shape = (w, h, 4)
+    buf = np.frombuffer(fig.canvas.tostring_argb(), dtype=np.uint8)
+    buf.shape = (h, w, 4)
 
-    # canvas.tostring_argb give pixmap in ARGB mode. Roll the ALPHA channel to have it in RGBA mode
-    buf = np.roll(buf, 3, axis=2)
-    image = Image.frombytes("RGBA", (w, h), buf.tostring())
-    image = np.asarray(image)
-    return image
+    buf = np.roll(buf, 3, axis=2)  # ARGB -> RGBA
+
+    image = Image.frombuffer("RGBA", (w, h), buf, "raw", "RGBA", 0, 1)
+    return np.array(image)
 
 
 def point_in_mask(point, mask_image):
@@ -556,11 +568,12 @@ def filter_similar_image(image_dir_path, save_image_dir_path, threshold=5):
 
     # 计算哈希值汉明距离
     def hamming(h1, h2):
-        h, d = 0, h1 ^ h2
-        while d:
-            h += 1
-            d &= d - 1
-        return h
+        x = h1 ^ h2
+        dist = 0
+        while x:
+            dist += 1
+            x &= x - 1
+        return dist
 
     image_names = glob.glob(f"{image_dir_path}**/*.jpg",recursive=True)+glob.glob(f"{image_dir_path}**/*.png",recursive=True)
 
@@ -692,43 +705,55 @@ def rotate_bound(image, angle):
 
 
 def skeletonize(image, size, structuring=cv2.MORPH_RECT):
-    # determine the area (i.e. total number of pixels in the image),
-    # initialize the output skeletonized image, and construct the
-    # morphological structuring element
-    area = image.shape[0] * image.shape[1]
-    skeleton = np.zeros(image.shape, dtype="uint8")
+    """
+    对二值图像进行骨架化处理。
+
+    Args:
+        image: np.ndarray, 输入二值图像（非零为前景）
+        size: tuple, 结构元素大小，如(3,3)
+        structuring: cv2结构元素形状，默认cv2.MORPH_RECT
+
+    Returns:
+        skeleton: np.ndarray，骨架化后的图像
+    """
+    skeleton = np.zeros_like(image)
     elem = cv2.getStructuringElement(structuring, size)
 
-    # keep looping until the erosions remove all pixels from the
-    # image
     while True:
-        # erode and dilate the image using the structuring element
         eroded = cv2.erode(image, elem)
         temp = cv2.dilate(eroded, elem)
-
-        # subtract the temporary image from the original, eroded
-        # image, then take the bitwise 'or' between the skeleton
-        # and the temporary image
         temp = cv2.subtract(image, temp)
         skeleton = cv2.bitwise_or(skeleton, temp)
         image = eroded.copy()
 
-        # if there are no more 'white' pixels in the image, then
-        # break from the loop
-        if area == area - cv2.countNonZero(image):
+        # 当图像中无白色像素时，结束循环
+        if cv2.countNonZero(image) == 0:
             break
 
-    # return the skeletonized image
     return skeleton
 
 
 
 def url_to_image(url, readFlag=cv2.IMREAD_COLOR):
-    # download the image, convert it to a NumPy array, and then read
-    # it into OpenCV format
-    resp = urlopen(url)
-    image = np.asarray(bytearray(resp.read()), dtype="uint8")
-    image = cv2.imdecode(image, readFlag)
+    """
+    从URL下载图片并转换为OpenCV格式的numpy数组。
 
-    # return the image
-    return image
+    Args:
+        url: str，图片URL地址
+        readFlag: int，OpenCV读取标志，默认cv2.IMREAD_COLOR
+
+    Returns:
+        numpy.ndarray，OpenCV格式图像，下载或解码失败返回None
+    """
+    try:
+        response = requests.get(url, timeout=10)
+        response.raise_for_status()
+        image_array = np.frombuffer(response.content, dtype=np.uint8)
+        image = cv2.imdecode(image_array, readFlag)
+        return image
+    except requests.RequestException as e:
+        print(f"请求失败: {e}")
+        return None
+    except Exception as e:
+        print(f"图片解码失败: {e}")
+        return None

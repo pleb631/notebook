@@ -44,9 +44,6 @@ def save_json(json_path, info, indent=4, mode='w', with_return_char=False):
         mode: str, 'w'代表覆盖写；'a'代表追加写
         with_return_char: bool, 写文件时是否在结尾添加换行符
     '''
-    #os.makedirs(os.path.split(json_path)[0], exist_ok=True)
-    
-    # 把python字典转换为字符串
     json_str = json.dumps(info, indent=indent,ensure_ascii=False)
     if with_return_char:
         json_str += '\n'
@@ -54,8 +51,6 @@ def save_json(json_path, info, indent=4, mode='w', with_return_char=False):
     with open(json_path, mode,encoding="UTF-8") as json_file:
         json_file.write(json_str)
     
-    json_file.close()
-
 
 '''
 YAML文件读写
@@ -156,7 +151,7 @@ def save_txt(txt_path, info, mode='w'):
         info: list, txt文件内容
         mode: str, 'w'代表覆盖写；'a'代表追加写
     '''
-    with open(txt_path, mode,encoding="UTF-8") as txt_file:
+    with open(txt_path, mode,encoding="utf-8") as txt_file:
         for line in info:
             txt_file.write(line + '\n')
     
@@ -173,17 +168,18 @@ def read_yolo_txt(txt_path, width, height):
     Returns:
         txt_data: list, yolo_txt文件内容
     '''
-    txt_file = open(txt_path, 'r')
-    txt_data = []
-    for line in txt_file:
-        line = line.split()
-        cls_id = int(line[0])
-        box_x = float(line[1]) * width
-        box_y = float(line[2]) * height
-        box_w = float(line[3]) * width
-        box_h = float(line[4]) * height
 
-        txt_data.append(xywh2xyxy([box_x, box_y, box_w, box_h]) + [cls_id])
+    txt_data = []
+    with open(txt_path, 'r') as txt_file:
+        for line in txt_file:
+            line = line.strip().split()
+            cls_id = int(line[0])
+            box_x = float(line[1]) * width
+            box_y = float(line[2]) * height
+            box_w = float(line[3]) * width
+            box_h = float(line[4]) * height
+
+            txt_data.append(xywh2xyxy([box_x, box_y, box_w, box_h]) + [cls_id])
 
 
     return txt_data
@@ -298,18 +294,27 @@ def save_pkl(pkl_path, pkl_data):
     with open(pkl_path, 'wb') as pkl_file:
         pickle.dump(pkl_data, pkl_file)
 
-def list_files(basePath, validExts=None, contains=None):
+def list_files(base_path, valid_exts=None, contains=None):
     '''
     遍历文件夹basePath中的文件,如果validExts不为空,则只返回文件扩展名为validExts的文件,
     如果contains不为空,则只返回文件名包含contains的文件
     '''
-    for (rootDir, dirNames, filenames) in os.walk(basePath):
+    for root_dir, _, filenames in os.walk(base_path):
         for filename in filenames:
-            if contains is not None and filename.find(contains) == -1:
+            if contains is not None and contains not in filename:
                 continue
-            ext = filename[filename.rfind("."):].lower()
-            if validExts is None or ext.endswith(validExts):
-                yield os.path.join(rootDir, filename)
+
+            ext = os.path.splitext(filename)[1].lower()
+
+            if valid_exts is None:
+                matched = True
+            elif isinstance(valid_exts, (list, tuple)):
+                matched = ext in [e.lower() for e in valid_exts]
+            else:
+                matched = ext == valid_exts.lower()
+
+            if matched:
+                yield os.path.join(root_dir, filename)
 
 
 
@@ -346,28 +351,23 @@ def byte_to_base64(byte_data):
 
 
 def download_url(file_url, save_file_path):
-    '''下载并存储网络文件
+    """
+    下载并保存网络文件。
 
     Args:
-        file_url: str, 网络文件url
-        save_file_path: str, 文件存储路径
-    '''
-    import requests
-    file_object = requests.get(file_url)
-    with open(save_file_path, 'wb') as local_file:
-        local_file.write(file_object.content)
-
-
-def is_file_empty(file_path):
-    '''判断文件是否是空文件
-
-    Args:
-        file_path: str, 文件路径
-
-    Returns:
-        bool, 为空则为True,否则为False
-    '''
-    return not (size := os.path.getsize(file_path))
+        file_url: 网络资源的 URL
+        save_file_path: 本地保存路径
+    """
+    try:
+        response = requests.get(file_url, stream=True, timeout=10)
+        response.raise_for_status()  # 若状态码非200，主动抛出异常
+        os.makedirs(os.path.dirname(save_file_path), exist_ok=True)
+        with open(save_file_path, 'wb') as f:
+            for chunk in response.iter_content(chunk_size=8192):
+                if chunk:
+                    f.write(chunk)
+    except Exception as e:
+        print(f"下载失败: {file_url}\n原因: {e}")
 
 
 def get_str_of_size(size):

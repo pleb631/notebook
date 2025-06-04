@@ -225,17 +225,20 @@ def xyxy2xywh(xyxy):
 
 
 def expand_box(xyxy, ratio, w, h):
-    if isinstance(ratio, float) or isinstance(ratio, int):
-        ratio = [ratio, ratio]
-    xywh = xyxy2xywh(xyxy)
-    new_w, new_h = xywh[2] * ratio[0], xywh[3] * ratio[1]
-    x1, y1 = xywh[0] - new_w // 2, xywh[1] - new_h // 2
-    x2, y2 = xywh[0] + new_w, xywh[1] + new_h
-    x1 = np.clip(x1, 0, w)
-    y1 = np.clip(y1, 0, h)
-    x2 = np.clip(x2, 0, w)
-    y2 = np.clip(y2, 0, h)
-    return np.array([x1, y1, x2, y2])
+    """
+    扩大边界框尺寸，并限制在图像尺寸范围内。
+    """
+    ratio = np.broadcast_to(ratio, (2,)) if isinstance(ratio, (float, int)) else np.array(ratio)
+    x1, y1, x2, y2 = xyxy
+    cx, cy = (x1 + x2) / 2, (y1 + y2) / 2
+    bw, bh = (x2 - x1) * ratio[0], (y2 - y1) * ratio[1]
+    new_box = np.array([
+        np.clip(cx - bw / 2, 0, w),
+        np.clip(cy - bh / 2, 0, h),
+        np.clip(cx + bw / 2, 0, w),
+        np.clip(cy + bh / 2, 0, h)
+    ])
+    return new_box
 
 
 def xywh2xyxyxyxy(center):
