@@ -321,18 +321,18 @@ unknown 的含义是: ==未知类型==
     let str1: string;
     str1 = "hello";
     str1.toUpperCase(); //⽆警告
-
+    
     let str2: any;
     str2 = "hello";
     str2.toUpperCase(); //⽆警告
-
+    
     let str3: unknown;
     str3 = "hello";
     str3
       .toUpperCase()
       (
         //警告:"str3"的类型为"未知"
-
+    
         // 使⽤断⾔强制指定str3的类型为string
         str3 as string
       )
@@ -417,9 +417,9 @@ void 的含义是空,即: 函数不返回任何值, 调⽤者也不应依赖其�
     function logMessage(msg: string): void {
       console.log(msg);
     }
-
+    
     let result = logMessage("你好");
-
+    
     if (result) {
       // 此行报错：无法测试 "void" 类型的表达式的真实性
       console.log("logMessage有返回值");
@@ -430,9 +430,9 @@ void 的含义是空,即: 函数不返回任何值, 调⽤者也不应依赖其�
     function logMessage(msg: string): undefined {
       console.log(msg);
     }
-
+    
     result = logMessage("你好");
-
+    
     if (result) {
       // 此行无警告
       console.log("logMessage有返回值");
@@ -538,9 +538,9 @@ b = undefined // 警告:不能将类型"undefined"分配给类型"Object"
     name: string
     age?: number
     [key: string]: any // 索引签名,完全可以不⽤key这个单词,换成其他的也可以(另一种常用写法：index)
-
+    
     // 赋值合法
-
+    
     person = {
     name:'张三',
     age:18,
@@ -1571,9 +1571,7 @@ const y = mul(4, 5); // y 类型为 number
 console.log(x, y);
 ```
 
-# 装饰器
-
-[🪩 附加篇：TypeScript 装饰器\_哔哩哔哩\_bilibili](https://www.bilibili.com/video/BV1YS411w7Bf?spm_id_from=333.788.videopod.episodes&vd_source=eec8d29cc9562259bc3afddcb56823bd&p=4)
+# 装饰器(实验)
 
 ## 一、简介
 
@@ -1705,7 +1703,7 @@ test(Person);
 
 声明构造类型＋指定静态属性
 
-# 0-综合、通用/状态/问题
+### 综合、通用/状态/问题
 
 ```typescript
 // 定义一个构造类型，且包含一个静态属性 wife
@@ -1721,7 +1719,7 @@ class Person {
 test(Person);
 ```
 
-## 替换被装饰的类
+### 替换被装饰的类
 
 对于高级一些的装饰器，不仅仅是覆盖一个原型上的方法，还要有更多功能，例如添加新的方法和状态。
 :::tips
