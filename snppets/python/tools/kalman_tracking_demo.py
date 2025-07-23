@@ -1,19 +1,10 @@
-# -*- coding: utf-8 -*-
-"""
-# --------------------------------------------------------
-# @Project: python-learning-notes
-# @Author : panjq
-# @E-mail : pan_jinquan@163.com
-# @Date   : 2020-03-10 16:56:19
-# --------------------------------------------------------
-"""
+
 
 import cv2
 import numpy as np
 
 
 class KalmanTracking(object):
-    """称卡尔曼滤波器是线性滤波器"""
 
     def __init__(self):
         # 创建一个空帧，定义(700, 700, 3)画图区域

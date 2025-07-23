@@ -482,49 +482,6 @@ class VideoReader:
         if self._position == 0:
             return None
         return self._cache.get(self._position - 1)
-
-    def cvt2frames(self,
-                   frame_dir,
-                   file_start=0,
-                   filename_tmpl='{:06d}.jpg',
-                   start=0,
-                   max_num=0,
-                   show_progress=True):
-        """Convert a video to frame images.
-
-        Args:
-            frame_dir (str): Output directory to store all the frame images.
-            file_start (int): Filenames will start from the specified number.
-            filename_tmpl (str): Filename template with the index as the
-                placeholder.
-            start (int): The starting frame index.
-            max_num (int): Maximum number of frames to be written.
-            show_progress (bool): Whether to show a progress bar.
-        """
-        os.makedirs(frame_dir,exist_ok=True)
-        if max_num == 0:
-            task_num = self.frame_cnt - start
-        else:
-            task_num = min(self.frame_cnt - start, max_num)
-        if task_num <= 0:
-            raise ValueError('start must be less than total frame number')
-        if start > 0:
-            self._set_real_position(start)
-
-        def write_frame(file_idx):
-            img = self.read()
-            if img is None:
-                return
-            filename = os.path.join(frame_dir, filename_tmpl.format(file_idx))
-            cv2.imwrite(filename, img)
-
-        if show_progress:
-            track_progress(write_frame, range(file_start,
-                                              file_start + task_num))
-        else:
-            for i in range(task_num):
-                write_frame(file_start + i)
-
     def __len__(self):
         return self.frame_cnt
 
