@@ -1,67 +1,52 @@
-- [变量](#变量)
-  - [匿名变量](#匿名变量)
-  - [浮点数](#浮点数)
-  - [复数](#复数)
-  - [bool](#bool)
-  - [string](#string)
-    - [字符串拼接符“+”](#字符串拼接符)
-  - [byte和rune](#byte和rune)
-  - [指针](#指针)
-  - [常量和const关键字](#常量和const关键字)
-  - [iota 常量生成器](#iota-常量生成器)
-  - [类型别名与类型定义](#类型别名与类型定义)
-- [容器](#容器)
-  - [数组](#数组)
-  - [切片](#切片)
-    - [定义](#定义)
-      - [从数组或切片生成新的切片](#从数组或切片生成新的切片)
-      - [直接声明](#直接声明)
-    - [make](#make)
-    - [append](#append)
-    - [copy](#copy)
-    - [循环迭代切片](#循环迭代切片)
-  - [map](#map)
-    - [容量](#容量)
-    - [用切片作为 map 的值](#用切片作为-map-的值)
-    - [删除map](#删除map)
-    - [sync.Map](#syncmap)
-  - [list](#list)
-    - [遍历列表](#遍历列表)
-- [逻辑语句](#逻辑语句)
-  - [if](#if)
-  - [for](#for)
-  - [switch](#switch)
-  - [goto](#goto)
-- [函数](#函数)
-  - [变长参数](#变长参数)
-  - [defer](#defer)
-  - [闭包](#闭包)
-    - [将函数作为返回值](#将函数作为返回值)
-    - [使用闭包调试](#使用闭包调试)
-- [结构体](#结构体)
-  - [匿名字段和内嵌结构体](#匿名字段和内嵌结构体)
+- [1.基础](#1基础)
+  - [1.1 基础数据类型](#11-基础数据类型)
+    - [整型](#整型)
+    - [浮点数](#浮点数)
+    - [string](#string)
+    - [byte和rune](#byte和rune)
+    - [bool](#bool)
+    - [const](#const)
+    - [iota 常量生成器](#iota-常量生成器)
+  - [1.2 逻辑语句](#12-逻辑语句)
+    - [if](#if)
+    - [for](#for)
+    - [switch](#switch)
+    - [goto](#goto)
+  - [1.3 函数](#13-函数)
+    - [变长参数](#变长参数)
+    - [defer](#defer)
+    - [闭包](#闭包)
+      - [将函数作为返回值](#将函数作为返回值)
+      - [使用闭包调试](#使用闭包调试)
+    - [错误处理](#错误处理)
+  - [1.4 复合数据类型](#14-复合数据类型)
+    - [数组](#数组)
+    - [slice](#slice)
+      - [声明](#声明)
+      - [内置方法](#内置方法)
+    - [map](#map)
+  - [1.5 结构体](#15-结构体)
+    - [匿名字段和内嵌结构体](#匿名字段和内嵌结构体)
     - [命名冲突](#命名冲突)
     - [方法](#方法)
-    - [String](#string-1)
-- [interface](#interface)
-  - [接口嵌套接口](#接口嵌套接口)
-  - [类型断言：如何检测和转换接口变量的类型](#类型断言如何检测和转换接口变量的类型)
-  - [获取type](#获取type)
-  - [测试变量是否实现了接口函数](#测试变量是否实现了接口函数)
-  - [接口上的方法集](#接口上的方法集)
-  - [空接口](#空接口)
-    - [构建通用类型或包含不同类型变量的数组](#构建通用类型或包含不同类型变量的数组)
-    - [复制数据切片至空接口切片](#复制数据切片至空接口切片)
-  - [通用类型的节点数据结构](#通用类型的节点数据结构)
-- [other](#other)
-  - [并发](#并发)
+  - [1.6 interface](#16-interface)
+    - [接口嵌套接口](#接口嵌套接口)
+    - [类型断言：如何检测和转换接口变量的类型](#类型断言如何检测和转换接口变量的类型)
+    - [获取type](#获取type)
+    - [测试变量是否实现了接口函数](#测试变量是否实现了接口函数)
+    - [接口上的方法集](#接口上的方法集)
+    - [空接口](#空接口)
+      - [构建通用类型或包含不同类型变量的数组](#构建通用类型或包含不同类型变量的数组)
+      - [复制数据切片至空接口切片](#复制数据切片至空接口切片)
+    - [通用类型的节点数据结构](#通用类型的节点数据结构)
+  - [1.7 并发](#17-并发)
     - [go func](#go-func)
     - [chan struct](#chan-struct)
-    - [select](#select)
-  - [异常处理](#异常处理)
-- [内置库](#内置库)
+      - [select](#select)
 
-## 变量
+# 1.基础
+
+## 1.1 基础数据类型
 
 声明变量的一般形式是使用 var 关键字：
 
@@ -69,9 +54,12 @@
 var name type
 var hp int = 100
 var hp1 = 100
+hp2 := 100 //简化写法
 ```
 
 其中，var 是声明变量的关键字，name 是变量名，type 是变量的类型。
+
+简化写法不能提供数据类型，只能用在函数内部
 
 Go语言的基本类型有：
 
@@ -85,36 +73,13 @@ Go语言的基本类型有：
 - complex64、complex128
 当一个变量被声明之后，系统自动赋予它该类型的零值：int 为 0，float 为 0.0，bool 为 false，string 为空字符串，指针为 nil 等
 
-除 var 关键字外，还可使用更加简短的变量定义和初始化语法。
+### 整型
 
-```go
+Go语言同时提供了有符号和无符号类型的整数运算。有int8、int16、int32和int64四种有符号整数类型，分别对应8、16、32、64bit大小的有符号整数，与此对应的是uint8、uint16、uint32和uint64四种无符号整数类型。
 
-名字 := 表达式
-i, j := 0, 1
-a,s:=1, "abc"
-```
+int和uint，一般为32或64bit，这跟硬件平台相关
 
-简短模式（short variable declaration）有以下限制：
-
-- 定义变量，同时显式初始化。
-- 不能提供数据类型。
-- 只能用在函数内部。
-- 如果函数返回多个值，则至少有一个新声明的变量出现在左值中，如果都是已声明的则会报错
-
-### 匿名变量
-
-匿名变量的特点是一个下画线“_”，“_”本身就是一个特殊的标识符，被称为空白标识符。它可以像其他标识符那样用于变量的声明或赋值（任何类型都可以赋值给它），但任何赋给这个标识符的值都将被抛弃，因此这些值不能在后续的代码中使用，也不可以使用这个标识符作为变量对其它变量进行赋值或运算。使用匿名变量时，只需要在变量声明的地方使用下画线替换即可。
-
-```go
-func GetData() (int, int) {
-    return 100, 200
-}
-func main(){
-    a, _ := GetData()
-    _, b := GetData()
-    fmt.Println(a, b)
-}
-```
+rune类型是和int32等价的类型，通常用于表示一个Unicode字符。这两个名称可以互换使用。同样byte也是uint8类型的等价类型，byte类型一般用于强调数值是一个原始的数据而不是一个小的整数。
 
 ### 浮点数
 
@@ -123,26 +88,42 @@ func main(){
 常量 math.MaxFloat64 表示 float64 能取到的最大数值，大约是 1.8e308；
 float32 和 float64 能表示的最小值分别为 1.4e-45 和 4.9e-324。
 
-一个 float32 类型的浮点数可以提供大约 6 个十进制数的精度，而 float64 则可以提供约 15 个十进制数的精度，通常应该优先使用 float64 类型，因为 float32 类型的累计计算误差很容易扩散，并且 float32 能精确表示的正整数并不是很大。
+一个 float32 类型的浮点数可以提供大约 6 个十进制数的精度，而 float64 则可以提供约 15 个十进制数的精度，通常应该**优先使用 float64 类型**。
 
 ```go
 var f float32 = 16777216 // 1 << 24
 fmt.Println(f == f+1)    // "true"!
-
 ```
 
-### 复数
+### string
 
-Go语言中复数的类型有两种，分别是  complex128（64 位实数和虚数）和 complex64（32 位实数和虚数），其中 complex128 为复数的默认类型。
+可以使用双引号`""`来定义字符串。字符串的值是不可变的：一个字符串包含的字节序列永远不会被改变
 
-复数的值由三部分组成 RE + IMi，其中 RE 是实数部分，IM 是虚数部分，RE 和 IM 均为 float 类型，而最后的 i 是虚数单位。
+字符串的内容（纯字节）可以通过标准索引法来获取，在方括号`[]`内写入索引，索引从 0 开始计数：
+
+- 字符串 str 的第 1 个字节：`str[0]`
+- 第 i 个字节：`str[i - 1]`
+- 最后 1 个字节：`str[len(str)-1]`
+
+**注意**：获取字符串中某个字节的地址属于非法行为，例如 &str[i]。
+
+**字符串拼**:两个字符串 s1 和 s2 可以通过 s := s1 + s2 拼接在一起。将 s2 追加到 s1 尾部并生成一个新的字符串 s。
+
+### byte和rune
+
+字符串中的每一个元素叫做“字符”，在遍历或者单个获取字符串元素时可以获得字符。
+
+Go语言的字符有以下两种：
+
+- 一种是 uint8 类型，或者叫 byte 型，代表了 ASCII 码的一个字符。
+- 另一种是 rune 类型，代表一个 UTF-8 字符，当需要处理中文、日文或者其他复合字符时，则需要用到 rune 类型。rune 类型等价于 int32 类型。
+
+byte 类型是 uint8 的别名，对于只占用 1 个字节的传统 ASCII 编码的字符来说，完全没有问题，例如 var ch byte = 'A'，字符使用单引号括起来。
+
+在 ASCII 码表中，A 的值是 65，使用 16 进制表示则为 41，所以下面的写法是等效的：
 
 ```go
-var x complex128 = complex(1, 2) // 1+2i
-var y complex128 = complex(3, 4) // 3+4i
-fmt.Println(x*y)                 // "(-5+10i)"
-fmt.Println(real(x*y))           // "-5"
-fmt.Println(imag(x*y))           // "10"
+var ch byte = 65 或 var ch byte = '\x41'      //（\x 总是紧跟着长度为 2 的 16 进制数）
 ```
 
 ### bool
@@ -164,60 +145,7 @@ if b {
 }
 ```
 
-### string
-
-可以使用双引号""来定义字符串，字符串中可以使用转义字符来实现换行、缩进等效果，常用的转义字符包括：
-
-- \n：换行符
-- \r：回车符
-- \t：tab 键
-- \u 或 \U：Unicode 字符
-- \\：反斜杠自身
-
-一般的比较运算符（==、!=、<、<=、>=、>）是通过在内存中按字节比较来实现字符串比较的，因此比较的结果是字符串自然编码的顺序。字符串所占的字节长度可以通过函数 len() 来获取，例如 len(str)。
-
-字符串的内容（纯字节）可以通过标准索引法来获取，在方括号[ ]内写入索引，索引从 0 开始计数：
-
-- 字符串 str 的第 1 个字节：str[0]
-- 第 i 个字节：str[i - 1]
-- 最后 1 个字节：str[len(str)-1]
-
-**注意**：获取字符串中某个字节的地址属于非法行为，例如 &str[i]。
-
-#### 字符串拼接符“+”
-
-两个字符串 s1 和 s2 可以通过 s := s1 + s2 拼接在一起。将 s2 追加到 s1 尾部并生成一个新的字符串 s。
-
-### byte和rune
-
-字符串中的每一个元素叫做“字符”，在遍历或者单个获取字符串元素时可以获得字符。
-
-Go语言的字符有以下两种：
-
-- 一种是 uint8 类型，或者叫 byte 型，代表了 ASCII 码的一个字符。
-- 另一种是 rune 类型，代表一个 UTF-8 字符，当需要处理中文、日文或者其他复合字符时，则需要用到 rune 类型。rune 类型等价于 int32 类型。
-
-byte 类型是 uint8 的别名，对于只占用 1 个字节的传统 ASCII 编码的字符来说，完全没有问题，例如 var ch byte = 'A'，字符使用单引号括起来。
-
-在 ASCII 码表中，A 的值是 65，使用 16 进制表示则为 41，所以下面的写法是等效的：
-
-```go
-var ch byte = 65 或 var ch byte = '\x41'      //（\x 总是紧跟着长度为 2 的 16 进制数）
-```
-
-### 指针
-
-一个指针变量可以指向任何一个值的内存地址，它所指向的值的内存地址在 32 和 64 位机器上分别占用 4 或 8 个字节，占用字节的大小与所指向的值的大小无关。当一个指针被定义后没有分配到任何变量时，它的默认值为 nil。指针变量通常缩写为 ptr。
-
-每个变量在运行时都拥有一个地址，这个地址代表变量在内存中的位置。Go语言中使用在变量名前面添加&操作符（前缀）来获取变量的内存地址（取地址操作），格式如下：
-
-```go
-ptr := &v    // v 的类型为 T
-
-value := *ptr // 对指针进行取值操作
-```
-
-### 常量和const关键字
+### const
 
 你可以省略类型说明符 [type]，因为编译器可以根据变量的值来推断其类型。
 显式类型定义： const b string = "abc"
@@ -242,14 +170,15 @@ fmt.Println(a, b, c, d) // "1 1 2 2"
 
 ### iota 常量生成器
 
-常量声明可以使用 iota 常量生成器初始化，它用于生成一组以相似规则初始化的常量，但是不用每行都写一遍初始化表达式。在一个 const 声明语句中，在第一个声明的常量所在的行，iota 将会被置为 0，然后在每一个有常量声明的行加一
+常量声明可以使用iota常量生成器初始化，它用于生成一组以相似规则初始化的常量，但是不用每行都写一遍初始化表达式。在一个const声明语句中，在第一个声明的常量所在的行，iota将会被置为0，然后在每一个有常量声明的行加一。
 
 ```go
 type Weekday int
+
 const (
-    Sunday Weekday = iota //0
-    Monday  //1
-    Tuesday //2
+    Sunday Weekday = iota
+    Monday
+    Tuesday
     Wednesday
     Thursday
     Friday
@@ -257,234 +186,23 @@ const (
 )
 ```
 
-### 类型别名与类型定义
+还可以加上一些表达式
 
 ```go
-// 将NewInt定义为int类型
-type NewInt int
-// 将int取一个别名叫IntAlias 类似c++的define
-type IntAlias = int
-
+const (
+ _   = 1 << (10 * iota)
+ KiB // 1024
+ MiB // 1048576
+ GiB // 1073741824
+ TiB // 1099511627776             (exceeds 1 << 32)
+ PiB // 1125899906842624
+ EiB // 1152921504606846976
+ ZiB // 1180591620717411303424    (exceeds 1 << 64)
+ YiB // 1208925819614629174706176
+)
 ```
 
-## 容器
-
-### 数组
-
-数组的声明语法如下：
-
-```go
-var 数组变量名 [元素数量]Type
-```
-
-语法说明如下所示：
-
-- 数组变量名：数组声明及使用时的变量名。
-- 元素数量：数组的元素数量，可以是一个表达式，但最终通过编译期计算的结果必须是整型数值，元素数量不能含有到运行时才能确认大小的数值。
-- Type：可以是任意基本类型，包括数组本身，类型为数组本身时，可以实现多维数组。
-
-```go
-//遍历数组
-var team [3]string
-team[0] = "hammer"
-team[1] = "soldier"
-team[2] = "mum"
-for k, v := range team {
-    fmt.Println(k, v)
-}
-```
-
-### 切片
-
-切片（slice）是对数组的一个连续片段的引用，所以切片是一个引用类型,（类似于 C/C++ 中的数组类型，或者 Python 中的 list 类型）
-
-#### 定义
-
-##### 从数组或切片生成新的切片
-
-切片默认指向一段连续内存区域，可以是数组，也可以是切片本身。
-
-从连续内存区域生成切片是常见的操作，格式如下：
-
-```go
-//slice [开始位置 : 结束位置]
-var a  = [3]int{1, 2, 3}
-fmt.Println(a, a[1:2]) //[1 2 3]  [2]
-fmt.Println(a[1:], a[:2]) // [2,3] [1,2]
-fmt.Println(a[:]) // [1,2,3]
-```
-
-##### 直接声明
-
-与数组的声明的区别在于指定长度。
-如果不初始化
-
-```go
-// var name []Type
-var strList []string
-var numList []int
-var numListEmpty = []int{} //初始化
-fmt.Println(numList == nil) // true
-fmt.Println(numListEmpty == nil) // false
-```
-
-切片是动态结构，只能与 nil 判定相等，不能互相判定相等。声明新的切片后，可以使用 append() 函数向切片中添加元素。
-
-#### make
-
-```go
-//make( []Type, size, cap )
-//Type 是指切片的元素类型，size 指的是为这个类型分配多少个元素，cap 为预分配的元素数量，这个值设定后不影响 size，只是能提前分配空间，降低多次分配空间造成的性能问题
-a := make([]int, 2)
-b := make([]int, 2, 10)
-```
-
-#### append
-
-```go
-var a []int
-a = append(a, 1) // 追加1个元素
-a = append(a, 1, 2, 3) // 追加多个元素, 手写解包方式
-a = append(a, []int{1,2,3}...) // 追加一个切片, 切片需要解包
-```
-
-在使用 append() 函数为切片动态添加元素时，如果空间不足以容纳足够多的元素，切片就会进行“扩容”，此时新切片的长度会发生改变。
-
-切片在扩容时，容量的扩展规律是按容量的 2 倍数进行扩充，例如 1、2、4、8、16……
-
-```go
-var numbers []int
-for i := 0; i < 10; i++ {
-    numbers = append(numbers, i)
-    fmt.Printf("len: %d  cap: %d pointer: %p\n", len(numbers), cap(numbers), numbers)
-}
-```
-
-也可以在头部增加元素,
-
-```go
-var a = []int{1,2,3}
-a = append([]int{0}, a...) // 在开头添加1个元素
-a = append([]int{-3,-2,-1}, a...) // 在开头添加1个切片
-```
-
-在切片开头添加元素一般都会导致内存的重新分配，而且会导致已有元素全部被复制 1 次，因此，从切片的开头添加元素的性能要比从尾部追加元素的性能差很多。
-
-因为 append 函数返回新切片的特性，所以切片也支持链式操作，我们可以将多个 append 操作组合起来，实现在切片中间插入元素：
-
-```go
-var a []int
-a = append(a[:i], append([]int{x}, a[i:]...)...) // 在第i个位置插入x
-a = append(a[:i], append([]int{1,2,3}, a[i:]...)...) // 在第i个位置插入切片```
-```
-
-#### copy
-
-可以将一个数组切片复制到另一个数组切片中，如果加入的两个数组切片不一样大，就会按照其中较小的那个数组切片的元素个数进行复制。
-
-```go
-slice1 := []int{1, 2, 3, 4, 5}
-slice2 := []int{5, 4, 3}
-copy(slice2, slice1) // 只会复制slice1的前3个元素到slice2中
-copy(slice1, slice2) // 只会复制slice2的3个元素到slice1的前3个位置
-```
-
-#### 循环迭代切片
-
-```go
-// 创建一个整型切片，并赋值
-slice := []int{10, 20, 30, 40}
-// 迭代每一个元素，并显示其值
-for index, value := range slice {
-    fmt.Printf("Index: %d Value: %d\n", index, value)
-}
-// 传统
-for index := 0; index < len(slice); index++ {
-    fmt.Printf("Index: %d Value: %d\n", index, slice[index])
-}
-```
-
-### map
-
-map 是**引用**类型，一种元素对（pair）的无序集合，pair 对应一个 key（索引）和一个 value（值），所以这个结构也称为关联数组或字典，这是一种能够快速寻找值的理想结构，给定 key，就可以迅速找到对应的 value。
-
-```go
-var mapname map[keytype]valuetype
-// - mapname 为 map 的变量名。
-// - keytype 为键类型。
-// - valuetype 是键对应的值类型。
-//[keytype] 和 valuetype 之间允许有空格。
-```
-
-在声明的时候不需要知道 map 的长度，因为 map 是可以动态增长的，未初始化的 map 的值是 nil，使用函数 len() 可以获取 map 中 pair 的数目。
-
-#### 容量
-
-和数组不同，map 可以根据新增的 key-value 动态的伸缩，因此它不存在固定长度或者最大限制，但是也可以选择标明 map 的初始容量 capacity，格式如下：
-
-```go
-make(map[keytype]valuetype, cap)
-```
-
-#### 用切片作为 map 的值
-
-既然一个 key 只能对应一个 value，而 value 又是一个原始类型，那么如果一个 key 要对应多个值怎么办？通过将 value 定义为 []int 类型或者其他类型的切片，就可以解决
-
-```go
-mp1 := make(map[int][]int)
-mp2 := make(map[int]*[]int)
-```
-
-#### 删除map
-
-删除单键
-
-```go
-delete(map, key)
-```
-
-清空 map 的唯一办法就是重新 make 一个新的 map
-
-#### sync.Map
-
-...
-
-### list
-
-初始化
-列表的元素可以是任意类型,没有具体元素类型的限制
-
-```go
-// 通过 container/list 包的 New() 函数初始化 list
-a := list.New()
-// 通过 var 关键字声明初始化 list
-var a list.List
-```
-
-| 方  法 | 功  能 |
-| --- | --- |
-|PushBack(v interface {}) | 在列表尾部插入元素 |
-|PushFront(v interface {}) | 在列表头部插入元素 |
-| InsertAfter(v interface {}, mark *Element) \*Element | 在 mark 点之后插入元素，mark 点由其他插入函数提供 |
-| InsertBefore(v interface {}, mark *Element) \*Element | 在 mark 点之前插入元素，mark 点由其他插入函数提供 |
-| PushBackList(other *List) | 添加 other 列表元素到尾部 |
-| PushFrontList(other *List) | 添加 other 列表元素到头部 |
-| Remove(e *Element) | 删除元素 e |
-
-#### 遍历列表
-
-```go
-l := list.New()
-// 尾部添加
-l.PushBack("canon")
-// 头部添加
-l.PushFront(67)
-for i := l.Front(); i != nil; i = i.Next() {
-    fmt.Println(i.Value)
-}
-```
-
-## 逻辑语句
+## 1.2 逻辑语句
 
 ### if
 
@@ -517,7 +235,7 @@ for i := 0; i < 10; i++ {
 }
 ```
 
-简易版：
+简易版(类似c++的while)：
 
 ```go
 sum := 0
@@ -560,6 +278,31 @@ default:
 }
 ```
 
+匹配项后面不需要加`break`
+
+case 后面可以带多个表达式，
+
+```go
+case 5,10,15
+```
+
+switch 默认只匹配一个分支，但是可以增加`fallthrough`继续执行下一个case
+
+```go
+switch grade:=90 {
+    case grade >90:
+        fmt.Println('1')
+        fallthrough
+    case grade >70:
+        fmt.Println('2')
+        fallthrough
+    case grade >60:
+        fmt.Println('3')
+    case grade >50:
+        fmt.Println('4')
+}
+```
+
 ### goto
 
 goto 语句可以让程序切换到某个被 Label 标记的地方继续执行。
@@ -578,12 +321,15 @@ End:
 
 ```
 
-## 函数
+## 1.3 函数
 
 ```go
-func g() {
+func f2(a int, b byte) (int, bool){
+
 }
 ```
+
+前一个括号里是输入和类型，后一个括号内是输出类型
 
 ### 变长参数
 
@@ -643,7 +389,7 @@ func min(s ...int) int {
 
 2. 使用interface：
 
-    如果一个变长参数的类型没有被指定，则可以使用默认的空接口 interface{}，这样就可以接受任何类  型的参数（详见第 11.9 节 ）。该方案不仅可以用于长度未知的参数，还可以用于任何不确定类型的 参数。一般而言我们会使用一个 for-range 循环以及 switch 结构对每个参数的类型进行判断：
+    如果一个变长参数的类型没有被指定，则可以使用默认的空接口 interface{}，这样就可以接受任何类型的参数。该方案不仅可以用于长度未知的参数，还可以用于任何不确定类型的 参数。一般而言可以使用一个 for-range 循环以及 switch 结构对每个参数的类型进行判断：
 
     ```go
     func typecheck(..,..,values … interface{}) {
@@ -821,7 +567,265 @@ where()
 where()
 ```
 
-## 结构体
+### 错误处理
+
+默认情况下，如果运行发生错误，程序就会停止运行，所以需要捕获异常，并让程序继续运行
+
+```go
+func test(){
+    defer func(){
+        err:= recover() //内置函数，用来捕获异常
+        if err != nil {
+            fmt.Println(err)
+        }
+        
+    }()
+
+    num1 := 10
+    num := 0
+    res := num1/num
+}
+```
+
+## 1.4 复合数据类型
+
+### 数组
+
+数组的声明语法如下：
+
+```go
+var intarray [10]int
+
+q := [...]int{1, 2, 3}
+// "..."表示数组的长度是根据初始化值的个数来计算
+```
+
+上面是直接提供顺序初始化值序列，但是也可以指定一个索引和对应值列表的方式初始化
+
+```go
+type Currency int
+
+const (
+    USD Currency = iota // 美元
+    EUR                 // 欧元
+    GBP                 // 英镑
+    RMB                 // 人民币
+)
+
+symbol := [...]string{USD: "$", EUR: "€", GBP: "￡", RMB: "￥"}
+
+fmt.Println(RMB, symbol[RMB]) // "3 ￥"
+```
+
+在这种形式的数组字面值形式中，初始化索引的顺序是无关紧要的，而且没用到的索引可以省略，和前面提到的规则一样，未指定初始值的元素将用零值初始化。例如，
+
+```go
+r := [...]int{99: -1}
+```
+
+定义了一个含有100个元素的数组r，最后一个元素被初始化为-1，其它元素都是用0初始化。
+
+遍历数组的方法如下
+
+```go
+//
+var team [3]string
+team[0] = "hammer"
+team[1] = "soldier"
+team[2] = "mum"
+for k, v := range team {
+    fmt.Println(k, v)
+}
+```
+
+### slice
+
+slice是一种引用类型，其结构类似
+
+```go
+type IntSlice struct {
+    ptr      *int
+    len, cap int
+}
+```
+
+#### 声明
+
+切片（slice）是对数组的一个连续片段的引用，所以切片是一个引用类型,（类似于 C/C++ 中的数组类型，或者 Python 中的 list 类型）
+
+1. 从数组或切片生成新的切片
+
+    切片默认指向一段连续内存区域，可以是数组，也可以是切片本身。
+
+    从连续内存区域生成切片是常见的操作，格式如下：
+
+    ```go
+    //slice [开始位置 : 结束位置]
+    var a  = [3]int{1, 2, 3}
+    fmt.Println(a, a[1:2]) //[1 2 3]  [2]
+    fmt.Println(a[1:], a[:2]) // [2,3] [1,2]
+    fmt.Println(a[:]) // [1,2,3]
+    ```
+
+2. 直接声明
+
+    与数组的声明的区别在于指定长度。
+    如果不初始化
+
+    ```go
+    // var name []Type
+    var strList []string
+    var numList []int
+    var numListEmpty = []int{} //初始化
+    fmt.Println(numList == nil) // true
+    fmt.Println(numListEmpty == nil) // false
+    ```
+
+    切片是动态结构，只能与 nil 判定相等，不能互相判定相等。声明新的切片后，可以使用 append() 函数向切片中添加元素。
+
+3. make
+
+    ```go
+    //make( []Type, size, cap )
+    //Type 是指切片的元素类型，size 指的是为这个类型分配多少个元素，cap 为预分配的元素数量，这个值设定后不影响 size，只是能提前分配空间，降低多次分配空间造成的性能问题
+    a := make([]int, 2)
+    b := make([]int, 2, 10)
+    ```
+
+#### 内置方法
+
+1. append
+
+    ```go
+    var a []int
+    a = append(a, 1) // 追加1个元素
+    a = append(a, 1, 2, 3) // 追加多个元素, 手写解包方式
+    a = append(a, []int{1,2,3}...) // 追加一个切片, 切片需要解包
+    ```
+
+    在使用 append() 函数为切片动态添加元素时，如果空间不足以容纳足够多的元素，切片就会进行“扩容”，此时新切片的长度会发生改变。
+
+    切片在扩容时，容量的扩展规律是按容量的 2 倍数进行扩充，例如 1、2、4、8、16……
+
+    ```go
+    var numbers []int
+    for i := 0; i < 10; i++ {
+        numbers = append(numbers, i)
+        fmt.Printf("len: %d  cap: %d pointer: %p\n", len(numbers), cap(numbers), numbers)
+    }
+    ```
+
+    也可以在头部增加元素,
+
+    ```go
+    var a = []int{1,2,3}
+    a = append([]int{0}, a...) // 在开头添加1个元素
+    a = append([]int{-3,-2,-1}, a...) // 在开头添加1个切片
+    ```
+
+    在切片开头添加元素一般都会导致内存的重新分配，而且会导致已有元素全部被复制 1 次，因此，从切片的开头添加元素的性能要比从尾部追加元素的性能差很多。
+
+    因为 append 函数返回新切片的特性，所以切片也支持链式操作，我们可以将多个 append 操作组合起来，实现在切片中间插入元素：
+
+    ```go
+    var a []int
+    a = append(a[:i], append([]int{x}, a[i:]...)...) // 在第i个位置插入x
+    a = append(a[:i], append([]int{1,2,3}, a[i:]...)...) // 在第i个位置插入切片```
+    ```
+
+2. copy
+
+    可以将一个数组切片复制到另一个数组切片中，如果加入的两个数组切片不一样大，就会按照其中较小的那个数组切片的元素个数进行复制。
+
+    ```go
+    slice1 := []int{1, 2, 3, 4, 5}
+    slice2 := []int{5, 4, 3}
+    copy(slice2, slice1) // 只会复制slice1的前3个元素到slice2中
+    copy(slice1, slice2) // 只会复制slice2的3个元素到slice1的前3个位置
+    ```
+
+3. for循环
+
+   ```go
+   import "fmt"
+
+    // nonempty returns a slice holding only the non-empty strings.
+    // The underlying array is modified during the call.
+    func nonempty(strings []string) []string {
+        i := 0
+        for _, s := range strings {
+            if s != "" {
+                strings[i] = s
+                i++
+            }
+        }
+        return strings[:i]
+    }
+   ```
+
+### map
+
+map 是**引用**类型，一种元素对（pair）的无序集合，pair 对应一个 key（索引）和一个 value（值），所以这个结构也称为关联数组或字典，这是一种能够快速寻找值的理想结构，给定 key，就可以迅速找到对应的 value。
+
+```go
+var mapname map[keytype]valuetype
+// - mapname 为 map 的变量名。
+// - keytype 为键类型。
+// - valuetype 是键对应的值类型。
+//[keytype] 和 valuetype 之间允许有空格。
+```
+
+在声明的时候不需要知道 map 的长度，因为 map 是可以动态增长的，未初始化的 map 的值是 nil，使用函数 len() 可以获取 map 中 pair 的数目。
+
+和数组不同，map 可以根据新增的 key-value 动态的伸缩，因此它不存在固定长度或者最大限制，但是也可以选择标明 map 的初始容量 capacity，格式如下：
+
+```go
+make(map[keytype]valuetype, cap)
+```
+
+既然一个 key 只能对应一个 value，而 value 又是一个原始类型，那么如果一个 key 要对应多个值怎么办？通过将 value 定义为 []int 类型或者其他类型的切片，就可以解决
+
+```go
+mp1 := make(map[int][]int)
+mp2 := make(map[int]*[]int)
+```
+
+直接初始化
+
+```go
+m := map[int]int{
+    0:0,
+    1:1,                                  // 最后的逗号是必须的
+}
+n := map[string]S{
+    "a":S{0,1},
+    "b":{2,3},                            // 类型名称可省略
+}
+```
+
+增查删改
+
+```go
+m[0] = 3                              // 修改m中key为0的值为3
+m[4] = 8                              // 添加到m中key为4值为8
+
+a := n["a"]                           // 获取n中key为"a"的值
+b, ok := n["c"]                       // 取值, 并通过ok(bool)判断key对应的元素是否存在.
+
+delete(n, "a")                        // 使用内置函数delete删除key为"a"对应的元素.
+```
+
+清空 map 的唯一办法就是重新 make 一个新的 map
+
+遍历
+
+```go
+for k,v :=range m{
+    
+}
+```
+
+## 1.5 结构体
 
 结构体定义的一般方式如下
 
@@ -833,19 +837,31 @@ type identifier struct {
 }
 ```
 
+有4种初始化方法
+
+```go
+var p T
+var p1 = T{}
+var p2 *T = new(T) //结构体指针
+var p3 *T = &T{}
+```
+
 然后像下面这样给它的字段赋值：
 
 ```go
 var s T
 s.a = 5
 s.b = 8
+
+//结构体指针的标准方式是`(*s).a = 5`
+//但go做了简化，可以直接写`s.a = 5` ,由编译器进行转化
 ```
 
 数组可以看作是一种结构体类型，不过它使用下标而不是具名的字段。
 
 **使用 `new()`**
 
-使用 `new()` 函数给一个新的结构体变量分配内存，它返回指向已分配内存的指针：`var t *T = new(T)`，如果需要可以把这条语句放在不同的行（比如定义是包范围的，但是分配却没有必要在开始就做）。
+使用 `new()` 函数给一个新的结构体变量分配内存，它返回指向已分配内存的指针：`var t *T = new(T)`，如果需要可以把这条语句放在不同的行。
 
 ```go
 var t *T
@@ -922,7 +938,7 @@ outer2 := outerS{6, 7.5, 60, innerS{5, 10}}
 }
 ```
 
-#### 命名冲突
+### 命名冲突
 
 当两个字段拥有相同的名字（可能是继承来的名字）时该怎么办呢？
 
@@ -938,87 +954,86 @@ var c C
 //只能用c.A.a 和 c.B.a来调用
 ```
 
-#### 方法
+### 方法
 
-因为方法是函数，所以同样的，不允许方法重载，即对于一个类型只能有一个给定名称的方法。但是如果基于接收者类型，是有重载的：具有同样名字的方法可以在 2 个或多个不同的接收者类型上存在，比如在同一个包里这么做是允许的：
+方法值是将一个方法绑定到特定接收器对象上并得到一个函数值。通过这个函数值，你可以在不需要指定接收器的情况下调用该方法。
 
 ```go
-func (a *denseMatrix) Add(b Matrix) Matrix
-func (a *sparseMatrix) Add(b Matrix) Matrix
+type Point struct{ X, Y float64 }
+
+func (p Point) Distance(q Point) float64 {
+// calculate distance between p and q
+}
+
+p := Point{1, 2}
+q := Point{4, 6}
+distanceFromP := p.Distance // method value
+distance := distanceFromP(q) // Call the method using method value
 ```
 
-```go
-package main
+有两种参数传输方式
 
+1. 按值传递，调用函数时会复制该对象与传递函数形参，在函数内部修改该对象需要通过return来返回（否则将只相当于函数内部的临时变量）
+2. 按指针传递，调用函数时将传递对象指针，然后传递函数形参，在函数内部的修改就是对指针指向的内存的修改。
+
+```go
 import "fmt"
 
-type TwoInts struct {
- a int
- b int
+type Number struct {
+sum int
 }
 
-func main() {
- two1 := new(TwoInts)
- two1.a = 12
- two1.b = 10
-
- fmt.Printf("The sum is: %d\n", two1.AddThem())
- fmt.Printf("Add them to the param: %d\n", two1.AddToParam(20))
-
- two2 := TwoInts{3, 4}
- fmt.Printf("The sum is: %d\n", two2.AddThem())
+func (n Number) Add(i int) Number {
+n.sum += i
+//res = n
+return n
 }
 
-func (tn *TwoInts) AddThem() int {
- return tn.a + tn.b
+func (np *Number) AddbyPtr(i int) {
+np.sum += i
 }
 
-func (tn *TwoInts) AddToParam(param int) int {
- return tn.a + tn.b + param
-}
-```
+func Test() {
+a := Number{1}
+b := Number{1}
+a.Add(1)
+fmt.Printf("a: %d\n", a.sum)
+b.AddbyPtr(1)
+fmt.Printf("b: %d\n", b.sum)
 
-#### String
+fmt.Println()
 
-类型定义了 `String()` 方法，它会被用在 `fmt.Printf()` 中生成默认的输出：等同于使用格式化描述符 `%v` 产生的输出。还有 `fmt.Print()` 和 `fmt.Println()` 也会自动使用 `String()` 方法。
+c := a
+c.Add(1)
+fmt.Printf("a: %d\n", a.sum)
+fmt.Printf("c: %d\n", c.sum)
 
-```go
-package main
+e := a.Add(1)
+fmt.Printf("e: %d\n", e.sum)
 
-import (
- "fmt"
- "strconv"
-)
+fmt.Println()
 
-type TwoInts struct {
- a int
- b int
-}
-
-func main() {
- two1 := new(TwoInts)
- two1.a = 12
- two1.b = 10
- fmt.Printf("two1 is: %v\n", two1)
- fmt.Println("two1 is:", two1)
- fmt.Printf("two1 is: %T\n", two1)
- fmt.Printf("two1 is: %#v\n", two1)
+d := b
+d.AddbyPtr(1)
+fmt.Printf("b: %d\n", b.sum)
+fmt.Printf("d: %d\n", d.sum)
 }
 
-func (tn *TwoInts) String() string {
- return "(" + strconv.Itoa(tn.a) + "/" + strconv.Itoa(tn.b) + ")"
-}
 /*
-two1 is: (12/10)
-two1 is: (12/10)
-two1 is: *main.TwoInts
-two1 is: &main.TwoInts{a:12, b:10}
+运行结果：
+a: 1
+b: 2
+
+a: 1
+c: 1
+e: 2
+
+b: 2
+d: 3
 */
 ```
 
-**注意**：不能在string方法中调用print函数，不然会死循环。
-
-## interface
+## 1.6 interface
 
 接口定义了一组方法（方法集），但是这些方法不包含（实现）代码：它们没有被实现（它们是抽象的）。接口里也不能包含变量。
 
@@ -1405,11 +1420,9 @@ func main() {
 }
 ```
 
-## other
+## 1.7 并发
 
-### 并发
-
-#### go func
+### go func
 
 go func() 是 Go 语言中的一个常用的语法结构，用于启动一个新的 goroutine。 go func 创建的 goroutine 是非阻塞。主程序会继续执行而不会等待 goroutine 的完成，如果主程序执行结束则全部 goroutine 也会被终止。
 
@@ -1440,7 +1453,7 @@ func greet() {
 
 ```
 
-#### chan struct
+### chan struct
 
 chan struct{}是一个通道（channel），它用于在Go语言中进行并发通信。与其他类型的通道相比，chan struct{}是一种特殊的通道，因为它不存储任何实际的数据，而是仅仅用于在goroutines之间进行同步。
 
@@ -1560,53 +1573,3 @@ default:
 }
 
 ```
-
-### 异常处理
-
-panic是Go语言中用于引发错误的内建函数。当程序运行时遇到无法继续执行的错误时，可以使用panic来引发一个异常
-
-```go
-func example() {
-    // 产生一个panic
-    panic("Something went wrong!")
-}
-```
-
-recover是Go语言中用于捕获panic异常的内建函数。在某些情况下，我们希望程序不因为一个panic而完全崩溃，而是能够在panic发生后执行一些清理工作或者采取其他措施。
-
-```go
-package main
-
-import "fmt"
-
-func main(){
-    fmt.Println("c")
-     defer func(){ // 必须要先声明defer，否则不能捕获到panic异常
-        fmt.Println("d")
-        if err:=recover();err!=nil{
-            fmt.Println(err) // 这里的err其实就是panic传入的内容，55
-        }
-        fmt.Println("e")
-    }()
-
-    f() //开始调用f
-    fmt.Println("f") //这里开始下面代码不会再执行
-}
-
-func f(){
-    fmt.Println("a")
-    panic("异常信息")
-    fmt.Println("b") //这里开始下面代码不会再执行
-    fmt.Println("f")
-}
-```
-
-## 内置库
-
-os
-sync
-context
-time
-orm： database
-flag： parse arg
-log
