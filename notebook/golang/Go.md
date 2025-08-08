@@ -286,7 +286,20 @@ case 后面可以带多个表达式，
 case 5,10,15
 ```
 
-switch 默认只匹配一个分支，但是可以增加`fallthrough`继续执行下一个case
+switch 后面不写表达式，Go 会当成 switch true，就会变成条件匹配（能写判断语句），和if一样
+
+```go
+switch {
+case x > 0:
+    fmt.Println("Positive")
+case x < 0:
+    fmt.Println("Negative")
+default:
+    fmt.Println("Zero")
+}
+```
+
+switch 默认只匹配一个分支，但是可以增加`fallthrough`继续执行下一个case,不做语句判断
 
 ```go
 switch grade:=90 {
@@ -855,6 +868,12 @@ s.b = 8
 
 //结构体指针的标准方式是`(*s).a = 5`
 //但go做了简化，可以直接写`s.a = 5` ,由编译器进行转化
+
+
+
+// 或者在声明时就赋值
+var p4 = T{5,8}  //要注意顺序
+var p5 = T{field1:5,field2:8} 
 ```
 
 数组可以看作是一种结构体类型，不过它使用下标而不是具名的字段。
@@ -1372,7 +1391,14 @@ var interfaceSlice []interface{} = dataSlice
 
 可惜不能这么做，编译时会出错：`cannot use dataSlice (type []myType) as type []interface { } in assignment`。
 
-原因是它们俩在内存中的布局是不一样的（参考 [Go wiki](https://github.com/golang/go/wiki/InterfaceSlice)）。
+原因是它们俩在内存中的布局是不一样的,接口切片是被特殊实现的，在底层类似于下面结构，由类型和指针组成的数据对
+
+```go
+type iface struct {
+    tab  *itab     // 指向类型信息和方法表
+    data unsafe.Pointer // 指向实际值的内存
+}
+```
 
 必须使用 `for-range` 语句来一个一个显式地赋值：
 
