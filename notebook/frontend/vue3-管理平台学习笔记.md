@@ -5779,6 +5779,168 @@ const predefineColors = ref([
 ])
 ```
 
+
+
+## 14 数据大屏
+
+### 14.1 大屏适配的方案
+
+```html
+<!DOCTYPE html>
+<html lang="zh-CN">
+    <head>
+        <meta charset="UTF-8" />
+        <meta
+            name="viewport"
+            content="width=device-width, initial-scale=1.0"
+        />
+        <title>测试自适应布局</title>
+        <style>
+            * {
+                margin: 0;
+                padding: 0;
+            }
+            body,
+            html {
+                height: 100%;
+                width: 100%;
+            }
+            .container {
+                background-color: aqua;
+                width: 100vw;
+                height: 100vh;
+            }
+            .box {
+                position: fixed;
+                background-color: rgb(109, 138, 37);
+                width: 1920px;
+                height: 1080px;
+                transform-origin: left top;
+                top: 50%;
+                left: 50%;
+
+            }
+            .box1 {
+                width: 200px;
+                height: 200px;
+                background-color: red;
+                margin-left:50px;
+            }
+
+            .box2 {
+                width: 200px;
+                height: 200px;
+                background-color: blue;
+                margin-top: 300px;
+                margin-left:50px;
+            
+            }
+        </style>
+    </head>
+    <body>
+        <div class="container">
+            <div class="box">
+                <div class="box1">123</div>
+                <div class="box2">456</div>
+            </div>
+        </div>
+        <script>
+        function getScale(width=1920, height=1080) {
+            const scale = Math.min(window.innerWidth / width, window.innerHeight / height);
+            return scale;
+        }
+        const box = document.querySelector('.box');
+        box.style.transform = `scale(${getScale()}) translate(-50%, -50%)`;
+
+        window.addEventListener('resize', () => {
+            box.style.transform = `scale(${getScale()}) translate(-50%, -50%)`;
+            const size = getScale()*64
+            box.style.fontSize = `${size}px`
+        });
+    </script>
+    </body>
+</html>
+
+```
+
+### 14.2 大屏适配的 vue demo
+
+```vue
+<div class="container">
+    <!-- 数据大屏展示内容区域 -->
+    <div class="screen" ref="screen">
+      <div class="top"></div>
+      <div class="bottom">
+        <div class="left">左侧</div>
+        <div class="center">中间</div>
+        <div class="right">右侧</div>
+      </div>
+    </div>
+  </div>
+<style lang="scss" scoped>
+.container {
+  width: 100vw;
+  height: 100vh;
+  background: url(./images/bg.png) no-repeat;
+  background-size: cover;
+  .screen {
+    position: fixed;
+    width: 1920px;
+    height: 1080px;
+    left: 50%;
+    top: 50%;
+
+    transform-origin: left top;
+    .top {
+      width: 100%;
+      height: 40px;
+    }
+    .bottom {
+      display: flex;
+      .right {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        margin-left: 40px;
+      }
+      .left {
+        flex: 1;
+        height: 1040px;
+        display: flex;
+        flex-direction: column;
+      }
+      .center {
+        flex: 1.5;
+        display: flex;
+        flex-direction: column;
+      }
+    }
+  }
+}
+</style>
+<script setup lang="ts">
+import { ref, onMounted } from 'vue'
+//获取数据大屏展示内容盒子的DOM元素
+
+let screen = ref()
+onMounted(() => {
+  screen.value.style.transform = `scale(${getScale()}) translate(-50%,-50%)`
+})
+//定义大屏缩放比例
+function getScale(w = 1920, h = 1080) {
+  const ww = window.innerWidth / w
+  const wh = window.innerHeight / h
+  return ww < wh ? ww : wh
+}
+//监听视口变化
+window.onresize = () => {
+  screen.value.style.transform = `scale(${getScale()}) translate(-50%,-50%)`
+}
+</script>
+```
+
+
+
 ## 15 菜单权限
 
 ### 15.1 路由的拆分
