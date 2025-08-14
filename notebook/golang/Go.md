@@ -1448,7 +1448,20 @@ func main() {
 
 ## 1.7 并发
 
-### go func
+并发：在一个cpu上执行多个线程，在宏观的角度多个任务同时执行，从计算机系统调度的角度，只有一个线程在运行
+并行：在多个cpu上执行多个线程，在宏观的角度多个任务同时执行，从计算机系统调度的角度，确实是多个线程在同时运行
+
+### go协程和主线程
+
+go主线程，也可以理解为线程或进程，是物理线程，是直接作用在cpu上的，一个go线程上可以起多个协程，协程是轻量化的线程，是逻辑态（由编译器优化）
+
+协程的特点：
+
+1. 有独立的栈空间
+2. 共享程序堆空间
+3. 调度由用户控制
+4. 协程是轻量级的线程
+
 
 go func() 是 Go 语言中的一个常用的语法结构，用于启动一个新的 goroutine。 go func 创建的 goroutine 是非阻塞。主程序会继续执行而不会等待 goroutine 的完成，如果主程序执行结束则全部 goroutine 也会被终止。
 
@@ -1479,123 +1492,267 @@ func greet() {
 
 ```
 
-### chan struct
+### 互斥锁
 
-chan struct{}是一个通道（channel），它用于在Go语言中进行并发通信。与其他类型的通道相比，chan struct{}是一种特殊的通道，因为它不存储任何实际的数据，而是仅仅用于在goroutines之间进行同步。
+如果存在多个 goroutine 访问同一变量，那么可能会导致资源争夺问题，代码会报错。
 
-通常情况下，我们可以使用空结构struct{}来创建一个零大小的结构，这样就不会占用任何额外的内存空间。因此，chan struct{}通道不会存储任何实际的数据，它的主要作用是作为一个信号量来进行同步
+案例如下
 
-常见的用途包括：
-
-- 同步多个goroutine的启动和结束：可以使用chan struct{}来等待一组goroutines完成它们的工作，以确保在主goroutine继续执行之前所有的goroutines都已经完成。
-- 触发事件：可以使用chan struct{}来触发某些事件的发生。例如，当某个特定的条件满足时，可以向chan struct{}发送一个值，通知其他goroutines该事件已经发生。
-- 控制并发访问：可以使用chan struct{}来控制对共享资源的并发访问。例如，可以使用一个chan struct{}作为信号量，限制同时访问某个资源的goroutine数量。
+可以在build时加上`-race`找出并发读写冲突。
 
 ```go
 package main
 
 import (
- "fmt"
- "time"
+	"fmt"
+	"time"
 )
 
-func main() {
- stopCh := make(chan struct{})
- go func() {
-  fmt.Println("func1")
-  time.Sleep(time.Duration(2) * time.Second) //协程1休眠2s stopCh 阻塞其他携程
-  //从一个被close的channel中接收数据不会被阻塞，而是立即返回，接收完已发送的数据后会返回元素类型的零值(zero value)
-  stopCh <- struct{}{}
-  stopCh <- struct{}{}
-  stopCh <- struct{}{}
-  stopCh <- struct{}{}
-  stopCh <- struct{}{}
-  stopCh <- struct{}{}
-  //close(stopCh) //close之后，其他协程结束阻塞，相当于通知其他协程开启任务 如果没有close或者nil channel中写入 stopCh <- struct{}{}则死锁
- }()
- go func() {
-  //从一个nil channel中接收数据会一直被block,除非nil channel被close或者往nil channel中写入 stopCh <- struct{}{}
-  x, ok := <-stopCh
-  fmt.Println("func2", x, ok)
- }()
- go func() {
-  x, ok := <-stopCh
-  fmt.Println("func3", x, ok)
- }()
- go func() {
-  x, ok := <-stopCh //使用一个额外的返回参数ok来检查channel是否关闭。false表示channel关闭
-  fmt.Println("func4", x, ok)
- }()
+var (
+	varmap = make(map[int]int, 10)
+)
 
- time.Sleep(time.Duration(4) * time.Second) //主线程休眠4s 等待其他协程完成任务
- x, ok := <-stopCh
- fmt.Println("main", x, ok)
+func test(n int) {
+	res := 1
+	for i := 0; i < n; i++ {
+		res += i
+	}
+
+	varmap[n] = res
+}
+func main() {
+
+	for i := 0; i < 100; i++ {
+		go test(i)
+	}
+
+	time.Sleep(time.Second * 1)
+	for k, v := range varmap {
+		fmt.Println(k, v)
+	}
 }
 
 ```
 
-在异步通信时，上面func2，func3，func4会阻塞，直到func1发送数据。或者使用close(stopCh) 关闭channel，这样结束阻塞，继续执行任务。
+
+比较低级的解决方案就是加上互斥锁
+
 
 ```go
-stopCh := make(chan struct{})
-close(stopCh)
-x, ok := <-stopCh
-fmt.Print(x,ok)
-// {} false
-```
-
-如果是`make(chan int)`,在关闭channel，会直接返回(0),如果是`make(chan string)` ,会直接返回("")
-
-```go
-
 package main
 
 import (
-    "fmt"
-    "sync"
+	"fmt"
+	"sync"
 )
 
-func main() {
-    var wg sync.WaitGroup
-    ch := make(chan struct{})
+var (
+	varmap = make(map[int]int, 10)
+	lock   sync.Mutex
+)
 
-    // 启动一组goroutines
-    for i := 0; i < 5; i++ {
-        wg.Add(1)
-        go func(id int) {
-            defer wg.Done()
-            fmt.Printf("Goroutine %d started\n", id)
-            // 模拟goroutine执行一些任务
-            // 在这里可以添加实际的业务逻辑
-        }(i)
-    }
-
-    // 等待所有goroutines完成
-    go func() {
-        wg.Wait()
-        // 所有goroutines完成后，向通道发送一个值
-        ch <- struct{}{}
-    }()
-
-    // 等待通道接收到值
-    <-ch
-    fmt.Println("All goroutines completed")
+func test(n int) {
+	res := 0
+	for i := 1; i < n; i++ {
+		res += i
+	}
+	lock.Lock()
+	varmap[n] = res
+	lock.Unlock()
 }
+func main() {
+	var wg sync.WaitGroup
+
+	for i := 0; i < 100; i++ {
+		wg.Add(1)
+		go func(i int) {
+			defer wg.Done()
+			test(i)
+		}(i)
+	}
+
+	wg.Wait() // 等待所有goroutine执行完毕
+
+	lock.Lock()
+	for k, v := range varmap {
+		fmt.Println(k, v)
+	}
+	lock.Unlock()
+}
+
 
 ```
 
-#### select
+### channel
 
-select 语句用于处理一个或多个 channel 操作。它类似于 switch 语句，但是每个 case 表达式必须是一个 channel 操作
+全局加锁可以解决通讯，但是会在局部变成同步操作，不完美
+
+channel介绍
+
+1. channel本质是先进先出的队列，可以存储多个数据
+2. channel是并发安全的，可以多个goroutine同时操作channel，不需要加锁
+3. channel是有类型的，只能存储指定类型的数据，但其本身是个引用
+
+
+
+使用
+```go
+var intchan chan int
+var mapchan chan map[int]string
+var perChan chan *Person
+var perChan2 chan Person
+
+
+//channel 必须初始化才能使用，即make
+intchan = make(chan int,3)
+
+
+//向管道写入数据
+intChan<- 10
+num := 211
+intChan<- num
+intChan<- 50
+// intChan<- 98//注意点, 当我们给管写入数据时，不能超过其容量
+
+// 看看管道的长度和 cap(容量)
+fmt.Printf("channel len= %v cap=%v \n", len(intChan), cap(intChan)) // 3, 3
+
+//从管道中读取数据
+var num2 int
+num2 = <-intChan
+fmt.Println("num2=", num2)
+fmt.Printf("channel len= %v cap=%v \n", len(intChan), cap(intChan))
+// 2, 3
+
+//在没有使用协程的情况下，如果我们的管道数据已经全部取出，再取就会报告 deadlock
+num3 := <-intChan
+num4 := <-intChan
+num5 := <-intChan
+fmt.Println("num3=", num3, "num4=", num4, "num5=", num5)
+
+
+
+//关闭管道
+close(intChan)
+// 关闭后，就不能向管道写入数据，但仍然可以读取管道的数据
+
+```
+
+
+存放任意类型的数据
 
 ```go
-select {
-case <-ch1:
-    // 如果 ch1 可读，则执行此处的代码
-case ch2 <- value:
-    // 如果 ch2 可写，则执行此处的代码
-default:
-    // 如果没有任何 case 可以执行，则执行 default 分支
+var allChan chan interface{}
+allChan = make(chan interface{}, 3)
+allChan <- 1
+allChan <- "hello"
+allChan <- true
+num := <-allChan
+fmt.Println("num=", num)
+
+
+<-allChan
+<-allChan
+//struct
+type Person struct {
+    name string
+    age int
+}
+allChan <- Person{name: "张三", age: 18}
+
+person := <-allChan
+fmt.Println("person.name=", person.name) // 报错：person.name undefined (type interface{} has no field or method name)
+
+// 这里需要使用类型断言
+a :=person.(Person)
+fmt.Println("person.name=", a.name)
+
+```
+
+
+channel遍历
+```go
+ch := make(chan int,10)
+for i := 0; i < 10; i++ {
+    ch <- i
+}
+
+close(ch)
+
+for v := range ch {
+    fmt.Println(v)
+}
+
+
+
+// for {
+//     v, ok := <-ch
+//     if !ok {
+//         break
+//     }
+
+//     fmt.Printf("readData 读到数据=%v\n", v)
+// }
+
+```
+
+
+
+
+案例
+1. 启动一个协程，将1-2000的数据发送到intchan中
+2. 启动8个协程，从intchan中取出数据，计算1+...+n的值，将结果发送到reschan中
+3. 等待8个协程执行完毕后，从reschan中获取结果并打印
+
+```go
+package main
+
+import "fmt"
+
+func InsertNum(intchan chan int, n int) {
+	for i := 1; i <= n; i++ {
+		intchan <- i
+	}
+	close(intchan)
+}
+
+func process(intchan chan int, resChan chan map[int]int, exitchan chan bool) {
+	for {
+		num, ok := <-intchan
+		if !ok {
+			break
+		}
+		res := make(map[int]int)
+		for i := 1; i <= num; i++ {
+			res[num] += i
+		}
+		resChan <- res
+	}
+	exitchan <- true
+}
+func main() {
+	n := 2000
+	numChan := make(chan int, n)
+	resChan := make(chan map[int]int, n)
+	exitChan := make(chan bool)
+	go InsertNum(numChan, n)
+	num := 8
+	for i := 0; i < num; i++ {
+		go process(numChan, resChan, exitChan)
+	}
+
+	for i := 0; i < num; i++ {
+		<-exitChan
+	}
+	close(exitChan)
+	close(resChan)
+	for i := 0; i < num; i++ {
+		for res := range resChan {
+			for k, v := range res {
+				fmt.Printf("res[%d] = %d\n", k, v)
+			}
+		}
+	}
 }
 
 ```
