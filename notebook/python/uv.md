@@ -72,6 +72,8 @@ uv venv --python 3.12 :指定版本
 
 deactivate
 
+uv async：同步依赖。
+
 ### uv python
 
 uv python install：安装 Python 版本。
