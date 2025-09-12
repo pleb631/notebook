@@ -28,11 +28,11 @@
       - [表单模型](#表单模型)
     - [3.7`File`](#37file)
       - [多文件上传](#多文件上传)
-    - [4. 依赖注入](#4-依赖注入)
-    - [5. 身份验证](#5-身份验证)
-    - [6. 请求和响应](#6-请求和响应)
-      - [6.1 Request](#61-request)
-      - [6.2 Response](#62-response)
+  - [4. 依赖注入](#4-依赖注入)
+  - [5. 身份验证](#5-身份验证)
+  - [6. 请求和响应](#6-请求和响应)
+    - [6.1 Request](#61-request)
+    - [6.2 Response](#62-response)
 - [实战重点笔记](#实战重点笔记)
   - [1. 项目构建](#1-项目构建)
     - [1.1项目结构](#11项目结构)
@@ -50,7 +50,8 @@
       - [3.2.1 工作流程](#321-工作流程)
       - [3.2.2 特点](#322-特点)
       - [3.2.3 参考实现](#323-参考实现)
-  - [4. RBAC权限](#4-rbac权限)
+  - [4. SQLModel](#4-sqlmodel)
+  - [5. RBAC权限](#5-rbac权限)
 
 # fastapi
 
@@ -114,7 +115,7 @@ def get_user(user_id:int):
 
 路径参数 `user_id` 的值将作为参数 `user_id` 传递给你的函数,比如使用`http://127.0.0.1:8000/user/123`,`user_id`就会自动赋值成`123`
 
-**注意**：fastapi会对类型做检查，如果输入`/user/a`b,则会报错，因为`ab`不是`int`类型
+**注意**：fastapi会对类型做检查，如果输入`/user/ab`,则会报错，因为`ab`不是`int`类型
 
 ```python
     {
@@ -644,7 +645,6 @@ class UserCreate(SQLModel):
 然后路由函数为
 
 ```python
-# 前端得改用ajax,走json的post请求
 # 用 Depends 注入
 @app.post("/login/")
 async def result_page(
@@ -743,15 +743,15 @@ async def main():
     return HTMLResponse(content=content)
 ```
 
-### 4. 依赖注入
+## 4. 依赖注入
 
-### 5. 身份验证
+## 5. 身份验证
 
-### 6. 请求和响应
+## 6. 请求和响应
 
-#### 6.1 Request
+### 6.1 Request
 
-fastapi基于写的，可以直接使用starlette的[request](https://www.starlette.io/requests/#request)，如果想获得请求头、请求体等原始信息，可以直接访问`request.headers`、`request.body()`等属性。
+fastapi基于starlette写的，可以直接使用starlette的[request](https://www.starlette.io/requests/#request)，如果想获得请求头、请求体等原始信息，可以直接访问`request.headers`、`request.body()`等属性。
 
 ```python
 from fastapi import FastAPI, Request
@@ -765,7 +765,7 @@ def read_root(item_id: str, request: Request):
     return {"client_host": client_host, "item_id": item_id}
 ```
 
-#### 6.2 Response
+### 6.2 Response
 
 fastapi同样基于starlette的[response](https://www.starlette.io/responses/#response)
 
@@ -1089,7 +1089,7 @@ def cacheable(ttl: int = 3600, key_prefix: str = "cache"):
 
 #### 3.1.3 参考实现
 
-1. 参考[中间件](#1.4 中间件)的`Middleware`写法，就是以`SessionMiddleware`为基础，往`request.session`里面写入了`session_id`,`SessionMiddleware`会使用`Set-Cookie`把相关数据放入前端的`cookie`中，
+1. 参考[中间件](#14-中间件)的`Middleware`写法，就是以`SessionMiddleware`为基础，往`request.session`里面写入了`session_id`,`SessionMiddleware`会使用`Set-Cookie`把相关数据放入前端的`cookie`中，
 2. 后端则以`session_id`为key，用户信息为value存储和读取相关信息。
 
 ### 3.2 JWT（JSON Web Token）：无状态认证
@@ -1281,4 +1281,6 @@ def cacheable(ttl: int = 3600, key_prefix: str = "cache"):
 </html>
 ```
 
-## 4. RBAC权限
+## 4. SQLModel
+
+## 5. RBAC权限
