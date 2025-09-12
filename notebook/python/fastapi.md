@@ -1,6 +1,50 @@
+- [fastapi](#fastapi)
+  - [1. 快速demo](#1-快速demo)
+  - [2. 路由请求](#2-路由请求)
+    - [2.1路径参数](#21路径参数)
+      - [2.1.1基本用法](#211基本用法)
+      - [2.1.2预定义enum](#212预定义enum)
+      - [2.1.3含有path的路由](#213含有path的路由)
+    - [2.2查询参数](#22查询参数)
+    - [2.3请求体](#23请求体)
+      - [多个请求体参数](#多个请求体参数)
+  - [3. 数据模型和验证](#3-数据模型和验证)
+    - [3.1`Query`](#31query)
+      - [基本形式](#基本形式)
+      - [主要参数](#主要参数)
+      - [Annotated写法](#annotated写法)
+      - [查询参数列表](#查询参数列表)
+      - [别名参数](#别名参数)
+      - [自定义验证](#自定义验证)
+      - [查询参数模型](#查询参数模型)
+    - [3.2`Path`](#32path)
+    - [3.3`Body`](#33body)
+      - [单一值](#单一值)
+      - [嵌入单个请求体参数](#嵌入单个请求体参数)
+    - [3.4`Cookie`](#34cookie)
+    - [3.5`Header`](#35header)
+- [实战重点笔记](#实战重点笔记)
+  - [1. 项目构建](#1-项目构建)
+    - [1.1项目结构](#11项目结构)
+    - [1.2 app实例化](#12-app实例化)
+    - [1.3 自定义异常处理](#13-自定义异常处理)
+    - [1.4 中间件](#14-中间件)
+    - [1.5 视图路由](#15-视图路由)
+  - [2. redis](#2-redis)
+  - [3. 认证方式](#3-认证方式)
+    - [3.1 session\_id](#31-session_id)
+      - [3.1.1工作流程](#311工作流程)
+      - [3.1.2 特点](#312-特点)
+      - [3.1.3 参考实现](#313-参考实现)
+    - [3.2 JWT（JSON Web Token）：无状态认证](#32-jwtjson-web-token无状态认证)
+      - [3.2.1 工作流程](#321-工作流程)
+      - [3.2.2 特点](#322-特点)
+      - [3.2.3 参考实现](#323-参考实现)
+  - [4. RBAC权限](#4-rbac权限)
+
 # fastapi
 
-## 快速demo
+## 1. 快速demo
 
 ```python
 from fastapi import FastAPI
@@ -23,7 +67,7 @@ if __name__ == "__main__":
 （3）编写一个路径操作装饰器（如 @app.get(“/”)）。  
 （4）编写一个路径操作函数（如上面的 def root(): …）  
 （5）定义返回值  
-（6）运行开发服务器（如 uvicorn main:app --reload）
+（6）运行开发服务器
 
 fastapi有**交互式 的API 文档**，跳转到 [http://127.0.0.1:8000/docs](https://link.zhihu.com/?target=http%3A//127.0.0.1%3A8000/docs)。你将会看到**自动生成**的交互式 API 文档。
 
@@ -46,11 +90,11 @@ print(response.json())
 
 ```
 
-## 路由请求
+## 2. 路由请求
 
-### 路径参数
+### 2.1路径参数
 
-#### 基本用法
+#### 2.1.1基本用法
 
 ```python
 @app.get("/user/{user_id}") 
@@ -85,7 +129,7 @@ def get_user(user_id:int):
 @app.get("/user/{user_id}")
 ```
 
-#### 预定义enum
+#### 2.1.2预定义enum
 
 如果希望有效*路径参数*值是预定义的，可以使用`Enum`。
 
@@ -113,7 +157,7 @@ async def get_model(model_name: ModelName):
     return 3
 ```
 
-#### 含有path的路由
+#### 2.1.3含有path的路由
 
 你可能需要参数包含 `/home/johndoe/myfile.txt`，带有一个前导斜杠（`/`）。
 
@@ -127,7 +171,7 @@ async def read_file(file_path: str):
 
 此时URL 将是：`/files//home/johndoe/myfile.txt`，在 `files` 和 `home` 之间有一个双斜杠（`//`）。
 
-### 查询参数
+### 2.2查询参数
 
 查询参数是 URL 中 `?` 之后，用 `&` 字符分隔的键值对集合
 
@@ -143,7 +187,7 @@ async def read_item(item_id: str, skip: int,limit: int | None = None):
 
 当非路径参数声明默认值时，它不是必需要传递的，比如这里的`limit`。
 
-### 请求体
+### 2.3请求体
 
 要声明**请求体**，可以使用 [Pydantic](https://docs.pydantic.org.cn/)模型
 
@@ -227,9 +271,9 @@ async def update_item(item_id: int, item: Item, user: User):
 
 如果请求体中还有单一值，可以参考`Body`参数
 
-## 数据模型和验证
+## 3. 数据模型和验证
 
-### `Query`
+### 3.1`Query`
 
 `Query` 是一个**声明参数约束和元数据的特殊函数**，它既是语法糖，又是一个提示给 FastAPI 的机制，让框架知道“这个参数应该来自查询字符串（query string）”。可以把它看作是 **参数描述器**，用来定义：
 
@@ -380,7 +424,7 @@ async def read_items(filter_query: Annotated[FilterParams, Query()]):
     return filter_query
 ```
 
-### `Path`
+### 3.2`Path`
 
 和Query的基本用法差不多，但这是用在路径参数上的
 
@@ -396,7 +440,7 @@ async def read_items(
     return item_id
 ```
 
-### `Body`
+### 3.3`Body`
 
 #### 单一值
 
@@ -457,7 +501,7 @@ async def update_item(item_id: int, item: Annotated[Item, Body(embed=True)]):
     ...
 ```
 
-### `Cookie`
+### 3.4`Cookie`
 
 `Cookie` 是 `Path` 和 `Query` 的“姐妹”类。它也继承自相同的通用 `Param` 类
 
@@ -496,7 +540,7 @@ async def read_items(cookies: Annotated[Cookies, Cookie()]):
     return cookies
 ```
 
-### `Header`
+### 3.5`Header`
 
 ```python
 from typing import Annotated
@@ -546,3 +590,482 @@ class CommonHeaders(BaseModel):
 async def read_items(headers: Annotated[CommonHeaders, Header()]):
     return headers
 ```
+
+# 实战重点笔记
+
+## 1. 项目构建
+
+### 1.1项目结构
+
+![img](https://raw.githubusercontent.com/pleb631/ImgManager/main/img/20250912093431669.png)
+
+其中curd、models、schemas是数据库相关的，api放路由，static放静态页面，views放静态页面相关的视图路由
+
+### 1.2 app实例化
+
+FastAPI 应用有两个重要的阶段：
+
+1. **启动（Startup）**
+    应用刚启动时，通常需要做一些初始化操作，比如：
+   - 连接数据库
+   - 启动后台任务
+   - 加载配置文件或模型
+2. **关闭（Shutdown）**
+    应用关闭时，需要做一些清理工作，比如：
+   - 断开数据库连接
+   - 停止后台任务
+   - 释放资源
+
+`lifespan` 这个 async context manager 就是把这两个阶段**打包成一个上下文**，在 `yield` 之前执行启动逻辑，在 `yield` 之后执行停止逻辑。
+
+![img](https://raw.githubusercontent.com/pleb631/ImgManager/main/img/20250912093937561.png)
+
+### 1.3 自定义异常处理
+
+在实例化后，可以给app添加自定义的异常处理机制，来统一拦截应用中的不同类型异常，并返回更清晰、标准化的响应
+
+![img](https://raw.githubusercontent.com/pleb631/ImgManager/main/img/20250912094635113.png)
+
+```python
+async def http_error_handler(_: Request, exc: HTTPException):
+    if exc.status_code == 401:
+        return JSONResponse({"detail": exc.detail}, status_code=exc.status_code)
+
+    return JSONResponse({
+        "code": exc.status_code,
+        "message": exc.detail,
+        "data": exc.detail
+    }, status_code=exc.status_code, headers=exc.headers)
+```
+
+优点：
+
+1. **统一响应格式**，让所有错误返回类似格式，便于前端解析。
+
+2. **记录和追踪**，你可以在 handler 里记录日志，方便排查问题。
+
+3. **屏蔽敏感信息**，避免将内部错误直接暴露给用户。
+
+4. **灵活扩展业务逻辑**，对于业务级异常，可以实现统一兜底逻辑，比如自动回滚或报警。
+
+### 1.4 中间件
+
+中间件（Middleware）就像一条“拦截管道”，所有请求和响应都必须经过它们。
+
+中间件的常见用途
+
+1. **认证与鉴权**:检查请求头里的 Token，决定是否允许继续访问。
+2. **请求日志记录**:记录请求路径、耗时、响应状态码。
+3. **全局错误处理**:捕获所有未处理异常，统一返回格式。
+4. **Session 管理**:通过 Cookie 保持用户状态，比如 `SessionMiddleware`。
+5. **性能监控**:统计请求耗时，打点埋点。
+
+假设你有三个中间件：
+
+`SessionMiddleware` → `LoggerMiddleware` → 业务路由
+
+执行顺序如下：
+
+```scss
+请求进入
+↓
+SessionMiddleware (前处理)
+↓
+LoggerMiddleware (前处理)
+↓
+业务路由函数
+↓
+LoggerMiddleware (后处理)
+↓
+SessionMiddleware (后处理)
+↓
+响应返回
+
+```
+
+这里我们加入三个组件
+
+```python
+# 自己写的组件
+class Middleware:
+    def __init__(
+            self,
+            app: ASGIApp,
+    ) -> None:
+        self.app = app
+
+    async def __call__(self, scope: Scope, receive: Receive, send: Send) -> None:
+        if scope["type"] != "http":  # pragma: no cover
+            await self.app(scope, receive, send)
+            return
+        start_time = time.time()
+        req = Request(scope, receive, send)
+        if not req.session.get("session"):
+            req.session.setdefault("session", random_str())
+
+        async def send_wrapper(message: Message) -> None:
+            process_time = time.time() - start_time
+            if message["type"] == "http.response.start":
+                headers = MutableHeaders(scope=message)
+                headers.append("X-Process-Time", str(process_time))
+            await send(message)
+        await self.app(scope, receive, send_wrapper)
+```
+
+```python
+from starlette.middleware.cors import CORSMiddleware
+from starlette.middleware.sessions import SessionMiddleware
+from core.middleware import Middleware  # 完全自定义
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=settings.CORS_ORIGINS,
+    allow_credentials=settings.CORS_ALLOW_CREDENTIALS,
+    allow_methods=settings.CORS_ALLOW_METHODS,
+    allow_headers=settings.CORS_ALLOW_HEADERS,
+)
+app.add_middleware(
+    SessionMiddleware,
+    secret_key="session",
+    session_cookie="f_id",
+    # max_age=4,
+    # same_site="lax",
+    # https_only=True,
+)
+app.add_middleware(Middleware)  # 放在最后添加 → 最内层执行（在 Session 之后）
+```
+
+**注意**：这边添加的时候要按照顺序添加，`CORS`应该尽早添加，然后`Middleware`有使用`req.session`,而`req.session`是由`SessionMiddleware`创建的，所以`Middleware`得在`SessionMiddleware`后添加，保证逻辑的连贯性。
+
+### 1.5 视图路由
+
+首先要给app增加配置
+
+```python
+from fastapi.staticfiles import StaticFiles
+from fastapi.templating import Jinja2Templates
+
+app.mount('/static', StaticFiles(directory=settings.STATIC_DIR), name="static")
+app.state.views = Jinja2Templates(directory=settings.TEMPLATE_DIR)
+```
+
+**`app.mount`作用：挂载静态文件目录**
+
+- `app.mount`
+   相当于在 FastAPI 应用中“挂载”一个子应用，这里挂载的是 `StaticFiles`，用于托管静态文件，让浏览器可以直接访问 CSS/JS 等资源。
+- `"/static"`
+   这是 URL 前缀。访问路径中如果以 `/static` 开头，就会进入这个静态文件处理逻辑。
+   例如：浏览器请求 `http://localhost:8000/static/style.css`，FastAPI 会去 `settings.STATIC_DIR` 目录下寻找 `style.css` 文件,相反如果想访问**不在**`static`的文件，就会被拒绝。
+- `StaticFiles(directory=settings.STATIC_DIR)`
+   指定静态文件存放的物理路径，`settings.STATIC_DIR` 通常是一个类似 `./static` 或绝对路径。
+- `name="static"`
+   给这个挂载的子应用取一个名字。主要用于 **URL 反向解析**，在模板中使用 `url_for('static', path='xxx')` 来生成静态资源 URL。
+
+**`app.state.views`作用：配置模板引擎，用于渲染 HTML 页面**
+
+- `Jinja2Templates`
+   这是 FastAPI 提供的一个模板渲染工具，底层用的是 **Jinja2** 模板引擎（Flask 也用它）。
+
+- `directory=settings.TEMPLATE_DIR`
+   指定模板文件（HTML）的存放目录。通常你会把模板文件放在 `templates` 文件夹中。
+
+- `app.state.views`
+   `app.state` 是 FastAPI 内置的一个“全局存储”，你可以把一些全局变量放在这里。
+   把 `Jinja2Templates` 实例挂在 `app.state.views`，之后在路由中可以直接访问，比如：
+
+  ```python
+  @app.get("/")
+  async def home(request: Request):
+      return app.state.views.TemplateResponse("index.html", {"request": request, "title": "首页"})
+  ```
+
+## 2. redis
+
+定义初始化和关闭redis的函数，并把这个过程放在Startup和Shutdown的lifespan中。
+
+```python
+import redis.asyncio as redis
+from core.config import settings
+
+redis_client: redis.Redis | None = None
+
+
+async def close_redis():
+    global redis_client
+    print("close redis")
+    if redis_client:
+        await redis_client.close()
+
+
+def get_redis():
+    return redis_client
+
+
+async def init_redis(max_connections: int = 20):
+    global redis_client
+    print("load redis")
+    redis_client = await redis.from_url(
+        settings.REDIS_URL,
+        encoding="utf-8",
+        decode_responses=True,
+        max_connections=max_connections,
+    )
+
+```
+
+使用redis的方式多种多样，可以使用依赖注入
+
+```python
+@redis_router.post("/redis/set", response_class=HTMLResponse)
+async def redis_set(req: Request, redis: redis.Redis = Depends(get_redis)):
+    data = await req.json()
+    key = data.get("key")
+    value = data.get("value")
+    await redis.set(key, value)
+    return "ok"
+```
+
+也可以使用装饰器或者中间件,在参数到达路由函数就进行判断，之后不走函数直接返回，比如
+
+```python
+def cacheable(ttl: int = 3600, key_prefix: str = "cache"):
+    """
+    Redis 缓存装饰器
+    :param ttl: 缓存过期时间（秒）
+    :param key_prefix: 缓存 key 前缀
+    """
+    def decorator(func: Callable):
+        @functools.wraps(func)
+        async def wrapper(*args, **kwargs) -> Any:
+            key = f"{key_prefix}:{func.__name__}:{args}:{kwargs}"
+
+            cached = await redis_client.get(key)
+            if cached:
+                return json.loads(cached)
+
+            result = await func(*args, **kwargs)
+
+            if result is not None:
+                await redis_client.set(key, json.dumps(result, default=str), ex=ttl)
+
+            return result
+        return wrapper
+    return decorator
+```
+
+## 3. 认证方式
+
+### 3.1 session_id
+
+#### 3.1.1工作流程
+
+1. 用户登录时，服务器验证用户名和密码。
+2. 服务器生成一个**随机的 session_id**（比如 `abc123xyz`），并在服务器内存或数据库里保存这段 session 相关的数据，比如：
+   - 用户 ID
+   - 登录时间
+   - 权限信息
+3. 服务器将这个 session_id 返回给客户端，通常存放在浏览器的 **cookie** 里。
+4. 后续请求中，浏览器自动携带这个 session_id，服务器通过查找内存或数据库，确认用户身份。
+
+#### 3.1.2 特点
+
+- **状态存储在服务器**，每个活跃用户都占用服务器内存或数据库。
+- session_id 本身没有实际信息，只是一个指针或索引。
+- 如果服务器挂了，或者 session 数据被清理，用户就需要重新登录。
+- **横向扩展难**：如果你有多台服务器，需要通过共享数据库或 Redis 同步 session 数据。
+
+#### 3.1.3 参考实现
+
+1. 参考[中间件](#1.4 中间件)的`Middleware`写法，就是以`SessionMiddleware`为基础，往`request.session`里面写入了`session_id`,`SessionMiddleware`会使用`Set-Cookie`把相关数据放入前端的`cookie`中，
+2. 后端则以`session_id`为key，用户信息为value存储和读取相关信息。
+
+### 3.2 JWT（JSON Web Token）：无状态认证
+
+#### 3.2.1 工作流程
+
+1. 用户登录时，服务器验证用户名和密码。
+
+2. 服务器生成一个 **JWT Token**，这个 Token 内含用户信息，并**用服务器私钥签名**，保证不能被篡改。
+    典型 JWT 长这样：
+
+   ```
+   xxxxx.yyyyy.zzzzz
+   ```
+
+   - `xxxxx`：Header（算法、类型）
+   - `yyyyy`：Payload（用户 ID、过期时间、权限等）
+   - `zzzzz`：Signature（签名，用来验证 Token 未被篡改）
+
+3. 服务器把 JWT 返回给客户端，客户端存储在 cookie 或 localStorage。
+
+4. 后续请求中，客户端带上这个 JWT，服务器只需验证签名，无需查数据库，就能确认身份。
+
+#### 3.2.2 特点
+
+- **服务器无需存储状态**，只需持有签名密钥。
+- 横向扩展更容易，任何服务器节点都能直接验证 Token。
+- Token 内含用户信息，太大可能影响传输效率。
+- **安全风险**：Token 泄漏后，除非密钥轮换或 Token 过期，攻击者就能直接伪装成用户。
+
+#### 3.2.3 参考实现
+
+1. 后端把用户信息编码`jwt_token`然后传给前端，传给前端的形式不限，主要取决于前端如何存放
+
+    ```python
+    @login_router.post("/login", summary="用户登陆接口", response_class=JSONResponse)
+    async def account_login(post: AccountLogin, session: SessionDep):
+
+        get_user: User = await curd.user.get_user(session,username=post.username)
+        if not get_user:
+            return fail(msg=f"用户{post.username}密码验证失败!")
+        if not check_password(post.password, get_user.password):
+            return fail(msg=f"用户{post.username}密码验证失败!")
+        if not get_user.user_status:
+            return fail(msg=f"用户{post.username}已被管理员禁用!")
+        jwt_data = {
+            "user_id": get_user.id,
+            "user_type": get_user.user_type
+        }
+        jwt_token = create_access_token(data=jwt_data)
+
+        return JSONResponse({
+            "code": 200,
+            "message": "登陆成功😄",
+            "data": {"token": "Bearer "+jwt_token}
+        }, status_code=200, headers={"Set-Cookie": "X-token=Bearer "+jwt_token})
+    ```
+
+2. 后端可以自动获取jwt_token
+
+    ```python
+    from fastapi.security.oauth2 import OAuth2PasswordBearer
+
+    OAuth2 = OAuth2PasswordBearer(tokenUrl="", auto_error=False)
+
+    async def check_permissions(
+        req: Request, security_scopes: SecurityScopes, session: SessionDep, token=Depends(OAuth2),
+    ): ...
+
+    ```
+
+    `token=Depends(OAuth2)`注入的过程等价于下面，相当于试图从请求头的`Authorization`获取token
+
+    ```python
+    from fastapi.security.oauth2 import get_authorization_scheme_param
+
+    authorization: str = req.headers.get("Authorization")
+    scheme, param = get_authorization_scheme_param(authorization)
+
+    if not authorization or scheme.lower() != "bearer":
+        raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Not authenticated",
+                headers={"WWW-Authenticate": "Bearer"},
+            )
+
+    token = param
+    ```
+
+    如果能获取token，则还需要解码
+
+    ```python
+    payload = jwt.decode(token, settings.JWT_SECRET_KEY, algorithms=[settings.JWT_ALGORITHM])
+
+    if payload:
+        user_id = payload.get("user_id", None)
+        user_type = payload.get("user_type", None)
+    ```
+
+3. 前端以下面代码为例，用户在登陆成功后会拿到`token`,此时如果用户想使用`/v1/user/add`,则需要在请求头中放入`{ "Authorization": token }`以来验证login的操作和add的操作来自同一个人
+
+```html
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>注册页面</title>
+</head>
+
+<body>
+    <form id="loginForm">
+        <label>
+            用户名:
+            <input type="text" placeholder="请输入用户名" name="username">
+        </label>
+        <label>
+            密码:
+            <input type="password" placeholder="请设置密码" name="password">
+        </label>
+        <button type="submit">登录</button>
+    </form>
+    <form id="regForm">
+        <label>
+            用户名:
+            <input type="text" placeholder="请输入用户名" name="username">
+        </label>
+        <label>
+            密码:
+            <input type="password" placeholder="请设置密码" name="password">
+        </label>
+        <button type="submit">add</button>
+    </form>
+    <script>
+        let token;
+        document.getElementById("loginForm").addEventListener("submit", function (e) {
+            e.preventDefault();
+
+            const data = {
+                username: e.target.username.value,
+                password: e.target.password.value
+            };
+
+            fetch("/v1/user/login", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(data)
+            }).then(res => res.json())
+                .then(data => {
+                    if (data.code === 200) {
+                        token = data.data.token;
+                        console.log("Login successful", token);
+
+                    } else {
+                        console.log("Login failed");
+                        alert(data.message);
+                    }
+                });
+        });
+        document.getElementById("regForm").addEventListener("submit", function (e) {
+            e.preventDefault();
+
+            const data = {
+                username: e.target.username.value,
+                password: e.target.password.value,
+                user_type: false
+            };
+
+
+            fetch("/v1/user/add", {
+                method: "POST",
+                credentials: 'include',
+                headers: { "Content-Type": "application/json", "Authorization": token },
+                body: JSON.stringify(data)
+            }).then(res => res.json())
+                .then(data => {
+                    if (data.code === 200) {
+
+                        console.log("add successful");
+
+                    } else {
+                        console.log("add failed");
+                        alert(data.message);
+                    }
+                });
+        });
+    </script>
+</body>
+</html>
+```
+
+## 4. RBAC权限
