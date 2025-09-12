@@ -23,6 +23,16 @@
       - [嵌入单个请求体参数](#嵌入单个请求体参数)
     - [3.4`Cookie`](#34cookie)
     - [3.5`Header`](#35header)
+    - [3.6 `Form`](#36-form)
+      - [表单转json](#表单转json)
+      - [表单模型](#表单模型)
+    - [3.7`File`](#37file)
+      - [多文件上传](#多文件上传)
+    - [4. 依赖注入](#4-依赖注入)
+    - [5. 身份验证](#5-身份验证)
+    - [6. 请求和响应](#6-请求和响应)
+      - [6.1 Request](#61-request)
+      - [6.2 Response](#62-response)
 - [实战重点笔记](#实战重点笔记)
   - [1. 项目构建](#1-项目构建)
     - [1.1项目结构](#11项目结构)
@@ -609,8 +619,6 @@ async def login(username: Annotated[str, Form()], password: Annotated[str, Form(
     return {"username": username}
 ```
 
-
-
 #### 表单转json
 
 如果一定想用pydantic模型，可以定义转换函数和依赖注入，这种适用于想自己控制细节的，可扩展
@@ -666,8 +674,6 @@ async def login(data: Annotated[FormData, Form()]):
     return data
 ```
 
-
-
 ### 3.7`File`
 
 可以使用 `File` 来定义客户端上传的文件
@@ -690,8 +696,6 @@ async def create_upload_file(file: UploadFile):
     return {"filename": file.filename}
 ```
 
-
-
 使用 `UploadFile` 相比 `bytes` 有以下几个优点
 
 - 你无需在参数的默认值中使用 `File()`。
@@ -700,8 +704,6 @@ async def create_upload_file(file: UploadFile):
 - 你可以从上传的文件中获取元数据。
 - 它具有 [文件类](https://docs.pythonlang.cn/3/glossary.html#term-file-like-object) `async` 接口。
 - 它暴露了一个实际的 Python [`SpooledTemporaryFile`](https://docs.pythonlang.cn/3/library/tempfile.html#tempfile.SpooledTemporaryFile) 对象，你可以直接将其传递给其他期望文件类对象的库。
-
-
 
 #### 多文件上传
 
@@ -741,11 +743,64 @@ async def main():
     return HTMLResponse(content=content)
 ```
 
-
-
 ### 4. 依赖注入
+
 ### 5. 身份验证
-### 6. 响应
+
+### 6. 请求和响应
+
+#### 6.1 Request
+
+fastapi基于写的，可以直接使用starlette的[request](https://www.starlette.io/requests/#request)，如果想获得请求头、请求体等原始信息，可以直接访问`request.headers`、`request.body()`等属性。
+
+```python
+from fastapi import FastAPI, Request
+
+app = FastAPI()
+
+
+@app.get("/items/{item_id}")
+def read_root(item_id: str, request: Request):
+    client_host = request.client.host
+    return {"client_host": client_host, "item_id": item_id}
+```
+
+#### 6.2 Response
+
+fastapi同样基于starlette的[response](https://www.starlette.io/responses/#response)
+
+如果想给响应添加cookie或者自定义响应头，可以直接使用`Response`对象
+
+```python
+from fastapi import FastAPI, Response
+
+app = FastAPI()
+
+
+@app.post("/cookie-and-object/")
+def create_cookie(response: Response):
+    response.set_cookie(key="fakesession", value="fake-cookie-session-value")
+    
+    response.headers["X-Cat-Dog"] = "alone in the world"
+
+    return {"message": "Come to the dark side, we have cookies"}
+```
+
+如果想完全控制响应，可以使用`Response`的子类，比如`JSONResponse`、`HTMLResponse`等
+
+```python
+from fastapi import FastAPI
+from fastapi.responses import JSONResponse
+
+app = FastAPI()
+
+
+@app.get("/headers/")
+def get_headers():
+    content = {"message": "Hello World"}
+    headers = {"X-Cat-Dog": "alone in the world", "Content-Language": "en-US"}
+    return JSONResponse(content=content, headers=headers)
+```
 
 # 实战重点笔记
 
@@ -815,8 +870,6 @@ async def http_error_handler(_: Request, exc: HTTPException):
 3. **全局错误处理**:捕获所有未处理异常，统一返回格式。
 4. **Session 管理**:通过 Cookie 保持用户状态，比如 `SessionMiddleware`。
 5. **性能监控**:统计请求耗时，打点埋点。
-
-
 
 这里我们加入三个组件
 
@@ -896,10 +949,6 @@ CORSMiddlewaree (后处理)
 ```
 
 由于Middleware依赖于SessionMiddleware 生成的request.session，所以在书写时，Middleware一定要放前面
-
-
-
-
 
 ### 1.5 视图路由
 
@@ -1232,6 +1281,4 @@ def cacheable(ttl: int = 3600, key_prefix: str = "cache"):
 </html>
 ```
 
-## 4.`Request`对象
-
-## 5. RBAC权限
+## 4. RBAC权限
