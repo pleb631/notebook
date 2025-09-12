@@ -591,6 +591,162 @@ async def read_items(headers: Annotated[CommonHeaders, Header()]):
     return headers
 ```
 
+### 3.6 `Form`
+
+HTML 表单（`<form></form>`）向服务器发送数据的方式通常使用一种“特殊”编码，它与 JSON 不同。表单数据通常使用“媒体类型”`application/x-www-form-urlencoded`,当表单包含文件时，它会被编码为 `multipart/form-data`。
+
+FastAPI 默认会把 POST body 当成 JSON 来解析,此时，不能直接使用pydantic模型去接收，你定义参数为 userinfo: UserCreate（Pydantic 模型）时，FastAPI 以为前端发的是 JSON，而你发的是表单 → 格式不匹配
+
+此时可以使用`Form`组件来接受
+
+```python
+from typing import Annotated
+from fastapi import Form
+
+
+@app.post("/login/")
+async def login(username: Annotated[str, Form()], password: Annotated[str, Form()]):
+    return {"username": username}
+```
+
+
+
+#### 表单转json
+
+如果一定想用pydantic模型，可以定义转换函数和依赖注入，这种适用于想自己控制细节的，可扩展
+
+```python
+class UserCreate(SQLModel):
+
+    username: str = Field(index=True, max_length=20, description="用户名")
+    password: str = Field(max_length=255, description="密码")
+
+
+    @classmethod
+    def as_form( 
+            cls,
+            username: str = Form(...),
+            password: str = Form(...)
+        ):
+            return cls(username=username, password=password)
+
+    
+```
+
+然后路由函数为
+
+```python
+# 前端得改用ajax,走json的post请求
+# 用 Depends 注入
+@app.post("/login/")
+async def result_page(
+     req: Request,
+     userinfo: UserCreate = Depends(UserCreate.as_form),
+ ):
+ ...
+```
+
+#### 表单模型
+
+推荐使用`Annotated`让Form适配pydantic模型，更加现代的写法，但定制空间较小
+
+```python
+from typing import Annotated
+
+from fastapi import Form
+from pydantic import BaseModel
+
+class FormData(BaseModel):
+    username: str
+    password: str
+
+
+@app.post("/login/")
+async def login(data: Annotated[FormData, Form()]):
+    return data
+```
+
+
+
+### 3.7`File`
+
+可以使用 `File` 来定义客户端上传的文件
+
+```python
+from typing import Annotated
+
+from fastapi import FastAPI, File, UploadFile
+
+app = FastAPI()
+
+
+@app.post("/files/")
+async def create_file(file: Annotated[bytes, File()]):
+    return {"file_size": len(file)}
+
+
+@app.post("/uploadfile/")
+async def create_upload_file(file: UploadFile):
+    return {"filename": file.filename}
+```
+
+
+
+使用 `UploadFile` 相比 `bytes` 有以下几个优点
+
+- 你无需在参数的默认值中使用 `File()`。
+- 它使用 "缓冲" 文件，文件在内存中存储，直到达到最大大小限制，超过此限制后将存储在磁盘上。
+- 这意味着它能很好地处理大文件，如图像、视频、大型二进制文件等，而不会消耗所有内存。
+- 你可以从上传的文件中获取元数据。
+- 它具有 [文件类](https://docs.pythonlang.cn/3/glossary.html#term-file-like-object) `async` 接口。
+- 它暴露了一个实际的 Python [`SpooledTemporaryFile`](https://docs.pythonlang.cn/3/library/tempfile.html#tempfile.SpooledTemporaryFile) 对象，你可以直接将其传递给其他期望文件类对象的库。
+
+
+
+#### 多文件上传
+
+```python
+from typing import Annotated
+
+from fastapi import FastAPI, File, UploadFile
+from fastapi.responses import HTMLResponse
+
+app = FastAPI()
+
+
+@app.post("/files/")
+async def create_files(files: Annotated[list[bytes], File()]):
+    return {"file_sizes": [len(file) for file in files]}
+
+
+@app.post("/uploadfiles/")
+async def create_upload_files(files: list[UploadFile]):
+    return {"filenames": [file.filename for file in files]}
+
+
+@app.get("/")
+async def main():
+    content = """
+<body>
+<form action="/files/" enctype="multipart/form-data" method="post">
+<input name="files" type="file" multiple>
+<input type="submit">
+</form>
+<form action="/uploadfiles/" enctype="multipart/form-data" method="post">
+<input name="files" type="file" multiple>
+<input type="submit">
+</form>
+</body>
+    """
+    return HTMLResponse(content=content)
+```
+
+
+
+### 4. 依赖注入
+### 5. 身份验证
+### 6. 响应
+
 # 实战重点笔记
 
 ## 1. 项目构建
@@ -660,28 +816,7 @@ async def http_error_handler(_: Request, exc: HTTPException):
 4. **Session 管理**:通过 Cookie 保持用户状态，比如 `SessionMiddleware`。
 5. **性能监控**:统计请求耗时，打点埋点。
 
-假设你有三个中间件：
 
-`SessionMiddleware` → `LoggerMiddleware` → 业务路由
-
-执行顺序如下：
-
-```scss
-请求进入
-↓
-SessionMiddleware (前处理)
-↓
-LoggerMiddleware (前处理)
-↓
-业务路由函数
-↓
-LoggerMiddleware (后处理)
-↓
-SessionMiddleware (后处理)
-↓
-响应返回
-
-```
 
 这里我们加入三个组件
 
@@ -717,13 +852,7 @@ from starlette.middleware.cors import CORSMiddleware
 from starlette.middleware.sessions import SessionMiddleware
 from core.middleware import Middleware  # 完全自定义
 
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=settings.CORS_ORIGINS,
-    allow_credentials=settings.CORS_ALLOW_CREDENTIALS,
-    allow_methods=settings.CORS_ALLOW_METHODS,
-    allow_headers=settings.CORS_ALLOW_HEADERS,
-)
+app.add_middleware(Middleware)  # 放在最前面添加 → 最内层执行（在 Session 之后）
 app.add_middleware(
     SessionMiddleware,
     secret_key="session",
@@ -732,10 +861,45 @@ app.add_middleware(
     # same_site="lax",
     # https_only=True,
 )
-app.add_middleware(Middleware)  # 放在最后添加 → 最内层执行（在 Session 之后）
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=settings.CORS_ORIGINS,
+    allow_credentials=settings.CORS_ALLOW_CREDENTIALS,
+    allow_methods=settings.CORS_ALLOW_METHODS,
+    allow_headers=settings.CORS_ALLOW_HEADERS,
+)
 ```
 
-**注意**：这边添加的时候要按照顺序添加，`CORS`应该尽早添加，然后`Middleware`有使用`req.session`,而`req.session`是由`SessionMiddleware`创建的，所以`Middleware`得在`SessionMiddleware`后添加，保证逻辑的连贯性。
+**注意**：添加的时候要注意顺序，上面的代码书写顺序是“Middleware，SessionMiddleware，CORSMiddleware”，
+
+执行顺序如下：
+
+```scss
+请求进入
+↓
+CORSMiddleware (前处理)
+↓
+SessionMiddleware (前处理)
+↓
+Middleware (前处理)
+↓
+业务路由函数
+↓
+Middleware (后处理)
+↓
+SessionMiddleware (后处理)
+↓
+CORSMiddlewaree (后处理)
+↓
+响应返回
+
+```
+
+由于Middleware依赖于SessionMiddleware 生成的request.session，所以在书写时，Middleware一定要放前面
+
+
+
+
 
 ### 1.5 视图路由
 
@@ -1068,4 +1232,6 @@ def cacheable(ttl: int = 3600, key_prefix: str = "cache"):
 </html>
 ```
 
-## 4. RBAC权限
+## 4.`Request`对象
+
+## 5. RBAC权限
