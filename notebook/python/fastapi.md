@@ -86,18 +86,27 @@ fastapi有**交互式 的API 文档**，跳转到 [http://127.0.0.1:8000/docs](h
 
 ```python
 from fastapi.testclient import TestClient
-from app import app  # 你的 FastAPI app 对象
+from fastapi.websockets import WebSocket
+from app import app 
 
 client = TestClient(app)
 
 # 模拟 GET
-response = client.get("/items/", params={"id": "123"})
-print(response.json())
+def test_get()
+    response = client.get("/items/", params={"id": "123"})
+    print(response.json())
 
+# 模拟 Post
+def test_login():
+    response = client.post("/users/", json={"username": "charlie", "password": "xyz"})
+    print(response.json())
 
-# 模拟 POST
-response = client.post("/users/", json={"username": "charlie", "password": "xyz"})
-print(response.json())
+# websocket
+def test_websocket():
+    client = TestClient(app)
+    with client.websocket_connect("/ws") as websocket:
+        data = websocket.receive_json()
+        assert data == {"msg": "Hello WebSocket"}
 
 ```
 
@@ -745,7 +754,172 @@ async def main():
 
 ## 4. 依赖注入
 
-## 5. 身份验证
+**依赖注入**是一种在处理请求时“自动提供依赖对象”的机制。它的核心思想是：**把资源或功能的获取与业务逻辑解耦，让代码更简洁、易维护、易测试**
+
+FastAPI 的依赖注入 = **“声明需要什么 → FastAPI 自动给你”**
+ 通过 `Depends`：
+
+- 只需声明参数依赖
+- 框架会在请求生命周期内负责实例化、传入和清理
+
+### 4.1 创建
+
+通过 `Depends` 关键字实现注入，如下例所示
+
+```python
+from typing import Annotated
+
+from fastapi import Depends, FastAPI
+
+app = FastAPI()
+
+async def common_parameters(q: str | None = None, skip: int = 0, limit: int = 100):
+    return {"q": q, "skip": skip, "limit": limit}
+
+
+@app.get("/items/")
+async def read_items(commons: Annotated[dict, Depends(common_parameters)]):
+    return commons
+```
+
+这里的功能是`Depends`会收集查询参数中是否有`q` `skip` `limit`,并且把它们的值送入`common_parameters`函数，并把函数结果赋值给形参`commons`
+
+可以进行推广，发现类进行\__init__的返回也是可以赋值的，所以可以改写成依赖类
+
+```python
+from typing import Annotated
+
+from fastapi import Depends, FastAPI
+
+app = FastAPI()
+
+fake_items_db = [{"item_name": "Foo"}, {"item_name": "Bar"}, {"item_name": "Baz"}]
+
+class CommonQueryParams:
+    def __init__(self, q: str | None = None, skip: int = 0, limit: int = 100):
+        self.q = q
+        self.skip = skip
+        self.limit = limit
+
+
+@app.get("/items/")
+async def read_items(commons: Annotated[CommonQueryParams, Depends(CommonQueryParams)]):
+    response = {}
+    if commons.q:
+        response.update({"q": commons.q})
+    items = fake_items_db[commons.skip : commons.skip + commons.limit]
+    response.update({"items": items})
+    return response
+```
+
+```python
+commons: Annotated[CommonQueryParams, Depends(CommonQueryParams)]
+```
+
+为了减少代码重复，上面可以简写成
+
+```python
+commons: Annotated[CommonQueryParams, Depends()]
+```
+
+fastapi是可以自动识别这个写法
+
+也可以写成下面形式，但**不推荐**，因为有类型检查很重要
+
+```python
+commons: Annotated[Any, Depends(CommonQueryParams)]
+```
+
+### 4.2 多重依赖
+
+如果注入的依赖本身就有依赖项，如下所示，这种是允许的
+
+```python
+from typing import Annotated
+
+from fastapi import Cookie, Depends, FastAPI
+
+app = FastAPI()
+
+
+def query_extractor(q: str | None = None):
+    return q
+
+
+def query_or_cookie_extractor(
+    q: Annotated[str, Depends(query_extractor)],
+    last_query: Annotated[str | None, Cookie()] = None,
+):
+    if not q:
+        return last_query
+    return q
+
+
+@app.get("/items/")
+async def read_query(
+    query_or_default: Annotated[str, Depends(query_or_cookie_extractor)],
+):
+    return {"q_or_cookie": query_or_default}
+```
+
+**注意**：
+
+某个依赖在同一个*路径操作*中被多次声明，例如，多个依赖有一个共同的子依赖，则该子依赖只会被调用一次，然后进行缓存。为了避免使用缓存值，需要使用`use_cache=False`字段
+
+```python
+async def needy_dependency(fresh_value: Annotated[str, Depends(get_value, use_cache=False)]):
+    return {"fresh_value": fresh_value}
+```
+
+### 4.3 路由装饰器的`dependencies`
+
+如果有在进入路由函数之前，进行相关检查的需求，比如权限、jwt。可以使用`dependencies`参数。此时被依赖的函数的的结果不会被使用，不`return`也可以。
+
+```python
+from typing import Annotated
+
+from fastapi import Depends, FastAPI, Header, HTTPException
+
+app = FastAPI()
+
+
+async def verify_token(x_token: Annotated[str, Header()]):
+    if x_token != "fake-super-secret-token":
+        raise HTTPException(status_code=400, detail="X-Token header invalid")
+
+
+async def verify_key(x_key: Annotated[str, Header()]):
+    if x_key != "fake-super-secret-key":
+        raise HTTPException(status_code=400, detail="X-Key header invalid")
+    return x_key
+
+
+@app.get("/items/", dependencies=[Depends(verify_token), Depends(verify_key)])
+async def read_items():
+    return [{"item": "Foo"}, {"item": "Bar"}]
+```
+
+## 5. 后台任务
+
+创建一个函数作为后台任务运行。它只是一个可以接收参数的标准函数。它可以是 `async def` 或普通的 `def` 函数，**FastAPI** 将知道如何正确处理它。适用于发送电子邮件、缓慢处理数据任务
+
+```python
+from fastapi import BackgroundTasks, FastAPI
+
+app = FastAPI()
+
+
+def write_notification(email: str, message=""):
+    with open("log.txt", mode="w") as email_file:
+        content = f"notification for {email}: {message}"
+        email_file.write(content)
+
+
+@app.post("/send-notification/{email}")
+async def send_notification(email: str, background_tasks: BackgroundTasks):
+    background_tasks.add_task(write_notification, email, message="some notification")
+    return {"message": "Notification sent in the background"}
+```
 
 ## 6. 请求和响应
 
@@ -782,6 +956,7 @@ def create_cookie(response: Response):
     response.set_cookie(key="fakesession", value="fake-cookie-session-value")
     
     response.headers["X-Cat-Dog"] = "alone in the world"
+    response.set_cookie(key="fakesession", value="fake-cookie-session-value")
 
     return {"message": "Come to the dark side, we have cookies"}
 ```
@@ -799,7 +974,9 @@ app = FastAPI()
 def get_headers():
     content = {"message": "Hello World"}
     headers = {"X-Cat-Dog": "alone in the world", "Content-Language": "en-US"}
-    return JSONResponse(content=content, headers=headers)
+    response = JSONResponse(content=content, headers=headers)
+    response.set_cookie(key="fakesession", value="fake-cookie-session-value")
+    return response
 ```
 
 # 实战重点笔记
@@ -1122,7 +1299,28 @@ def cacheable(ttl: int = 3600, key_prefix: str = "cache"):
 
 #### 3.2.3 参考实现
 
-1. 后端把用户信息编码`jwt_token`然后传给前端，传给前端的形式不限，主要取决于前端如何存放
+1. 编码
+    - jwt库在解码时会识别"exp"参数，并检查是否已过期，如果过期，会报`jwt.ExpiredSignatureError`的错误，可以用`try...catch`去捕捉。
+    - 在创建 Token 时添加 "exp" 参数，这样就不用额外处理过期问题。
+
+    ```python
+    def create_access_token(data: dict):
+        token_data = data.copy()
+    
+        expire = datetime.now(UTC) + timedelta(
+            minutes=settings.JWT_ACCESS_TOKEN_EXPIRE_MINUTES
+        )
+    
+        token_data.update({"exp": expire})
+    
+        jwt_token = jwt.encode(
+            token_data, settings.JWT_SECRET_KEY, algorithm=settings.JWT_ALGORITHM
+        )
+    
+        return jwt_token
+    ```
+
+2. 后端把用户信息编码`jwt_token`然后传给前端，传给前端的形式不限，主要取决于前端如何存放
 
     ```python
     @login_router.post("/login", summary="用户登陆接口", response_class=JSONResponse)
@@ -1148,12 +1346,12 @@ def cacheable(ttl: int = 3600, key_prefix: str = "cache"):
         }, status_code=200, headers={"Set-Cookie": "X-token=Bearer "+jwt_token})
     ```
 
-2. 后端可以自动获取jwt_token
+3. 后端可以自动获取jwt_token
 
     ```python
-    from fastapi.security.oauth2 import OAuth2PasswordBearer
+    from fastapi.security import OAuth2PasswordBearer
 
-    OAuth2 = OAuth2PasswordBearer(tokenUrl="", auto_error=False)
+    OAuth2 = OAuth2PasswordBearer(tokenUrl="")
 
     async def check_permissions(
         req: Request, security_scopes: SecurityScopes, session: SessionDep, token=Depends(OAuth2),
@@ -1189,7 +1387,7 @@ def cacheable(ttl: int = 3600, key_prefix: str = "cache"):
         user_type = payload.get("user_type", None)
     ```
 
-3. 前端以下面代码为例，用户在登陆成功后会拿到`token`,此时如果用户想使用`/v1/user/add`,则需要在请求头中放入`{ "Authorization": token }`以来验证login的操作和add的操作来自同一个人
+4. 前端以下面代码为例，用户在登陆成功后会拿到`token`,此时如果用户想使用`/v1/user/add`,则需要在请求头中放入`{ "Authorization": token }`以来验证login的操作和add的操作来自同一个人
 
 ```html
 <!DOCTYPE html>
@@ -1281,6 +1479,6 @@ def cacheable(ttl: int = 3600, key_prefix: str = "cache"):
 </html>
 ```
 
-## 4. SQLModel
+## 4. RBAC权限
 
-## 5. RBAC权限
+## 5. WebSockets
