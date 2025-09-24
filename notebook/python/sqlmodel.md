@@ -15,6 +15,7 @@
     - [3.4 别名优先级](#34-别名优先级)
     - [3.5 注意](#35-注意)
   - [4. 验证装饰器](#4-验证装饰器)
+- [sqlmodel](#sqlmodel)
 
 # pydantic
 
@@ -381,3 +382,194 @@ print(foo)
 #> 2
 foo = validate_foo(a=1, b=[1,2,3]) # 报错
 ```
+
+# sqlmodel
+
+## 1. 基本操作
+
+### 1.1 创建数据库
+
+因为python内置SQLite ，所以以SQLite 为例。
+
+```python
+from sqlmodel import Field, SQLModel, create_engine
+
+
+class Hero(SQLModel, table=True):
+    id: int | None = Field(default=None, primary_key=True)
+    name: str
+    secret_name: str
+    age: int | None = None
+
+sqlite_file_name = "test.db"
+sqlite_url = f"sqlite:///{sqlite_file_name}"
+
+engine = create_engine(sqlite_url, echo=True)
+def create_db_and_tables():
+    SQLModel.metadata.create_all(engine)
+
+
+if __name__ == "__main__":
+    create_db_and_tables()
+```
+
+这里使用SQLModel定义了一个`Hero`类,`table=True`意思希望在数据库创建对应的表，然后使用`create_engine`连接数据库，最后用`SQLModel.metadata.create_all(engine)`创建表
+
+
+
+engine职责：表示**数据库连接**以及和数据库交互的底层接口。
+**作用**：
+
+  - 维护连接池（Connection Pool）
+  - 管理与数据库驱动的交互（比如 `psycopg2`、`mysqlclient` 等）
+  - 是执行原始 SQL 或创建 Session 的入口。
+
+### 1.2 session
+
+操作数据库需要创建会话窗口session，如下，然后在结束操作时，也要`session.close()`
+
+```python
+from sqlmodel import Session
+
+
+def create_heroes():
+    session = Session(engine)
+    hero_1 = Hero(name="Deadpond", secret_name="Dive Wilson")
+    hero_2 = Hero(name="Spider-Boy", secret_name="Pedro Parqueador")
+
+    session.add(hero_1)
+    session.add(hero_2)
+
+    session.commit()
+
+    session.close()
+```
+
+
+
+Session职责：表示**一次具体的数据库会话/事务上下文**。
+**作用**：
+  - 管理对象与数据库之间的同步（增删改查）。
+  - 维护对象的“脏”状态，提交事务（`commit`）、回滚事务（`rollback`）。
+
+
+
+可以使用`with`来进行上下文管理,就可以自动完成session的回收工作
+
+```python
+with Session(engine) as session:
+    session.add(hero_1)
+    session.commit()
+```
+
+### 1.3 创建实例
+
+在创建`Hero`对象时，比如
+
+```python
+# id: int | None = Field(default=None, primary_key=True)
+hero_1 = Hero(name="Deadpond", secret_name="Dive Wilson")
+```
+
+`Hero` 的 `id` 字段声明了 `primary_key=True`，因此是数据库主键，必须 **NOT NULL**。在插入前数据库尚未生成主键值，所以在 Python 中需要声明为 `int | None`（或 `Optional[int]`）并设 `Field(default=None)`，表示写入前可为 `None`。
+
+如果插入数据库时id为 `None`，数据库会自动自增生成；若手动指定非 `None` 值，则必须保证该值在表中唯一，避免主键冲突。
+
+## 2. 增查删改
+
+### 2.1 select
+
+```python
+from sqlmodel import  select
+
+def select_heroes():
+    with Session(engine) as session:
+        statement = select(Hero) # 建立查询语句
+        results = session.exec(statement) # 执行查询
+        heroes = results.all()
+```
+
+这会让程序获得Hero表的所有数据，上述代码相当于
+
+```sql
+SELECT hero.id, hero.name, hero.secret_name, hero.age
+FROM hero
+```
+
+`results` 对象是一个 可迭代对象，可以用来遍历每一行
+
+
+
+1. 如果想要立即获得所有结果，则执行`results.all()`
+
+2. 如果只想获得第一行的数据，则执行`result.first()`
+3. 想确保只有 **一个** 行与查询匹配，使用 `.one()` 代替 `.first()`，如果没有或一个以上，则报错
+4. 当然，如果知道目标行的id，则可以执行`hero = session.get(Hero, 9001)`就可以快速得到结果
+
+
+
+**注意**：**SQLModel** 自己的 `Session` 直接继承自 SQLAlchemy 的 `Session`，并添加了这个额外的方法 `session.exec()`。在底层，它使用相同的 `session.execute()`
+
+如果在 SQLAlchemy 中，需要在这里添加一个 `.scalars()`才能得到相同结果，这是因为SQLAlchemy查询的结果比**SQLModel**的 多一个封装层。
+
+```python
+heroes = session.execute(select(Hero)).scalars().all()
+```
+
+但是当选择多个事物时，则必须删除它。
+
+
+
+### 2.2 where
+
+如果需要筛选数据，则使用`where`
+
+```python
+statement = select(Hero).where(Hero.age >= 35)
+
+statement = select(Hero).where(Hero.age >= 35, Hero.age < 40) # And
+
+statement = select(Hero).where(Hero.age >= 35).where(Hero.age < 40) # And
+```
+
+或者需要or表达式
+
+```python
+from sqlmodel import or_
+statement = select(Hero).where(or_(Hero.age <= 35, Hero.age > 90)) # or
+```
+
+
+
+如果被筛选参数的有None值，编辑器就会报错，因为`None` 与 `>` 无法进行比较，这需要引入`col`,对该运算进行封装
+
+```python
+from sqlmodel import col
+
+statement = select(Hero).where(col(Hero.age) >= 35)
+```
+
+### 2.3 索引
+
+如果某个表的数据上千万行，通过非主键的查询就会很消耗时间，此时应对数据建立索引，让数据库对数据的排序等进行优化。
+
+
+
+使用索引的方式很简单，就是给指定字段加`index=True`,但不建议给所有字段添加索引，因为这会使维护成本变高
+
+```python
+class Hero(SQLModel, table=True):
+    ...
+    name: str = Field(index=True)
+    ...
+```
+
+### 2.4 Limit 和 Offset
+
+这个主要用于分页查询，服务于前端翻页浏览，
+
+```python
+statement = select(Hero).where(Hero.age > 32).offset(20).limit(10)
+```
+
+上面的结果就是查询年龄大于32的对象，跳过前20行，取20-30行的数据
