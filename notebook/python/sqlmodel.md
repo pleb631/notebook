@@ -862,7 +862,8 @@ with Session(engine) as session:
   - 降序：`ColumnElement.desc()`
 
   ```python
-  select(User).order_by(User.fullname.desc())
+  from sqlalchemy import desc,asc
+  select(User).order_by(desc(User.fullname))
   ```
 
 ##### 2. GROUP BY & HAVING
@@ -932,8 +933,8 @@ with Session(engine) as session:
 
 ##### 4. 关键要点速记
 
-- **ORDER BY**：排序结果，支持 `.asc()` / `.desc()`
-- **GROUP BY**：分组聚合，所有非聚合列必须在 `GROUP BY` 中
+- **ORDER BY**：排序结果，支持 `.asc()` / `.desc()`，支持多个输入的组合键
+- **GROUP BY**：分组聚合，所有非聚合列必须在 `GROUP BY` 中，支持多个输入的组合键
 - **HAVING**：聚合结果过滤
 - **func**：SQL 函数入口，例如 `func.count()`、`func.avg()`
 - **按标签排序**：`group_by("alias")` / `order_by("alias")` 可直接用字符串标签
