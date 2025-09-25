@@ -30,8 +30,14 @@
     - [3.1 创建模型](#31-创建模型)
     - [3.2 创建联系](#32-创建联系)
     - [3.3 查询](#33-查询)
-      - [3.3.1 join](#331-join)
-      - [3.3.2 LEFT OUTER](#332-left-outer)
+      - [3.3.1 join、join\_from](#331-joinjoin_from)
+      - [3.3.2 isouter、full](#332-isouterfull)
+      - [](#)
+      - [3.3.3 分类、排序、聚合](#333-分类排序聚合)
+        - [1. ORDER BY](#1-order-by)
+        - [2. GROUP BY \& HAVING](#2-group-by--having)
+        - [3. 使用标签名排序或分组](#3-使用标签名排序或分组)
+        - [4. 关键要点速记](#4-关键要点速记)
     - [3.4 更新和删除](#34-更新和删除)
   - [4.关系属性](#4关系属性)
     - [4.1创建模型](#41创建模型)
@@ -441,14 +447,12 @@ if __name__ == "__main__":
 
 这里使用SQLModel定义了一个`Hero`类,`table=True`意思希望在数据库创建对应的表，然后使用`create_engine`连接数据库，最后用`SQLModel.metadata.create_all(engine)`创建表
 
-
-
 engine职责：表示**数据库连接**以及和数据库交互的底层接口。
 **作用**：
 
-  - 维护连接池（Connection Pool）
-  - 管理与数据库驱动的交互（比如 `psycopg2`、`mysqlclient` 等）
-  - 是执行原始 SQL 或创建 Session 的入口。
+- 维护连接池（Connection Pool）
+- 管理与数据库驱动的交互（比如 `psycopg2`、`mysqlclient` 等）
+- 是执行原始 SQL 或创建 Session 的入口。
 
 ### 1.2 session
 
@@ -471,14 +475,11 @@ def create_heroes():
     session.close()
 ```
 
-
-
 Session职责：表示**一次具体的数据库会话/事务上下文**。
 **作用**：
-  - 管理对象与数据库之间的同步（增删改查）。
-  - 维护对象的“脏”状态，提交事务（`commit`）、回滚事务（`rollback`）。
 
-
+- 管理对象与数据库之间的同步（增删改查）。
+- 维护对象的“脏”状态，提交事务（`commit`）、回滚事务（`rollback`）。
 
 可以使用`with`来进行上下文管理,就可以自动完成session的回收工作
 
@@ -524,15 +525,11 @@ FROM hero
 
 `results` 对象是一个 可迭代对象，可以用来遍历每一行
 
-
-
 1. 如果想要立即获得所有结果，则执行`results.all()`
 
 2. 如果只想获得第一行的数据，则执行`result.first()`
 3. 想确保只有 **一个** 行与查询匹配，使用 `.one()` 代替 `.first()`，如果没有或一个以上，则报错
 4. 当然，如果知道目标行的id，则可以执行`hero = session.get(Hero, 9001)`就可以快速得到结果
-
-
 
 **注意**：**SQLModel** 自己的 `Session` 直接继承自 SQLAlchemy 的 `Session`，并添加了这个额外的方法 `session.exec()`。在底层，它使用相同的 `session.execute()`
 
@@ -543,8 +540,6 @@ heroes = session.execute(select(Hero)).scalars().all()
 ```
 
 但是当选择多个事物时，则必须删除它。
-
-
 
 ### 2.2 where
 
@@ -565,8 +560,6 @@ from sqlmodel import or_
 statement = select(Hero).where(or_(Hero.age <= 35, Hero.age > 90)) # or
 ```
 
-
-
 如果被筛选参数的有None值，编辑器就会报错，因为`None` 与 `>` 无法进行比较，这需要引入`col`,对该运算进行封装
 
 ```python
@@ -578,8 +571,6 @@ statement = select(Hero).where(col(Hero.age) >= 35)
 ### 2.3 索引
 
 如果某个表的数据上千万行，通过非主键的查询就会很消耗时间，此时应对数据建立索引，让数据库对数据的排序等进行优化。
-
-
 
 使用索引的方式很简单，就是给指定字段加`index=True`,但不建议给所有字段添加索引，因为这会使维护成本变高
 
@@ -635,11 +626,7 @@ def delete_heroes():
 
 ```
 
-
-
 **注意**：sqlmodel有提供insert、update、delete的封装
-
-
 
 ```python
 from sqlmodel import delete, update
@@ -668,8 +655,6 @@ with Session(engine) as session:
 
 这种做法很高性能，但绕过了ORM的生命周期，直接操作数据库，那么这**不会触发 ORM 级事件/校验/关系级联** 等 Python 侧逻辑
 
-
-
 ## 3.连接表
 
 ### 3.1 创建模型
@@ -696,8 +681,6 @@ class Hero(SQLModel, table=True):
 
     team_id: int | None = Field(default=None, foreign_key="team.id")
 ```
-
-
 
 此时Hero的team_id会和Team的id进行关联，sql语句是
 
@@ -796,7 +779,7 @@ if __name__ == "__main__":
 
 ### 3.3 查询
 
-#### 3.3.1 join
+#### 3.3.1 join、join_from
 
 如果想要获得hero的信息和他的team的信息，
 
@@ -812,7 +795,7 @@ with Session(engine) as session:
         statement = select(Hero, Team).join(Team)
 ```
 
-通过join，sqlmodel会自动使用外键进行关联，不再需要where手动关联
+通过join，sqlmodel会自动使用外键进行关联，不再需要where手动关联，然后把Team表的内容放在Hero表的右边
 
 此时sql类似于
 
@@ -823,11 +806,16 @@ JOIN team
 ON hero.team_id = team.id
 ```
 
+也可以使用`join_from`,这样可以显式的制定哪个在坐边，哪个在
 
+```python
+with Session(engine) as session:
+        statement = select(Hero.name, Team.name).join_from(Hero, Team)
+```
 
 不过这种查询只能查到Hero, Team进行关联的数据行，如果`Hero.team_id=NULL`,就查不到
 
-#### 3.3.2 LEFT OUTER
+#### 3.3.2 isouter、full
 
 我们希望在结果中包含所有英雄，即使他们没有团队，可以扩展上面使用的 `JOIN` SQL，并在 `JOIN` 之前添加 `LEFT OUTER`
 
@@ -847,6 +835,109 @@ with Session(engine) as session:
 
 这相当于先根据Hero表建立结果，再从Team里找能不能和Hero进行关联的部分
 
+####
+
+如果我们希望能够得到全部的信息，即使team里没有hero，就可以开启`full`
+
+```python
+with Session(engine) as session:
+     statement = select(Hero, Team).join(Team, full=True)
+```
+
+#### 3.3.3 分类、排序、聚合
+
+##### 1. ORDER BY
+
+**作用**：对查询结果排序（升序/降序）。
+
+- **基本语法**
+
+  ```python
+  select(...).order_by(column)
+  ```
+
+- **升序/降序**
+
+  - 升序：`ColumnElement.asc()`
+  - 降序：`ColumnElement.desc()`
+
+  ```python
+  select(User).order_by(User.fullname.desc())
+  ```
+
+##### 2. GROUP BY & HAVING
+
+**作用**：分组并基于组进行聚合与过滤。
+
+- **GROUP BY**：按某列或表达式分组，聚合函数在各组上分别计算。
+
+- **HAVING**：类似 `WHERE`，但用于过滤聚合后的结果。
+
+- **常用聚合函数**
+
+  - `func.count()` 计数
+  - `func.avg()` 平均
+  - `func.max()` / `func.min()` 最大/最小
+
+- **示例**：统计每个用户的地址数量，并筛选地址数 > 1
+
+  ```python
+  from sqlalchemy import func
+  
+  stmt = (
+      select(User.name, func.count(Address.id).label("count"))
+      .join(Address)
+      .group_by(User.name)
+      .having(func.count(Address.id) > 1)
+  )
+  ```
+
+  生成 SQL：
+
+  ```sql
+  SELECT user_account.name, count(address.id) AS count
+  FROM user_account
+  JOIN address ON user_account.id = address.user_id
+  GROUP BY user_account.name
+  HAVING count(address.id) > 1
+  ```
+
+##### 3. 使用标签名排序或分组
+
+在某些数据库中，可直接使用 **列别名（label）或字符串列名**，避免重复写完整表达式。
+
+- **示例**
+
+  ```python
+  from sqlalchemy import func, desc
+  
+  stmt = (
+      select(
+          Address.user_id,
+          func.count(Address.id).label("num_addresses")
+      )
+      .group_by("user_id")
+      .order_by("user_id", desc("num_addresses"))
+  )
+  ```
+
+  生成 SQL：
+
+  ```sql
+  SELECT address.user_id, count(address.id) AS num_addresses
+  FROM address
+  GROUP BY address.user_id
+  ORDER BY address.user_id, num_addresses DESC
+  ```
+
+##### 4. 关键要点速记
+
+- **ORDER BY**：排序结果，支持 `.asc()` / `.desc()`
+- **GROUP BY**：分组聚合，所有非聚合列必须在 `GROUP BY` 中
+- **HAVING**：聚合结果过滤
+- **func**：SQL 函数入口，例如 `func.count()`、`func.avg()`
+- **按标签排序**：`group_by("alias")` / `order_by("alias")` 可直接用字符串标签
+
 ### 3.4 更新和删除
 
 就和普通的增查删改一样
@@ -864,8 +955,6 @@ session.refresh(hero_spider_boy)
 ```
 
 当然，这种删除，只是取消了连接，并不是team实例被删除了
-
-
 
 ## 4.关系属性
 
@@ -904,8 +993,6 @@ class Hero(SQLModel, table=True):
 
 - 如果省略，关系还能查，但对象之间不会自动同步。
 
-
-
 ### 4.2 创建联系
 
 之前使用外键的时候，需要知道所关联对象的id，此时必须要先提交team实例，再提交hero实例，参考[3.2 创建联系](#32-创建联系)。如果使用`Relationship`,整个过程就只需要commit一次
@@ -937,8 +1024,6 @@ def create_heroes():
 现在我们甚至不必使用 `session.add(team)` 将团队显式放入会话中，因为这些 `Team` 实例**已经与我们确实** `add` 到会话的英雄**关联**。
 
 SQLAlchemy 知道它也必须将这些团队包含在下一次提交中，以便能够正确保存英雄。
-
-
 
 当然，也可以先创建hero，再创建team
 
@@ -986,8 +1071,6 @@ session.commit()
 heroes: list["Hero"] = Relationship(back_populates="team", cascade_delete=True)
 ```
 
-
-
 这是ORM层面的处理，如果有人 **直接与数据库交互**，而不是python代码，**使用 SQL 删除一个团队** ，则不会发生级联删除，而hero会指向一个不存在的团队team_id。
 
 此时，应配置 `Field()` 中的 `ondelete` 参数，在建立数据库时，让数据集自动处理
@@ -1015,8 +1098,6 @@ class Hero(SQLModel, table=True):
 
 ```
 
-
-
 `ondelete` 参数将在数据库的 **外键列** 中设置 SQL `ON DELETE`。
 
 `ondelete` 可以有以下值
@@ -1025,11 +1106,7 @@ class Hero(SQLModel, table=True):
 - `SET NULL`：当相关记录被删除时，将此 **外键** (`hero.team_id`) 字段设置为 `NULL`。
 - `RESTRICT`：（默认值）如果存在外键值，则通过引发错误 **阻止** 删除此记录（英雄）。
 
-
-
 **注意**：cascade_delete和ondelete要配套修改，不是只改一个就行的，ondelete是数据库层面，cascade_delete是ORM层面，还要结合passive_deletes进行。
-
-
 
 #### 4.4.2 passive_deletes
 
@@ -1165,4 +1242,3 @@ def update_hero(hero_id: int, hero: HeroUpdate):
         session.refresh(db_hero)
         return db_hero
 ```
-
