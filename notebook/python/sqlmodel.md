@@ -16,6 +16,32 @@
     - [3.5 注意](#35-注意)
   - [4. 验证装饰器](#4-验证装饰器)
 - [sqlmodel](#sqlmodel)
+  - [1. 基本操作](#1-基本操作)
+    - [1.1 创建数据库](#11-创建数据库)
+    - [1.2 session](#12-session)
+    - [1.3 创建实例](#13-创建实例)
+  - [2. 增查删改](#2-增查删改)
+    - [2.1 select](#21-select)
+    - [2.2 where](#22-where)
+    - [2.3 索引](#23-索引)
+    - [2.4 Limit 和 Offset](#24-limit-和-offset)
+    - [2.5 更新和删除](#25-更新和删除)
+  - [3.连接表](#3连接表)
+    - [3.1 创建模型](#31-创建模型)
+    - [3.2 创建联系](#32-创建联系)
+    - [3.3 查询](#33-查询)
+      - [3.3.1 join](#331-join)
+      - [3.3.2 LEFT OUTER](#332-left-outer)
+    - [3.4 更新和删除](#34-更新和删除)
+  - [4.关系属性](#4关系属性)
+    - [4.1创建模型](#41创建模型)
+    - [4.2 创建联系](#42-创建联系)
+    - [4.3 更新](#43-更新)
+    - [4.4 级联删除](#44-级联删除)
+      - [4.4.1 ondelete](#441-ondelete)
+      - [4.4.2 passive\_deletes](#442-passive_deletes)
+  - [5.多对多模型](#5多对多模型)
+  - [6. fastapi的使用](#6-fastapi的使用)
 
 # pydantic
 
@@ -573,3 +599,570 @@ statement = select(Hero).where(Hero.age > 32).offset(20).limit(10)
 ```
 
 上面的结果就是查询年龄大于32的对象，跳过前20行，取20-30行的数据
+
+### 2.5 更新和删除
+
+一般用select获取相关对象后，用字段直接修改数据，然后提交
+
+```python
+def update_heroes():
+    with Session(engine) as session:
+        statement = select(Hero).where(Hero.name == "Spider-Boy")
+        results = session.exec(statement)
+        hero = results.one()
+        print("Hero:", hero)
+
+        hero.age = 16
+        session.add(hero)
+        session.commit()
+        session.refresh(hero)
+
+```
+
+删除一行
+
+```python
+def delete_heroes():
+    with Session(engine) as session:
+        statement = select(Hero).where(Hero.name == "Spider-Youngster")
+        results = session.exec(statement)
+        hero = results.one()
+        print("Hero: ", hero)
+
+        session.delete(hero)
+        session.commit()
+
+
+```
+
+
+
+**注意**：sqlmodel有提供insert、update、delete的封装
+
+
+
+```python
+from sqlmodel import delete, update
+
+
+rows = [
+    {"name": "Hulk", "age": 40},
+    {"name": "Black Widow", "age": 32},
+]
+with Session(engine) as session:
+    stmt = delete(Hero).where(Hero.retired == True)
+    session.exec(stmt)
+    session.commit()
+    
+    stmt = (
+        update(Hero)
+        .where(Hero.team == "X-Men")
+        .values(age=Hero.age + 1)   
+    )
+    result = session.exec(stmt)      
+    session.commit()
+    
+    stmt = insert(Hero).values(rows)
+    session.exec(stmt)
+```
+
+这种做法很高性能，但绕过了ORM的生命周期，直接操作数据库，那么这**不会触发 ORM 级事件/校验/关系级联** 等 Python 侧逻辑
+
+
+
+## 3.连接表
+
+### 3.1 创建模型
+
+如果要连接数据，比如**一个**团队可以拥有**多个**英雄。因此，它通常被称为**一对多**或**多对一**关系。
+
+这时可以引入外键`foreign_key`进行关联
+
+```python
+from sqlmodel import Field, SQLModel, create_engine
+
+
+class Team(SQLModel, table=True):
+    id: int | None = Field(default=None, primary_key=True)
+    name: str = Field(index=True)
+    headquarters: str
+
+
+class Hero(SQLModel, table=True):
+    id: int | None = Field(default=None, primary_key=True)
+    name: str = Field(index=True)
+    secret_name: str
+    age: int | None = Field(default=None, index=True)
+
+    team_id: int | None = Field(default=None, foreign_key="team.id")
+```
+
+
+
+此时Hero的team_id会和Team的id进行关联，sql语句是
+
+```sql
+CREATE TABLE team (
+        id INTEGER,
+        name VARCHAR NOT NULL,
+        headquarters VARCHAR NOT NULL,
+        PRIMARY KEY (id)
+)
+
+CREATE TABLE hero (
+        id INTEGER,
+        name VARCHAR NOT NULL,
+        secret_name VARCHAR NOT NULL,
+        age INTEGER,
+        team_id INTEGER,
+        PRIMARY KEY (id),
+        FOREIGN KEY(team_id) REFERENCES team (id)
+)
+```
+
+### 3.2 创建联系
+
+按照一般创建Hero实例的方式取进行，区别在于team_id的值需要借由已经创建好的team实例的id进行赋值
+
+```python
+from sqlmodel import Field, Session, SQLModel, create_engine
+
+
+class Team(SQLModel, table=True):
+    id: int | None = Field(default=None, primary_key=True)
+    name: str = Field(index=True)
+    headquarters: str
+
+
+class Hero(SQLModel, table=True):
+    id: int | None = Field(default=None, primary_key=True)
+    name: str = Field(index=True)
+    secret_name: str
+    age: int | None = Field(default=None, index=True)
+
+    team_id: int | None = Field(default=None, foreign_key="team.id")
+
+
+sqlite_file_name = "database.db"
+sqlite_url = f"sqlite:///{sqlite_file_name}"
+
+engine = create_engine(sqlite_url, echo=True)
+
+
+def create_db_and_tables():
+    SQLModel.metadata.create_all(engine)
+
+
+def create_heroes():
+    with Session(engine) as session:
+        team_preventers = Team(name="Preventers", headquarters="Sharp Tower")
+        team_z_force = Team(name="Z-Force", headquarters="Sister Margaret's Bar")
+        session.add(team_preventers)
+        session.add(team_z_force)
+        session.commit()
+
+        hero_deadpond = Hero(
+            name="Deadpond", secret_name="Dive Wilson", team_id=team_z_force.id
+        )
+        hero_rusty_man = Hero(
+            name="Rusty-Man",
+            secret_name="Tommy Sharp",
+            age=48,
+            team_id=team_preventers.id,
+        )
+        hero_spider_boy = Hero(name="Spider-Boy", secret_name="Pedro Parqueador")
+        session.add(hero_deadpond)
+        session.add(hero_rusty_man)
+        session.add(hero_spider_boy)
+        session.commit()
+
+        session.refresh(hero_deadpond)
+        session.refresh(hero_rusty_man)
+        session.refresh(hero_spider_boy)
+
+        print("Created hero:", hero_deadpond)
+        print("Created hero:", hero_rusty_man)
+        print("Created hero:", hero_spider_boy)
+
+
+def main():
+    create_db_and_tables()
+    create_heroes()
+
+
+if __name__ == "__main__":
+    main()
+```
+
+### 3.3 查询
+
+#### 3.3.1 join
+
+如果想要获得hero的信息和他的team的信息，
+
+```python
+with Session(engine) as session:
+    statement = select(Hero, Team).where(Hero.team_id == Team.id)
+```
+
+有一种替代的写法
+
+```python
+with Session(engine) as session:
+        statement = select(Hero, Team).join(Team)
+```
+
+通过join，sqlmodel会自动使用外键进行关联，不再需要where手动关联
+
+此时sql类似于
+
+```sql
+SELECT hero.id, hero.name, team.name
+FROM hero
+JOIN team
+ON hero.team_id = team.id
+```
+
+
+
+不过这种查询只能查到Hero, Team进行关联的数据行，如果`Hero.team_id=NULL`,就查不到
+
+#### 3.3.2 LEFT OUTER
+
+我们希望在结果中包含所有英雄，即使他们没有团队，可以扩展上面使用的 `JOIN` SQL，并在 `JOIN` 之前添加 `LEFT OUTER`
+
+```sql
+SELECT hero.id, hero.name, team.name
+FROM hero
+LEFT OUTER JOIN team
+ON hero.team_id = team.id
+```
+
+而在sqlmodel里，则变成
+
+```python
+with Session(engine) as session:
+     statement = select(Hero, Team).join(Team, isouter=True)
+```
+
+这相当于先根据Hero表建立结果，再从Team里找能不能和Hero进行关联的部分
+
+### 3.4 更新和删除
+
+就和普通的增查删改一样
+
+```python
+hero_spider_boy.team_id = team_preventers.id  # 更新
+session.add(hero_spider_boy)
+session.commit()
+session.refresh(hero_spider_boy)
+
+hero_spider_boy.team_id = None   # 删除
+session.add(hero_spider_boy)
+session.commit()
+session.refresh(hero_spider_boy)
+```
+
+当然，这种删除，只是取消了连接，并不是team实例被删除了
+
+
+
+## 4.关系属性
+
+### 4.1创建模型
+
+之前是通过where或join以及team_id来连接表的，也可以通过`Relationship`声明一种弱引用的关系属性，直接获取信息
+
+```python
+from sqlmodel import Field, Relationship, Session, SQLModel, create_engine
+
+
+class Team(SQLModel, table=True):
+    id: int | None = Field(default=None, primary_key=True)
+    name: str = Field(index=True)
+    headquarters: str
+
+    heroes: list["Hero"] = Relationship(back_populates="team")
+
+
+class Hero(SQLModel, table=True):
+    id: int | None = Field(default=None, primary_key=True)
+    name: str = Field(index=True)
+    secret_name: str
+    age: int | None = Field(default=None, index=True)
+
+    team_id: int | None = Field(default=None, foreign_key="team.id")
+    team: Team | None = Relationship(back_populates="heroes")
+
+```
+
+注意：
+
+- `Relationship` 本身只建立单向关系。
+
+- `back_populates` 明确告诉 ORM 两个属性互为镜像，保证对象级别的**双向同步**。
+
+- 如果省略，关系还能查，但对象之间不会自动同步。
+
+
+
+### 4.2 创建联系
+
+之前使用外键的时候，需要知道所关联对象的id，此时必须要先提交team实例，再提交hero实例，参考[3.2 创建联系](#32-创建联系)。如果使用`Relationship`,整个过程就只需要commit一次
+
+```python
+def create_heroes():
+    with Session(engine) as session:
+        team_preventers = Team(name="Preventers", headquarters="Sharp Tower")
+        team_z_force = Team(name="Z-Force", headquarters="Sister Margaret's Bar")
+
+        hero_deadpond = Hero(
+            name="Deadpond", secret_name="Dive Wilson", team=team_z_force
+        )
+        hero_rusty_man = Hero(
+            name="Rusty-Man", secret_name="Tommy Sharp", age=48, team=team_preventers
+        )
+        hero_spider_boy = Hero(name="Spider-Boy", secret_name="Pedro Parqueador")
+        session.add(hero_deadpond)
+        session.add(hero_rusty_man)
+        session.add(hero_spider_boy)
+        session.commit()
+
+        session.refresh(hero_deadpond)
+        session.refresh(hero_rusty_man)
+        session.refresh(hero_spider_boy)
+
+```
+
+现在我们甚至不必使用 `session.add(team)` 将团队显式放入会话中，因为这些 `Team` 实例**已经与我们确实** `add` 到会话的英雄**关联**。
+
+SQLAlchemy 知道它也必须将这些团队包含在下一次提交中，以便能够正确保存英雄。
+
+
+
+当然，也可以先创建hero，再创建team
+
+```python
+def create_heroes():
+    with Session(engine) as session:
+
+        hero_black_lion = Hero(name="Black Lion", secret_name="Trevor Challa", age=35)
+        hero_sure_e = Hero(name="Princess Sure-E", secret_name="Sure-E")
+        team_wakaland = Team(
+            name="Wakaland",
+            headquarters="Wakaland Capital City",
+            heroes=[hero_black_lion, hero_sure_e],
+        )
+        session.add(team_wakaland)
+        session.commit()
+        session.refresh(team_wakaland)
+
+```
+
+### 4.3 更新
+
+更新List就可以使用通用的方法
+
+```python
+hero_spider_boy.team = team_preventers
+hero_sure_e.team = None
+
+team_wakaland.heroes.append(hero_black_lion)
+
+session.add(hero_spider_boy)
+session.add(team_wakaland)
+session.add(hero_sure_e)
+session.commit()
+
+```
+
+### 4.4 级联删除
+
+#### 4.4.1 ondelete
+
+如果希望在删除某个team实例时，能自动删除相关的hero，则设置`cascade_delete=True`,此时将配置 SQLAlchemy 使用 `cascade="all, delete-orphan"`
+
+```python
+heroes: list["Hero"] = Relationship(back_populates="team", cascade_delete=True)
+```
+
+
+
+这是ORM层面的处理，如果有人 **直接与数据库交互**，而不是python代码，**使用 SQL 删除一个团队** ，则不会发生级联删除，而hero会指向一个不存在的团队team_id。
+
+此时，应配置 `Field()` 中的 `ondelete` 参数，在建立数据库时，让数据集自动处理
+
+```python
+from sqlmodel import Field, Relationship, Session, SQLModel, create_engine, select
+
+
+class Team(SQLModel, table=True):
+    id: int | None = Field(default=None, primary_key=True)
+    name: str = Field(index=True)
+    headquarters: str
+
+    heroes: list["Hero"] = Relationship(back_populates="team", cascade_delete=True)
+
+
+class Hero(SQLModel, table=True):
+    id: int | None = Field(default=None, primary_key=True)
+    name: str = Field(index=True)
+    secret_name: str
+    age: int | None = Field(default=None, index=True)
+
+    team_id: int | None = Field(default=None, foreign_key="team.id", ondelete="CASCADE")
+    team: Team | None = Relationship(back_populates="heroes")
+
+```
+
+
+
+`ondelete` 参数将在数据库的 **外键列** 中设置 SQL `ON DELETE`。
+
+`ondelete` 可以有以下值
+
+- `CASCADE`：当相关记录（团队）被删除时，**自动删除此记录** （英雄）。
+- `SET NULL`：当相关记录被删除时，将此 **外键** (`hero.team_id`) 字段设置为 `NULL`。
+- `RESTRICT`：（默认值）如果存在外键值，则通过引发错误 **阻止** 删除此记录（英雄）。
+
+
+
+**注意**：cascade_delete和ondelete要配套修改，不是只改一个就行的，ondelete是数据库层面，cascade_delete是ORM层面，还要结合passive_deletes进行。
+
+
+
+#### 4.4.2 passive_deletes
+
+如果您知道您的数据库能够仅通过 `ondelete="CASCADE"` 或 `ondelete="SET NULL"` 正确处理删除或更新，您可以在 `Relationship()` 中使用 `passive_deletes="all"` 来告诉 SQLModel（实际上是 SQLAlchemy） **不要在** 为团队发送 `DELETE` 之前 **删除或更新** 这些记录（对于英雄）。
+
+```python
+from sqlmodel import Field, Relationship, Session, SQLModel, create_engine, select, text
+
+SQLModel.metadata.create_all(engine)
+    with engine.connect() as connection:
+        connection.execute(text("PRAGMA foreign_keys=ON")) #sqlite only  # 解除外键约束
+        
+class Team(SQLModel, table=True):
+    id: int | None = Field(default=None, primary_key=True)
+    name: str = Field(index=True)
+    headquarters: str
+
+    heroes: list["Hero"] = Relationship(back_populates="team", passive_deletes="all")
+
+
+class Hero(SQLModel, table=True):
+    id: int | None = Field(default=None, primary_key=True)
+    name: str = Field(index=True)
+    secret_name: str
+    age: int | None = Field(default=None, index=True)
+
+    team_id: int | None = Field(
+        default=None, foreign_key="team.id", ondelete="SET NULL"
+    )
+    team: Team | None = Relationship(back_populates="heroes")
+
+```
+
+## 5.多对多模型
+
+**多对多**关系需要额外建立一个链接表，并且用`link_model`进行关联
+
+```python
+from sqlmodel import Field, Relationship, Session, SQLModel, create_engine
+
+
+class HeroTeamLink(SQLModel, table=True):
+    team_id: int | None = Field(default=None, foreign_key="team.id", primary_key=True)
+    hero_id: int | None = Field(default=None, foreign_key="hero.id", primary_key=True)
+
+
+class Team(SQLModel, table=True):
+    id: int | None = Field(default=None, primary_key=True)
+    name: str = Field(index=True)
+    headquarters: str
+
+    heroes: list["Hero"] = Relationship(back_populates="teams", link_model=HeroTeamLink)
+
+
+class Hero(SQLModel, table=True):
+    id: int | None = Field(default=None, primary_key=True)
+    name: str = Field(index=True)
+    secret_name: str
+    age: int | None = Field(default=None, index=True)
+
+    teams: list[Team] = Relationship(back_populates="heroes", link_model=HeroTeamLink)
+
+
+sqlite_file_name = "database.db"
+sqlite_url = f"sqlite:///{sqlite_file_name}"
+
+engine = create_engine(sqlite_url, echo=True)
+
+
+def create_db_and_tables():
+    SQLModel.metadata.create_all(engine)
+
+
+def create_heroes():
+    with Session(engine) as session:
+        team_preventers = Team(name="Preventers", headquarters="Sharp Tower")
+        team_z_force = Team(name="Z-Force", headquarters="Sister Margaret's Bar")
+
+        hero_deadpond = Hero(
+            name="Deadpond",
+            secret_name="Dive Wilson",
+            teams=[team_z_force, team_preventers],
+        )
+        hero_rusty_man = Hero(
+            name="Rusty-Man",
+            secret_name="Tommy Sharp",
+            age=48,
+            teams=[team_preventers],
+        )
+        hero_spider_boy = Hero(
+            name="Spider-Boy", secret_name="Pedro Parqueador", teams=[team_preventers]
+        )
+        session.add(hero_deadpond)
+        session.add(hero_rusty_man)
+        session.add(hero_spider_boy)
+        session.commit()
+
+        session.refresh(hero_deadpond)
+        session.refresh(hero_rusty_man)
+        session.refresh(hero_spider_boy)
+
+        print("Deadpond:", hero_deadpond)
+        print("Deadpond teams:", hero_deadpond.teams)
+        print("Rusty-Man:", hero_rusty_man)
+        print("Rusty-Man Teams:", hero_rusty_man.teams)
+        print("Spider-Boy:", hero_spider_boy)
+        print("Spider-Boy Teams:", hero_spider_boy.teams)
+
+
+def main():
+    create_db_and_tables()
+    create_heroes()
+
+
+if __name__ == "__main__":
+    main()
+```
+
+## 6. fastapi的使用
+
+```python
+# 更新
+@app.patch("/heroes/{hero_id}", response_model=HeroPublic)
+def update_hero(hero_id: int, hero: HeroUpdate):
+    with Session(engine) as session:
+        db_hero = session.get(Hero, hero_id)
+        if not db_hero:
+            raise HTTPException(status_code=404, detail="Hero not found")
+        hero_data = hero.model_dump(exclude_unset=True)
+        db_hero.sqlmodel_update(hero_data)
+        session.add(db_hero)
+        session.commit()
+        session.refresh(db_hero)
+        return db_hero
+```
+
