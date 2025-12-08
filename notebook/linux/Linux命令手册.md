@@ -83,6 +83,16 @@ time dd if=/tmp/test of=/dev/null bs=8k #测读
 # bs 是每次读或写的大小，即一个块的大小，count 是读写块的数量。
 ```
 
+- 复制打包链接文件
+
+```bash
+# 复制符号链接指向的实际文件
+cp -rL /tmp/test /var/tmp/test
+
+# 压缩符号链接指向的实际文件
+tar  -cvf /var/tmp/test.tar  -h /tmp/test
+```
+
 ---
 
 # CheatSheat
