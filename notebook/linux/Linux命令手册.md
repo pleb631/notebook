@@ -93,6 +93,53 @@ cp -rL /tmp/test /var/tmp/test
 tar  -cvf /var/tmp/test.tar  -h /tmp/test
 ```
 
+- 赋予权限
+
+1. 三种基本权限
+读（Read, r）：允许查看文件内容或列出目录中的文件。
+写（Write, w）：允许修改文件内容或在目录中创建 / 删除文件。
+执行（Execute, x）：允许运行可执行文件或进入目录（对目录而言，x 权限是使用 cd 命令进入的必要条件）。
+2. 三类用户角色
+所有者（User, u）：文件或目录的创建者。
+所属组（Group, g）：与文件关联的用户组的成员。
+其他用户（Others, o）：既不是所有者也不是所属组成员的用户。
+所有用户（All, a）：等同于 u + g + o。
+
+3. 权限值映射
+每个权限对应一个数字值：
+
+r = 4（二进制 100）
+w = 2（二进制 010）
+x = 1（二进制 001）
+4. 组合权限值
+通过加法组合权限：
+
+rwx = 4 + 2 + 1 = 7
+rw- = 4 + 2 + 0 = 6
+r-x = 4 + 0 + 1 = 5
+r-- = 4 + 0 + 0 = 4
+--- = 0 + 0 + 0 = 0
+
+```bash
+chmod 755 script.sh      # 所有者有 rwx，组和其他用户有 rx
+chmod 644 data.txt       # 所有者有 rw，组和其他用户有 r
+chmod 700 secret_file    # 仅所有者有 rwx，组和其他用户无权限
+
+```
+
+5.操作符
++：添加权限
+-：移除权限
+=：设置权限（覆盖原有权限）
+
+```bash
+chmod u+x script.sh      # 给所有者添加执行权限
+chmod g-w,o-rwx file.txt # 移除组的写权限和其他用户的所有权限
+chmod a=rwx directory/   # 所有人拥有所有权限（不推荐）
+chmod o=rx file          # 其他用户设置为 rx 权限
+
+```
+
 ---
 
 # CheatSheat
