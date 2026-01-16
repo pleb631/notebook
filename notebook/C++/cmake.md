@@ -28,7 +28,7 @@ cmake <path-to-source>
 | **--install-prefix** <directory> | 指定安装目录，由 CMAKE_INSTALL_PREFIX` 变量使用。必须是绝对路径 |
 | **--preset** <preset>            | 从 `CMakePresets.json` 和 `CMakeUserPresets.json` 文件中读取一个 [`preset`](https://cmake.com.cn/cmake/help/latest/manual/cmake-presets.7.html#manual:cmake-presets(7)) |
 | **-P**                           | 脚本模式                                                     |
-|                                  |                                                              |
+| `--build`                        | `cmake --build ./build -j4`编译目录                          |
 
 ## 2.基本构建
 
