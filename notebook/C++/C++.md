@@ -63,6 +63,12 @@
     - [int转enum以及enum转为其他enum](#int转enum以及enum转为其他enum)
     - [成员指针的上行转换（pointer to member upcast）](#成员指针的上行转换pointer-to-member-upcast)
 
+## 建议
+
+1.定义变量是就要初始化，可以避免很多未定义行为。
+
+2.如果只需要正整数计数，用`size_t`
+
 ## main函数
 
 入门c++代码如下，main函数是一个程序的入口，每个程序都必须有这么一个函数，并且有且只有一个。
@@ -96,8 +102,8 @@ int main() {
 
 ## 变量
 
-| 类型            | 含义           | 最小尺寸                       |
-| --------------- | -------------- | ------------------------------ |
+| 类型          | 含义           | 最小尺寸                       |
+| ------------- | -------------- | ------------------------------ |
 | `bool`        | 布尔类型       | 8bits                          |
 | `char`        | 字符           | 8bits                          |
 | `wchar_t`     | 宽字符         | 16bits                         |
@@ -107,9 +113,29 @@ int main() {
 | `int`         | 整型           | 16bits (在32位机器中是32bits)  |
 | `long`        | 长整型         | 32bits                         |
 | `long long`   | 长整型         | 64bits （是在C++11中新定义的） |
-| `float`       | 单精度浮点数   | 6位有效数字                    |
-| `double`      | 双精度浮点数   | 10位有效数字                   |
-| `long double` | 扩展精度浮点数 | 10位有效数字                   |
+| `float`       | 单精度浮点数   | 4bits，6位有效数字             |
+| `double`      | 双精度浮点数   | 8bits,15位有效数字             |
+| `long double` | 扩展精度浮点数 | 8bits,15位有效数字             |
+
+
+
+三种初始化
+
+```c++
+int a = 2;
+int c (222);
+int b {1};
+// int a1 = 2.1; //不会报错，涉及类型转换
+// int b1{2.1}; //会报错
+
+char character1 {'a'};
+char value = 65;
+fmt::println("value(int): {}", static_cast<unsigned int>(value));
+```
+
+
+
+
 
 ## 指针、引用
 
@@ -1396,7 +1422,7 @@ print(1, 2.0, "hello"); // 输出 The number of arguments is: 3
    //以下两句的效果是一样的
    double a;
    my_double a;
-
+   
    ```
 2. decltype
    decltype的作用是**选择并返回操作数的数据类型**
