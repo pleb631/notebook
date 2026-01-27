@@ -283,6 +283,79 @@ const char* json = R"({
 
 ### 1.9.3 std_string
 
+标准库`string`提供了一种更好的字符串容器，并且附带数据转换的接口，这个容器可以使用c_string和字符数组来初始化自己
+
+数据初始化：
+
+```c++
+std::string planet{ "Earth. Where the sky is blue" };
+std::string prefered_planet{ planet };
+std::string result{"planet",1,3}; //切片
+std::string result1(4, 'e'); //长度为4填充'e'的字符串
+```
+
+数据转换：
+
+```c++
+std::to_string;
+std::stoi;
+std::stof;
+```
+
+字符串拼接
+
+```c++
+//字符串拼接
+string a = string("asd")+"asd";
+
+using namespace std::string_literals;
+//   `"S` 是来自上一行的命名空间的语法，正式名称叫‘用户自定义字面量（User-Defined Literals, UDL）’
+//C++11引入
+string b = "asd"s+"asd";
+
+string c = a+"123"+b //可以直接用
+
+
+std::string str11 {"Hello "};
+std::string str12 {str11.append(5,'?')}; // Appends 5 '?' characters
+std::string str13{str12.append(str11,2,3)};
+```
+
+如果用这个容器，可以使用全部stl算法
+
+### 1.9.4 string_view
+
+来自c++17，
+
+提供一种只用来看，不能编辑的字符串类型。
+
+特点:不会发生复制，只是用指针指向要看的地址
+
+
+
+```c++
+const char * c_string1 { "The animals have left the region" };
+std::string_view sv10{c_string1};
+
+// 不看前两个字符
+sv14.remove_prefix(2);
+// 不看最后两个字符
+sv14.remove_suffix(2);
+```
+
+可以通过提供的接口完成基本的字符串处理,比如
+
+```c++
+find;
+contains;
+starts_with;
+find_first_of;
+find_last_of;
+compare;
+```
+
+
+
 # 2. 基本语法
 
 ## 2.1 指针
