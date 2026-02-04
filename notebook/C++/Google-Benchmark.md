@@ -8,9 +8,9 @@
 
 基本的用法如下：
 
-1.  写待测量的方法。
-2.  使用宏 `BENCHMARK` 注册方法。
-3.  最后调用宏 `BENCHMARK_MAIN()`。
+1. 写待测量的方法。
+2. 使用宏 `BENCHMARK` 注册方法。
+3. 最后调用宏 `BENCHMARK_MAIN()`。
 
 举个简单的例子：
 
@@ -402,9 +402,9 @@ benchmark [--benchmark_list_tests={true|false}]
 
 个人常用的选项有：
 
--   `--benchmark_filter` 指定运行某些测量方法。
--   `--benchmark_repetitions` 指定运行次数。
--   `--benchmark_out_format` 指定输出不同格式的结果，方便后处理。
+- `--benchmark_filter` 指定运行某些测量方法。
+- `--benchmark_repetitions` 指定运行次数。
+- `--benchmark_out_format` 指定输出不同格式的结果，方便后处理。
 
 剩余的读者可自行探索。
 
@@ -503,4 +503,3 @@ pip3 install -r requirements.txt
 ```
 
 当然还有更简洁的方法，网速好的可以直接使用早有大佬开发的网页版 benchmark, [地址](https://link.zhihu.com/?target=https%3A//quick-bench.com/)。
-

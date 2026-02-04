@@ -87,8 +87,6 @@ target_link_libraries(target INTERFACE lib3)
 target_link_libraries(libA PRIVATE libThirdParty)
 ```
 
-
-
 2.**PUBLIC**
 
 当我们声明一个库为`PUBLIC`依赖时，不仅当前目标可以访问该库，而且任何链接到当前目标的其他目标也可以访问它。
@@ -102,8 +100,6 @@ target_link_libraries(libA PRIVATE libThirdParty)
 ```cmake
 target_link_libraries(math_lib PUBLIC matrix_lib vector_lib)
 ```
-
-
 
 3.**INTERFACE**
 
@@ -129,8 +125,6 @@ target_sources(MathFunctions
 ```
 
 我们将实现文件作为 `PRIVATE` 源，这与之前用于可执行文件的文件相同。但是，我们现在对头文件使用了 `PUBLIC`。这允许库的消费者“看到”库的头文件
-
-
 
 如果源文件涉及模板类和内联函数，如下。则源文件需要使用 `PUBLIC`
 
@@ -195,8 +189,6 @@ message("Hello ${var}")
 
 CMakeLang 只有字符串，条件判断完全依赖于约定。“True”、“On”、“Yes”以及（代表）非零数字的字符串是 truthy。而“False”、“Off”、“No”、“0”、“Ignore”、“NotFound”以及空字符串都被认为是 false
 
-
-
 `list`是包含分号的字符串,使用`foreach`命令来迭代列表
 
 ```cmake
@@ -218,8 +210,6 @@ $cmake -P CMakeLists.txt
 # Hello, Curly
 ```
 
-
-
 函数和宏
 
 ```cmake
@@ -236,10 +226,6 @@ MyFunc("From TopLevel")
 
 [`function()`](https://cmake.com.cn/cmake/help/latest/command/function.html#command:function) 会创建自己的变量作用域，因此副作用对调用者不可见。为了将更改传播给调用函数的父级，我们必须使用 `set(<var> <value> PARENT_SCOPE)`，这与 [`set()`](https://cmake.com.cn/cmake/help/latest/command/set.html#command:set) 的工作方式相同，但作用于调用者上下文中的变量。
 
-
-
-
-
 条件判断
 
 ```cmake
@@ -251,8 +237,6 @@ endif()
 ```
 
 [`if()`](https://cmake.com.cn/cmake/help/latest/command/if.html#command:if) 提供了几种有用的比较模式，例如用于字符串匹配的 `STREQUAL`，用于检查变量是否存在的 `DEFINED`，以及用于正则表达式检查的 `MATCHES`。它还支持典型的逻辑运算符：`NOT`、`AND` 和 `OR`
-
-
 
 CMake 还提供了两种循环结构：`while`和`foreach`
 
@@ -338,10 +322,8 @@ file(GLOB_RECURSE <variable> [FOLLOW_SYMLINKS] [LIST_DIRECTORIES true|false] [RE
 
 ##### `install`
 
-
-
 ```cmake
-# Binaries	
+# Binaries 
 install (TARGETS cmake_examples_inst_bin
     DESTINATION bin)
 
@@ -358,8 +340,6 @@ install(DIRECTORY ${PROJECT_SOURCE_DIR}/include/
 install (FILES cmake-examples.conf
     DESTINATION etc)
 ```
-
-
 
 ## 5.编译标志
 
@@ -389,8 +369,6 @@ install (FILES cmake-examples.conf
 | `-Os`      | 这个选项用于优化代码的大小。`-Os` 启用优化，以减小生成的可执行文件的大小，同时尽可能减少性能的损失。它会尝试在不显著牺牲性能的情况下，优化代码的大小。这个选项对于嵌入式系统或资源有限的设备尤为重要，因为它能减少内存占用和文件大小。 |
 | `-ggdb`    | 生成专门针对 GDB 调试器的调试信息，提供更多调试细节          |
 | `-Wall`    | 启用常见的警告信息，提醒潜在的代码问题                       |
-
-
 
 范例代码
 
@@ -448,7 +426,7 @@ set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -g")
 
 这会在 `Release` 构建中添加 `-O3` 和 `-DNDEBUG`，在 `Debug` 构建中添加 `-g`。
 
-#### 5.2.4 `CMAKE_BUILD_TYPE` 
+#### 5.2.4 `CMAKE_BUILD_TYPE`
 
 在命令行中运行 CMake 时，你可以通过 `-DCMAKE_BUILD_TYPE` 选项指定构建类型，并结合相应的标志进行配置。
 
@@ -486,9 +464,7 @@ $cmake -B build \
 # I will use Zlib!
 ```
 
-
-
-2.给配置选择提供默认值，此功能由 [`option()`](https://cmake.com.cn/cmake/help/latest/command/option.html#command:option) 
+2.给配置选择提供默认值，此功能由 [`option()`](https://cmake.com.cn/cmake/help/latest/command/option.html#command:option)
 
 ```bash
 option(COMPRESSION_SOFTWARE_USE_ZLIB "Support Zlib compression" ON)
@@ -500,8 +476,6 @@ if(COMPRESSION_SOFTWARE_USE_ZLIB)
 ```
 
 `-D`标志和`option()` 创建的名称不是普通变量,而是缓存变量。缓存变量是全局可见的、*粘性* 的变量，其值在首次设置后很难更改。
-
-
 
 3.`set()`也可以用来操作缓存变量，但不会更改已创建的变量
 
@@ -526,8 +500,6 @@ message("ShadowVariable: ${ShadowVariable}")
 # ShadowVariable: Hiding the cache variable
 # ShadowVariable: In the shadows
 ```
-
-
 
 ## 7.库概念
 

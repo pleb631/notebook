@@ -140,8 +140,6 @@ constexpr只能使用字面量或者constexpr的变量进行赋值
 
 如果是常规的变量，则会报错
 
-
-
 ```c++
 // 此时函数可以在编译时使用，也可以在运行时使用
 constexpr int add(int a,int b){
@@ -156,7 +154,7 @@ constexpr int value1{22};
 
     int factor{2}; // Run time variable
     auto result2{add(value1, factor)}; // Run time
-	return 0;
+ return 0;
 
   }
 ```
@@ -181,15 +179,15 @@ const constinit int a1{8}; //可以额外指定变量const
 ```c++
 //常规
 for(i ; i < 10 ; ++i){
-		fmt::println( " {}: I love C++", i );
-	}
+  fmt::println( " {}: I love C++", i );
+ }
 ```
 
 ```c++
 // 迭代器模式
 std::vector<int> values{ 1, 2, 3, 4, 5 };
 for (auto value : values) {
-	fmt::println(" value : {}", value);
+ fmt::println(" value : {}", value);
 }
 ```
 
@@ -206,7 +204,7 @@ fmt::println("data (hex): {0:x}", data);    // Hexadecimal
 fmt::println("data (bin): {:016b}", data);  // Binary (16 digits)
 ```
 
-​	Shift运算符
+​ Shift运算符
 
 ```c++
 unsigned short int value {0xff0u};
@@ -219,8 +217,6 @@ fmt::println("binary value: {:016b}, decimal value: {}", value, value);
 value =  static_cast<unsigned short int> (value >> 1);
 fmt::println("binary value: {:016b}, decimal value: {}", value, value);
 ```
-
-
 
 逻辑运算
 
@@ -241,8 +237,6 @@ fmt::println("Bitwise xor:");
 fmt::println("value1 ^ value2: {:032b}", (value1 ^ value2));
 ```
 
-
-
 当作mask使用。从RGBA提取单通道的值
 
 ```c++
@@ -257,10 +251,6 @@ fmt::println("Green is: {0:d}", ((my_color & green_mask) >> 16));
 fmt::println("Blue is: {0:d}", ((my_color & blue_mask) >> 8));
 fmt::println("Alpha is: {0:d}", ((my_color & alpha_mask) >> 0));
 ```
-
-
-
-
 
 ## 1.9 字符串
 
@@ -289,8 +279,6 @@ int tolower(int c);
 int toupper(int c);
 ```
 
-
-
 ### 1.9.2 c_string
 
 这种是比较常见，写法是用指针来定义
@@ -312,13 +300,9 @@ char* strchr(char* s, int c); //查找字符的第一次出现
 char* strstr(char* s1, const char* s2);  //查找字符子字符串的第一次出现
 ```
 
-
-
 #### 1.9.2.1 字面量(literal)
 
 字面量是指在源代码中直接写出的固定值，字符串字面量通常存储在程序的只读内存区域中
-
-
 
 原始字符串字面量`Raw String Literals`是 C++11 引入的一种新的字符串表示方式，它允许你在字符串中直接使用不需要转义的字符（如反斜杠、换行符等），使得处理一些包含特殊字符的字符串更加方便。
 
@@ -332,8 +316,6 @@ R"delimiter(string_contents)delimiter"
 
 **`string_contents`**：表示字符串的内容，可以包含换行符、引号、反斜杠等，而不需要转义。
 
-
-
 例子：
 
 ```c++
@@ -345,8 +327,6 @@ const char* json = R"({
   "city": "New York"
 })";  // JSON 字符串字面量
 ```
-
-
 
 ### 1.9.3 std_string
 
@@ -397,8 +377,6 @@ std::string str13{str12.append(str11,2,3)};
 提供一种只用来看，不能编辑的字符串类型。
 
 特点:不会发生复制，只是用指针指向要看的地址
-
-
 
 ```c++
 const char * c_string1 { "The animals have left the region" };
@@ -526,9 +504,7 @@ int main()
 }
 ```
 
-## 
-
-# 2. 进阶基本
+# 2. 进阶基础
 
 ## 2.1 指针
 
@@ -593,8 +569,6 @@ int main() {
 //444
 ```
 
-
-
 对于数组的指针来说，直接打印就可以，但是对于char* 或者char[]，则必须用static_cast做转换，更safe的做法是统一使用fmt::ptr
 
 ```c++
@@ -612,13 +586,7 @@ std::cout<<b<<std::endl;
 std::cout<<fmt::ptr(a)<<std::endl;
 ```
 
-
-
-
-
 ### 2.1.2 指针的用法和含义
-
-
 
 指向常量的指针，不能修改值，
 
@@ -626,8 +594,6 @@ std::cout<<fmt::ptr(a)<<std::endl;
 int a{1};
 const int* b{&a} ;
 ```
-
-
 
 不能用变量指针指向常量
 
@@ -638,16 +604,12 @@ int* b{&a};  //报错
 const int* b1{&a} ;
 ```
 
-
-
 指针本身是常量
 
 ```c++
 int a{1};
 int* const b{&a} ;
 ```
-
-
 
 指针是常量，指向的也是常量
 
@@ -681,7 +643,7 @@ fmt::println( "p_number: {}", fmt::ptr(p_number));
 fmt::println( "*p_number: {}" , *p_number); //CRASH!
 ```
 
-2. 访问被释放的指针
+1. 访问被释放的指针
 
 ```c++
 int * p_number1 {new int{67}};
@@ -690,7 +652,7 @@ delete p_number1;
 fmt::println( "*p_number1(after delete): {}", *p_number1 );//CRASH!
 ```
 
-3. 多个指针指向同个地址
+1. 多个指针指向同个地址
 
 ```c++
 int *p_number3 {new int{83}};
@@ -699,17 +661,11 @@ delete p_number3;
 fmt::println( "p_number4(after deleting p_number3) -{} :  {}", fmt::ptr(p_number4) , *p_number4 );//CRASH!
 ```
 
-
-
-4. new失败
+1. new失败
 
 ```c++
 int* data = new int[10000000] //crash,内存不够
 ```
-
-
-
-
 
 解决方案如下
 
@@ -728,9 +684,7 @@ if(p_number6!= nullptr){
 
 ```
 
-
-
-2. 在释放内存后重置指针
+1. 在释放内存后重置指针
 
 ```c++
 int *p_number7{ new int{ 82 } };
@@ -738,9 +692,7 @@ delete p_number7;
 p_number7 = nullptr;// Reset the pointer
 ```
 
-
-
-3. 应该规定一个主指针来管理内存，其他指针必须在主指针可用时才能使用
+1. 应该规定一个主指针来管理内存，其他指针必须在主指针可用时才能使用
 
 ```c++
 int *p_number8{ new int{ 382 } };// Let's say p_number8 is the master pointer
@@ -790,8 +742,6 @@ std::unique_ptr<int> up_int5 {new int(50)};
 
 在使用了std::unique_ptr后最好不要使用原始指针p_int3了
 
-
-
 c++14后有更好的方法，以避免直接使用new
 
 ```c++
@@ -802,8 +752,6 @@ up_int7.reset() //重置为空指针，内存被释放
 
 **注意**：如果初始化两个unique_ptr指向p_int3，程序会崩溃，因为会自动delete两次
 
-
-
 如果要转移指针的控制权，可以用std::move,
 
 ```c++
@@ -813,8 +761,6 @@ std::unique_ptr<int> up_int5{std::move(up_int4)};
 ```
 
 这种情况下，up_int4会被自动重置为空指针
-
-
 
 ### 2.3.2 shared_ptr
 
@@ -830,8 +776,6 @@ int_ptr_2.reset();
 std::println(stdout, "Use count for int_ptr_1: {}", int_ptr_1.use_count());
 ```
 
-
-
 但是仍然不能使用下面方式，会崩溃
 
 ```c++
@@ -839,8 +783,6 @@ int* p = new int{ 20 };
 std::shared_ptr<int> int_ptr_1{ p };
 std::shared_ptr<int> int_ptr_2{ p };
 ```
-
-
 
 c++14后可以使用make_shared
 
@@ -993,8 +935,6 @@ int main()
 
 如果类中有`new`出的堆上的空间，就需要在结束时调用析构函数来释放。如果没有手动管理的，则不需要定义析构函数
 
-
-
 ```c++
 class Person
 {
@@ -1004,7 +944,7 @@ public:
         cout << "Person 构造函数的调用" << endl;
     }
     ~Person()
-    {	
+    { 
         delete a;
         cout << "Person 析构函数的调用" << endl;
     }
@@ -1013,11 +953,7 @@ private:
 };
 ```
 
-
-
 **注意**：如果使用的是智能指针管理内存，则不需要使用析构
-
-
 
 ### 2.4.4 隐式转换和显式转换
 
@@ -1083,17 +1019,20 @@ Person operator+(Person &p1, Person &p2)
 
 ```c++
 #include <iostream>
-using namespace std;
 
-//左移运算符
 class Person
-{   
+{
 private:
     int m_A;
     int m_B;
+
+public:
+    Person(int a, int b) : m_A(a), m_B(b) {}
+
+    friend std::ostream& operator<<(std::ostream &cout, Person &p);
 };
-//如果返回类型为void，那么就无法无限追加，也没有办法在后面添加换行符
-ostream & operator<<(ostream &cout, Person &p)   
+// 如果返回类型为void，那么就无法无限追加，也没有办法在后面添加换行符
+std::ostream &operator<<(std::ostream &cout, Person &p)
 {
     cout << "m_A= " << p.m_A << " m_B=" << p.m_B;
     return cout;
@@ -1103,14 +1042,11 @@ int main()
 {
     Person p(10,10);
 
-    cout << p << " hello world" << endl;
-    std::cin.get();
+    std::cout << p << " hello world" << std::endl;
     return 0;
 }
 
 ```
-
-
 
 ### 2.4.6 拷贝构造函数
 
@@ -1131,8 +1067,6 @@ Entity(const Entity& other)//拷贝构造函数
 且不说普通指针，堆上的空间会被释放两次，程序会直接崩溃（包括智能指针）。加上我们不想数据共享。
 
 所以，在这种情况下，需要手动定义拷贝构造函数，进行深拷贝
-
-
 
 下面的例子是拷贝字符串的例子
 
@@ -1333,8 +1267,6 @@ String& String::operator=(String&& other) noexcept
 }
 ```
 
-
-
 new版本
 
 ```c++
@@ -1422,7 +1354,7 @@ class Football:public Ball
 - 保护继承
 - 私有继承
 
-3. 不同的继承方式，父类中的变量被继承后，权限相应的得到了改变，如下图所示。
+1. 不同的继承方式，父类中的变量被继承后，权限相应的得到了改变，如下图所示。
 
 ![2023-08-09-11-18-47](https://cdn.jsdelivr.net/gh/pleb631/ImgManager@main/img/2023-08-09-11-18-47.png)
 
@@ -1487,7 +1419,6 @@ public:
     }
 };
 
-//猫类
 class Cat:public Animal
 {
 public:
@@ -1498,7 +1429,6 @@ public:
     }
 };
 
-//狗类
 class Dog:public Animal
 {
 public:
@@ -1597,8 +1527,6 @@ public:
   delete ptr; // 仅调用Base析构，Derived析构未执行 → 内存泄漏！
   ```
 
-  
-
 - **修正（虚析构）**：
 
   ```
@@ -1614,11 +1542,41 @@ public:
   // 正确执行顺序：Derived析构 → Base析构（无内存泄漏）
   ```
 
-  
-
 - **面试考点**：虚析构的必要性——只要类可能被继承，且派生类有堆资源，基类析构必须设为`virtual`；抽象类（含纯虚函数）的析构也需设为虚析构（可提供默认实现）。
 
-### 2.12 const成员函数、mutable
+#### 与重载的区别(重点)
+
+基类为虚函数下，子类重写虚函数，用基类指针调用子类，会使用子类函数
+
+基类不是虚函数下，子类重写函数，用基类指针调用子类，会使用父类函数
+
+```c++
+#include <iostream>
+
+class Base {
+public:
+    void show() { 
+        std::cout << "Base class show" << std::endl;
+    }
+};
+
+class Derived : public Base {
+public:
+    void show() {  // 这里不是虚函数的重写，只是覆盖
+        std::cout << "Derived class show" << std::endl;
+    }
+};
+
+int main() {
+    Base* basePtr = new Derived();  // 基类指针指向派生类对象
+    basePtr->show();  // 输出 "Base class show"，而不是 "Derived class show"
+    delete basePtr;
+    return 0;
+}
+
+```
+
+### 2.4.12 const成员函数、mutable
 
 常函数：
 
@@ -1648,7 +1606,7 @@ public:
 
 ```
 
-### 2.13 this指针
+### 2.4.13 this指针
 
 1. 每一个非静态成员函数只会诞生一份函数实例，也就是说多个同类型的对象会公用一块代码。
 2. C++通过提供特殊的对象指针，this指针指向被调用的成员函数所属的对象。
@@ -1713,7 +1671,7 @@ int main()
 | `ios::trunc`  | 截断模式（默认用于`ios::out`），文件存在则清空内容           |
 | `ios::ate`    | 打开文件后，文件指针直接指向文件末尾                         |
 
-### 2.5.1 文本
+### 2.5.1 字符流
 
 ```c++
 #include <vector>
@@ -1753,11 +1711,9 @@ void read_txt(){
 }
 ```
 
-### 2.5.2 二进制
+### 2.5.2 字节流
 
 二进制文件存储的是字节序列（人类不可读），适用于存储结构体、图片、视频等数据，读写时需指定`ios::binary`模式，且不会处理换行符。
-
-
 
 下面是读写字符的案例
 
@@ -1804,8 +1760,6 @@ int main()
 ### 2.5.3 文件指针操作
 
 文件指针（文件位置指示器）指向当前读写的位置，可通过`seekg()`（读指针）和`seekp()`（写指针）调整位置，配合`tellg()`/`tellp()`获取当前位置。
-
-
 
 **核心函数**
 
@@ -2150,8 +2104,6 @@ int main()
 }
 ```
 
-
-
 # 3.现代cpp
 
 ## 3.1 template
@@ -2181,8 +2133,6 @@ int main()
     return 0;
   }
   ```
-
-  
 
 - **模板实例化**：编译器遇到`add(1,2)`时，会自动生成`int add(int a, int b)`的具体实现（实例化），模板本身不会生成代码。
 
@@ -2234,8 +2184,6 @@ int main()
   }
   ```
 
-  
-
 - **注意**：类模板的成员函数若在类外定义，需重新声明模板参数：
 
   ```
@@ -2245,9 +2193,7 @@ int main()
   }
   ```
 
-  
-
-### 3.1.3` ...Args`
+### 3.1.3`...Args`
 
 是一个类型模板形参包，它可以接受任意个数和类型的模板实参。它的语法是在模板形参的类型前加上省略号(…)，表示这个形参是一个可变的参数包，它可以匹配任意个数和类型的模板实参。例如，下面的函数模板就使用了类型模板形参包：
 
@@ -2347,9 +2293,8 @@ print(1, 2.0, "hello"); // 输出 The number of arguments is: 3
   };
   ```
 
-  
-
 ## 3.4 虚函数表vtable
+
 - **核心概念**：vtable是编译器为含有虚函数的类生成的静态数组，存储该类所有虚函数的地址；
 
 - **核心机制**：
@@ -2369,8 +2314,6 @@ print(1, 2.0, "hello"); // 输出 The number of arguments is: 3
   [0] → Dog::makeSound()（替换基类函数）
   [1] → Animal::~Animal()（继承基类虚析构）
   ```
-
-  
 
 - **重点**：
 
@@ -2400,8 +2343,6 @@ cstdlib # 比较杂的工具
 cstdint # 提供了按位定义int的类型，比如int32_t
 
 ```
-
-
 
 ## 4.1随机
 
@@ -2548,7 +2489,7 @@ int b = static_cast<int>(a);
 cout<<"b="<<b<<endl;
 ```
 
-2. 静态下行转换
+1. 静态下行转换
 
 不执行类型安全检查。
 
@@ -2583,7 +2524,7 @@ std::cout << "1) " << another_d.hello();
 //1) Hello world, this is D!
 ```
 
-3. 左值转换为右值引用
+1. 左值转换为右值引用
 
 将左值v0的资源转移到右值引用v2, v2为{1, 2, 3}的右值引用
 
@@ -2595,7 +2536,7 @@ std::cout << "2) after move, v0.size() = " << v0.size() << '\n';
 //3) after move, v0.size() = 0
 ```
 
-4. 初始化转换
+1. 初始化转换
 
 在变量初始化期间就对初始化数据进行类型转换
 
@@ -2608,7 +2549,7 @@ std::cout << "4) v.size() = " << v.size() << '\n';
 //4) v.size() = 10
 ```
 
-5. 转换为void并丢弃
+1. 转换为void并丢弃
 
 如果 new type为void类型，static\_cast将会在计算表达式的值之后丢弃这个值，无法使用变量接到这个值。
 
@@ -2631,7 +2572,7 @@ static\_cast可以提取void\*类型中的值
   //6) *ni = 3
 ```
 
-6. 枚举转int（scoped enum to int）
+1. 枚举转int（scoped enum to int）
 
 将枚举代表的值转换为int
 
@@ -2645,7 +2586,7 @@ enum class E
 
    E e = E::TWO;
    int two = static_cast<int>(e);
-	E e2 = static_cast<E>(two);
+ E e2 = static_cast<E>(two);
    std::cout << "7) " << two << '\n';
 ```
 
@@ -2797,7 +2738,7 @@ int main()
 
 C++标准库提供了异常基类`exception`（定义在`<exception>`头文件中），自定义异常类建议继承`exception`，并重写`what()`方法（返回异常描述），便于统一处理。
 
-#### 
+####
 
 ```
 #include <iostream>
@@ -2841,9 +2782,7 @@ int main() {
 }
 ```
 
-## 4.8`new` 与 `malloc `
-
-
+## 4.8`new` 与 `malloc`
 
 `new/delete`是C++的运算符，`malloc/free`是C语言的函数，两者都用于堆内存分配，但`new/delete`更符合C++的面向对象特性：
 
@@ -2857,8 +2796,6 @@ int main() {
 | 自定义分配器 | 支持重载`operator new`/`operator delete`，自定义内存分配逻辑 | 不支持，只能使用系统默认分配逻辑                         |
 
 **示例对比**
-
-
 
 ```
 // 1. 基础类型分配
@@ -2900,8 +2837,6 @@ free(p4); // 仅释放内存，不调用析构 → 资源泄漏（若类有堆�
   - 若表达式是带括号的变量（如`decltype((x))`），返回引用类型；
   - 推导时保留`const`和引用属性。
 
-  
-
 **示例**
 
 ```
@@ -2936,8 +2871,6 @@ int main() {
   return 0;
 }
 ```
-
-
 
 **核心用途:**
 
