@@ -204,7 +204,7 @@ fmt::println("data (hex): {0:x}", data);    // Hexadecimal
 fmt::println("data (bin): {:016b}", data);  // Binary (16 digits)
 ```
 
-​ Shift运算符
+ Shift运算符
 
 ```c++
 unsigned short int value {0xff0u};
@@ -341,6 +341,16 @@ std::string result{"planet",1,3}; //切片
 std::string result1(4, 'e'); //长度为4填充'e'的字符串
 ```
 
+字符串赋值
+
+```c++
+// 和构造函数类似，但这是赋值过程
+string& assign(const char *s)
+string& assign(const char *s, int n,int m)
+string& assign(const string &s)
+string& assign(int n, char c)
+```
+
 数据转换：
 
 ```c++
@@ -366,6 +376,42 @@ string c = a+"123"+b //可以直接用
 std::string str11 {"Hello "};
 std::string str12 {str11.append(5,'?')}; // Appends 5 '?' characters
 std::string str13{str12.append(str11,2,3)};
+```
+
+查找和替换
+
+```c++
+string a="hello world";
+//int find(const char* s, int pos=0, int n=0)
+//从pos开始查看指定字符子串，如果n>0,就存在查找范围。
+int f1 = a.find('ll');
+int l1 = a.rfinf('o');
+
+
+//查到字符
+//find_first_of
+//find_first_not_of
+//find_last_of
+//find_last_not_of
+
+
+string& replace(int pos, int n, const string& str); //替换从pos开始n个字符为字符串str
+string& replace(int pos, int n,const char* s);  //替换从pos开始的n个字符为字符串s
+```
+
+[std::basic_string - cppreference.cn - C++参考手册](https://cppreference.cn/w/cpp/string/basic_string)
+
+```c++
+//字符子串
+//starts_with
+//end_with
+//compare
+//contains
+//substr
+//push_back
+//pop_back
+//erase
+//clear
 ```
 
 如果用这个容器，可以使用全部stl算法
