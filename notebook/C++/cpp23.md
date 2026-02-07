@@ -769,6 +769,46 @@ try{
 
 ```
 
+### 2.2.3 高级用法
+
+1. 可以把分配内存和创建对象分开来进行
+
+```c++
+#include <new>
+
+struct A {
+    A() { std::cout << "A born\n"; }
+    ~A() { std::cout << "A dead\n"; }
+};
+
+char buffer[sizeof(A)]; // 预分配内存
+///void* buffer = operator new(sizeof(A)); //堆上分配
+A* p = ::new (buffer) A(); // 在指定内存构造
+
+p->~A(); // 需要显式调用析构函数
+// operator delete(buffer); //堆上释放
+
+```
+
+2. 自定义new、delete
+
+```c++
+class A {
+public:
+    static void* operator new(size_t size) {
+        std::cout << "分配 " << size << " 字节\n";
+        return ::operator new(size);
+    }
+    
+    static void operator delete(void* p) {
+        std::cout << "释放内存\n";
+        ::operator delete(p);
+    }
+};
+```
+
+
+
 ## 2.3 智能指针
 
 手动管理堆上的指针很容易出问题，所以有了能自动管理的智能指针
