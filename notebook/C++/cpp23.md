@@ -2257,7 +2257,75 @@ print(1, 2.0, "hello"); // 输出 The number of arguments is: 3
 
 ```
 
-## 3.2 RAII
+## 3.2元编程
+
+### 3.2.1 类型解析
+
+`type_traits`
+
+该库提供了类型判断的api，比如
+
+```c++
+is_void
+is_integral
+is_enum
+is_floating_point
+is_array
+is_function
+is_class
+is_pointer
+is_lvalue_reference
+is_rvalue_reference
+is_member_object_pointer
+is_member_function_pointer
+```
+
+除此之外，还有类型属性
+
+```c++
+is_pod
+is_abstract
+is_unsigned
+is_final
+```
+
+目前我看到比较常见的。
+
+```c++
+//判断是否同一类型
+template< class T, class U >
+struct is_same;
+constexpr bool is_same_v = is_same<T, U>::value;
+
+//demo
+bool same = std::is_same<int, int>::value; // true
+bool notSame = std::is_same<int, float>::value; // false
+bool same = std::is_same_v<int, int>; // true
+bool notSame = std::is_same_v<int, float>; // false
+```
+
+```c++
+//判断函数结果类型
+template< class F, class... ArgTypes >
+class invoke_result;
+
+template< class F, class... ArgTypes >
+using invoke_result_t = typename invoke_result<F, ArgTypes...>::type;
+
+
+//demo
+#include <type_traits>
+#include <functional>
+int main() {
+   std::function<int(int, double)> func = [](int a, double b) { return a + b; };
+   using RetType = std::invoke_result_t<decltype(func), int, double>;
+   static_assert(std::is_same_v<RetType, int>, "返回类型应为 int");
+}
+```
+
+
+
+## 3.3 RAII
 
 即Resource Acquisition Is Initialization
 
@@ -2302,7 +2370,7 @@ print(1, 2.0, "hello"); // 输出 The number of arguments is: 3
   } // fg销毁，析构函数自动关闭文件（释放资源）
   ```
 
-## 3.3 Rule of Five
+## 3.4 Rule of Five
 
   C++11后扩展自“三大法则”（Rule of Three），核心规则：
 
@@ -2339,7 +2407,7 @@ print(1, 2.0, "hello"); // 输出 The number of arguments is: 3
   };
   ```
 
-## 3.4 虚函数表vtable
+## 3.5 虚函数表vtable
 
 - **核心概念**：vtable是编译器为含有虚函数的类生成的静态数组，存储该类所有虚函数的地址；
 

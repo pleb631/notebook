@@ -150,29 +150,29 @@ int main(){   
 ### 元素访问
 
 - ```c++
-
+  
   // 类模板 array
 
 template<class T, size_t N> struct array;
-  
+
   //std::array<int,6> data = { 1, 2, 4, 5, 5, 6 };
 //元素访问
   reference at( size_type pos );
   data.at(1);
-  
+
   //访问指定的元素，同时进行越界检查
 reference operator[]( size_type pos );
   data[1];
-  
+
   //访问第一个元素
 reference front();
-  
+
   //访问最后一个元素
 reference back();
-  
+
   //返回指向内存中数组第一个元素的指针
 T* data();
-  
+
   ```
 
 - 容量
@@ -187,7 +187,7 @@ T* data();
   //返回根据系统或库实现限制的容器可保有的元素最大数量，即对于最大容器的 std::distance(begin(), end())
   constexpr size_type max_size();
   ```
-  
+
 - 操作
 
   ```c++
@@ -378,128 +378,203 @@ vector 上的常见操作复杂度（效率）如下：
 
 ## 4.deque
 
-std::deque （ double-ended queue ，双端队列）是有下标顺序容器，它允许在其首尾两段快速插入及删除。另外，在 deque 任一端插入或删除不会非法化指向其余元素的指针或引用。
+### 4.1介绍
+
+**deque** 是一种双端队列，允许在两端高效地插入和删除元素。它的底层实现基于分段连续空间，动态分配内存，避免了像 *vector* 那样因容量不足而重新分配整个空间的开销。
+
+deque 的核心由以下部分组成：
+
+1. **map 中控器**：*map* 是一块小的连续空间，每个元素是指针，指向一段较大的缓冲区。缓冲区是 deque 的实际存储空间。
+2. **缓冲区**：每个缓冲区存储固定数量的元素，缓冲区之间通过 *map* 链接起来。
+3. **迭代器**：迭代器通过 *cur*、*first*、*last* 和 *node* 等指针维护对缓冲区的访问，支持随机访问和高效的插入、删除操作。
+
+```c++
+template <class T, class Alloc = alloc, size_t BufSize = 0>
+class deque {
+protected:
+   typedef T** map_pointer; // map 是指针的指针
+   map_pointer map; // 指向 map 的指针
+   size_t map_size; // map 的大小
+   iterator start; // 指向第一个缓冲区的第一个元素
+   iterator finish; // 指向最后一个缓冲区的最后一个元素
+};
+```
+
+deque有以下特点：
+
+- 在其首尾可以快速插入及删除，并且不会非法化指向其余元素的指针或引用。
+- 随机访问需要二次指针解引用，所以略慢于vector
+- 扩张 deque 不会涉及复制既存元素
+- 内存开销较大，至少要维护一个map大小的空间
 
 与 std::vector 相反， deque 的元素不是相接存储的：典型实现用单独分配的固定大小数组的序列，外加额外的登记，这表示下标访问必须进行二次指针解引用，与之相比 vector 的下标访问只进行一次。
 
-deque 的存储按需自动扩展及收缩。扩张 deque 比扩张 std::vector 更优，因为它不涉及到复制既存元素到新内存位置。另一方面， deque 典型地拥有较大的最小内存开销；只保有一个元素的 deque 必须分配其整个内部数组（例如 64 位 libstdc++ 上为对象大小 8 倍； 64 位 libc++ 上为对象大小 16 倍或 4096 字节的较大者）。
+常见操作的复杂度（效率）如下：
 
-deque 上常见操作的复杂度（效率）如下：
+- 随机访问——常数 O(1)
+- 在结尾或起始插入或移除元素——常数 O(1)
+- 插入或移除元素——线性 O(n)
 
-随机访问——常数 O(1)
-在结尾或起始插入或移除元素——常数 O(1)
-插入或移除元素——线性 O(n)
+### 4.2 api
+
+构造、赋值
+
+```c++
+deque<T> deqT; //默认构造形式
+deque(beg, end);//构造函数将[区间中的元素拷贝给本身。
+deque(n, elem); //构造函数将n个elem拷贝给本身。
+deque(const deque &deq);   //拷贝构造函数
+
+deque& operator=(const deque &deq);//重载等号操作符
+assign(beg, end);//将区间中的数据拷贝赋值给本身。
+assign(n, elem);//将n个elem拷贝赋值给本身。
+```
+
+```c++
+deque.empty();
+deque.size();
+deque.resize(num);
+deque.resize(num, elem);
+```
+
+数据访问
+
+```c++
+at(int idx);
+operator[];
+front(); 
+back();
+```
+
+插入删除
+
+```c++
+push_back(elem);
+push_front(elem);
+pop_back();
+pop_front();
+
+insert(pos,elem);
+insert(pos,n,elem);
+insert(pos,beg,end);
+clear();
+erase(beg,end);
+erase(pos);
+```
+
+stack、queue的底层就是deque
+
+### 4.3 queue
+
+Queue是一种**先进先出**(First In First Out,FIFO)的数据结构
+
+```c++
+push(elem);//往队尾添加元素
+pop();//从队头移除第一个元素
+back();
+front();
+```
+
+### 4.4 stack
+
+stack是一种**先进后出**(First In Last Out,FILO)的数据结构，它只有一个出口
+
+```c++
+push(elem);//向栈顶添加元素
+pop();//从栈顶移除第一个元素
+top();//返回栈顶元素
+```
 
 ## 5.list
 
-std::list 是支持常数时间从容器任何位置插入和移除元素的容器。不支持快速随机访问。它通常实现为双向链表。与 std::forward_list 相比，此容器提供双向迭代但在空间上效率稍低。
+std::list 提供了双向链表的功能。
 
-在 list 内或在数个 list 间添加、移除和移动元素不会非法化迭代器或引用。迭代器仅在对应元素被删除时非法化。
+- 支持常数时间从容器任何位置插入和移除元素的容器。
+- 不支持快速随机访问。
+- 添加、移除和移动元素不会非法化迭代器或引用。迭代器仅在对应元素被删除时非法化。
 
-## 6.forward_list
+## 6. set/multiset
 
-std::forward_list 是支持从容器中的任何位置快速插入和移除元素的容器。不支持快速随机访问。它实现为单链表，且实质上与其在 C 中实现相比无任何开销。与 std::list 相比，此容器在不需要双向迭代时提供更有效地利用空间的存储。
+- 所有元素都会在插入时自动被排序
+- 属于**关联式容器**，底层结构是用**二叉树**实现。
 
-在链表内或跨数个链表添加、移除和移动元素，不会非法化当前指代链表中其他元素的迭代器。然而，在从链表移除元素（通过 erase_after ）时，指代对应元素的迭代器或引用会被非法化。
+**set和multiset区别**：
 
-## 7.std::set
+- set不允许容器中有重复的元素
+- multiset允许容器中有重复的元素
 
 ```c++
 template<
     class Key,
     class Compare = std::less<Key>,
-    class Allocator = std::allocator<Key>
 > class set;
-std::set 是关联容器，含有 Key 类型对象的已排序集。用比较函数 比较 (Compare) 进行排序。搜索、移除和插入拥有对数复杂度。 set 通常以红黑树实现。
-
-在每个标准库使用比较 (Compare) 概念的场所，用等价关系确定唯一性。不精确地说，若二个对象 a 与 b 相互间既不比较大于亦不比较小于： !comp(a, b) && !comp(b, a) ，则认为它们等价。
+//用比较函数 比较 (Compare) 进行排序。搜索、移除和插入拥有对数复杂度。 
 ```
 
-### 7.1api
+### 6.1api
 
 - 构造函数
 
   ```c++
-  //默认构造函数
   set();
-  set( const Compare& comp);
+  set(const Compare& comp);
+  set(InputIt first, InputIt last, const Compare& comp = Compare());
+  set(std::initializer_list<value_type> init, const Compare& comp = Compare(),);
   
-  //范围构造函数。构造拥有范围 [first, last) 内容的容器。若范围中的多个元素拥有比较等价的关键，则插入哪个元素是未指定的
-  set( InputIt first, InputIt last, const Compare& comp = Compare());
-  
-  
-  //initializer_list 构造函数。构造拥有 initializer_list init 内容的容器。若范围中的多个元素拥有比较等价的关键，则插入哪个元素是未指定的
-  set( std::initializer_list<value_type> init, const Compare& comp = Compare(),);
+  set& operator=(const set &st);
   ```
-
+  
 - 修改
 
   ```c++
   //插入 value
   std::pair<iterator,bool> insert( value_type&& value );
   
-  //插入来自范围 [first, last) 的元素。 若范围中的多个元素拥有比较等价的关键，则插入哪个元素是未指定的
-  template< class InputIt >
+  //若范围中的多个元素拥有比较等价的关键，则插入哪个元素是未定义行为
   void insert( InputIt first, InputIt last );
   
-  //插入来自 initializer_list ilist 的元素
   void insert( std::initializer_list<value_type> ilist );
   
-  //插入 value 到尽可能接近，正好前于(C++11 起) hint 的位置。
   iterator insert( iterator hint, const value_type& value );
   
-    //若容器中无拥有该关键的元素，则插入以给定的 args 原位构造的新元素到容器。细心地使用 emplace 允许在构造新元素的同时避免不必要的复制或移动操作。 准确地以与提供给 emplace 者相同的参数，通过 std::forward<Args>(args)... 转发调用新元素的构造函数。 即使容器中已有拥有该关键的元素，也可能构造元素，该情况下新构造的元素将被立即销毁。
-    template< class... Args >
-    std::pair<iterator,bool> emplace( Args&&... args );
+  template< class... Args >
+  std::pair<iterator,bool> emplace( Args&&... args );
   
-    //插入新元素到容器中尽可能接近于恰在 hint 前的位置。原位构造元素，即不进行复制或移动操作。以提供给函数的参数准确相同者，以 std::forward<Args>(args)... 转发调用元素的构造函数。没有迭代器或引用被非法化。
   iterator emplace_hint( const_iterator hint, Args&&... args );
   
-  //将内容与 other 的交换
+  
   void swap( set& other );
-
+  
 - 查找
 
-  ```
-
+  ```c++
+  
   //返回拥有关键比较等价于指定参数的元素数，因为此容器不允许重复故为 1 或 0。
-  size_type count( const Key& key ) const;
-
   template< class K >
   size_type count( const K& x ) const;
-
-  //寻找键等于 key 的的元素。
-  iterator find( const Key& key );
-  // 寻找键比较等价于值 x 的元素
-  template< class K > iterator find( const K& x );
-
+  
+  template< class K >
+  iterator find( const K& x );
+  
   //返回容器中所有拥有给定关键的元素范围。范围以二个迭代器定义，一个指向首个不小于 key 的元素，另一个指向首个大于 key 的元素。首个迭代器可以换用 lower_bound() 获得，而第二迭代器可换用 upper_bound() 获得
   //比较关键与 key
-  std::pair<iterator,iterator> equal_range( const Key& key );
-  // 比较关键与值 x 
   template< class K >
   std::pair<iterator,iterator> equal_range( const K& x );
-
-
+  
   //返回指向首个不小于 key 的元素的迭代器。
-  iterator lower_bound( const Key& key );
-  //返回指向首个比较不小于值 x 的元素的迭代器
   template< class K >
   iterator lower_bound(const K& x);
-
-
+  
+  
   //返回指向首个大于 key 的元素的迭代器。
-  iterator upper_bound( const Key& key );
-  //返回指向首个比较大于值 x 的元素的迭代器
   template< class K >
   iterator upper_bound( const K& x );
-  ```
 
-### 7.2示例
+### 6.2示例
 
 自定义比较函数的set
 
-```c++
+  ```c++
 #include <iostream>
 #include <set>
 using namespace std;
@@ -534,7 +609,7 @@ struct song
 };
 struct comp
 {
-    bool operator()(struct song left,struct song  right)  //重载（）运算符
+    bool operator()(song& left,song&  right)  //重载（）运算符
     {
 
         if(left.m_id == right.m_id)     //根据id去重
@@ -573,11 +648,13 @@ void main()
     std::cout<<"end"<<std::endl;
 };
 
-```
+  ```
 
-## 8.unordered_map
+## 8.map/unordered_map
 
 ### 8.1介绍
+
+- map中所有元素都是pair
 
 - unordered_map是一个将key和value关联起来的容器，它可以高效的根据单个key值查找对应的value。
 - key值应该是唯一的，key和value的数据类型可以不相同。
@@ -678,18 +755,43 @@ void main()
 - operator=
 
   ```c++
-  //复制赋值运算符
+  
   unordered_map& operator=( const unordered_map& other );
-
-  //移动赋值运算符
   unordered_map& operator=( unordered_map&& other );
-
+  
   //以 initializer_list ilist 所标识者替换内容。
   //    std::unordered_map<int, int> nums1 {{3, 1}, {4, 1}, {5, 9}}            
   unordered_map& operator=( std::initializer_list<value_type> ilist );
   ```
+  
+- 增删
 
-- 特殊
+  ```c++
+  #include <utility>
+  #include <map>
+  
+  std::map<int, int> m;
+  //第一种插入方式
+  m.insert(std::pair<int, int>(1, 10));
+  //第二种插入方式
+  m.insert(std::make_pair(2, 20));
+  //第三种插入方式
+  m.insert(map<int, int>::value_type(3, 30));
+  //第四种插入方式
+  m[4] = 40;
+  
+  for (std::map<int, int>::iterator it = m.begin(); it != m.end(); it++){
+    cout << "key = " << it->first << " value = " << it->second << endl;
+  }
+  
+  m.erase(m.begin());
+  m.erase(3);
+  
+  m.erase(m.begin(),m.end());
+  m.clear();
+  ```
+
+- 查
 
   ```c++
   //返回到拥有等于 key 的关键的元素被映射值的引用
@@ -706,19 +808,45 @@ void main()
 - other
 
   ```c++
-  begin
-  cbegin
-  end
-  cend
   empty
   size
-  max_size //基本是内存大小，无意义
-  clear
   swap
   count//要么1要么0，无意义
   emplace    //move
-  insert    //插入元素
   ```
+
+### 8.3 map容器排序
+
+map容器默认排序规则为 按照key值进行 从小到大排序，利用仿函数，可以改变排序规则
+
+```c++
+#include <map>
+
+class MyCompare {
+public:
+ bool operator()(int v1, int v2) {
+  return v1 > v2;
+ }
+};
+
+int main() 
+{
+ //默认从小到大排序
+ //利用仿函数实现从大到小排序
+ map<int, int, MyCompare> m;
+
+ m.insert(make_pair(1, 10));
+ m.insert(make_pair(2, 20));
+ m.insert(make_pair(3, 30));
+ m.insert(make_pair(4, 40));
+ m.insert(make_pair(5, 50));
+
+ for (map<int, int, MyCompare>::iterator it = m.begin(); it != m.end(); it++) {
+  cout << "key:" << it->first << " value:" << it->second << endl;
+ }
+    return 0;
+}
+```
 
 # 算法
 
