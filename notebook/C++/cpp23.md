@@ -780,13 +780,17 @@ struct A {
     A() { std::cout << "A born\n"; }
     ~A() { std::cout << "A dead\n"; }
 };
-
+//栈上
 char buffer[sizeof(A)]; // 预分配内存
-///void* buffer = operator new(sizeof(A)); //堆上分配
 A* p = ::new (buffer) A(); // 在指定内存构造
-
 p->~A(); // 需要显式调用析构函数
-// operator delete(buffer); //堆上释放
+
+/*
+void* buffer = operator new(sizeof(A)); //堆上分配
+A* p = ::new (buffer) A();
+p->~A(); 
+operator delete(buffer); //堆上释放
+*/ 
 
 ```
 
