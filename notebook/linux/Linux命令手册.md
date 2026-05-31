@@ -294,7 +294,7 @@ tar  -cvf /var/tmp/test.tar  -h /tmp/test
 | :1,$s/word1/word2/g   | 从n1行到最后把word1替换成word2，                   |
 | :1,$s/word1/word2/g   | 从n1行到最后把word1替换成word2，每次需要给用户确认 |
 
-## 2.vim里显示中文
+## 2.vim里配置
 
 新建~/.vimrc,填入以下内容
 
@@ -307,6 +307,54 @@ set fileencodings=utf-8,gb2312,gbk,latin1
 set termencoding=utf-8
 " 显示行号等信息正常显示中文
 set fileformat=unix
+
+
+set tabstop=4       " 一个 Tab 显示成 4 个空格宽
+set shiftwidth=4    " 自动缩进、>>、<< 使用 4 个空格
+set expandtab       " 按 Tab 键时插入空格，而不是真 Tab 字符
+```
+
+3.其他操作
+
+```python
+>>      当前行右缩进
+<<      当前行左缩进
+4>>     从当前行开始，连续 4 行右缩进
+gg=G    全文自动格式化缩进
+
+
+
+^      跳到当前行第一个非空字符
+w     跳到下一个单词开头
+e     跳到当前/下一个单词结尾
+b     跳到上一个单词开头
+%     按括号匹配跳转
+
+
+
+:10,20d 	删除第 10 到 20 行
+:10,20t.	复制第 10 到 20 行到当前行下面
+:10,20m.    :10,20t.
+
+
+:%sort		全文排序
+:%sort u	全文去重排序
+
+
+
+# 分屏
+:split   #水平分屏
+:vsplit # 垂直分屏
+:vsplit file.py  #打开另一个文件
+
+Ctrl-w h # 窗口之间切换
+Ctrl-w j
+Ctrl-w k
+Ctrl-w l
+
+:only #只保留当前窗口
+:q # 关闭当前窗口
+
 ```
 
 

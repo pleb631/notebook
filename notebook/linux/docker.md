@@ -49,7 +49,7 @@ echo -e "Types: deb\nURIs: https://mirrors.aliyun.com/ubuntu/\nSuites: jammy jam
 
 ```bash
 apt update
-apt install -y openssh-server vim tmux git unzip curl
+apt install -y openssh-server vim tmux git unzip curl net-tools
 service ssh start
 passwd root #设置密码
 vim /etc/ssh/sshd_config # 改端口
@@ -84,5 +84,18 @@ docker load -i  new_image.tar
 
 ```bash
 netstat -tunlp |grep 35003
+```
+
+2.开放端口
+
+```bash
+apt-get install firewalld
+firewall-cmd --zone=public --add-port=8080/tcp --permanent
+firewall-cmd --reload
+
+# 显示所有
+firewall-cmd --list-all
+# 关闭
+firewall-cmd --remove-port=8001/tcp --permanent
 ```
 
