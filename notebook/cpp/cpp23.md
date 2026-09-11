@@ -811,7 +811,7 @@ public:
 };
 ```
 
-
+`::operator new` 是 **全局作用域里的 `operator new` 函数**
 
 ## 2.3 智能指针
 

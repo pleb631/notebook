@@ -3,8 +3,9 @@
 ## 1.新建容器
 
 ```bash
-docker run -it --gpus all --net=host --shm-size 16g --privileged=true -v /media:/media -v /home:/home --name yolo26 docker.1ms.run/nvidia/cuda bash
+docker run -it --gpus all --net=host --shm-size 16g --privileged=true -v /media:/media -v /home:/home --name ubuntu22_dml1 docker.1ms.run/nvidia/cuda:12.9.2-cudnn-devel-ubuntu22.04 bash
 
+# --restart=unless-stopped
 # 进入
 docker attach yolo26 
 ```
@@ -22,7 +23,7 @@ cp /etc/apt/sources.list.d/ubuntu.sources /etc/apt/sources.list.d/ubuntu.sources
 
 # 3. 换源
 # 缺少 vim
-echo -e "Types: deb\nURIs: https://mirrors.tuna.tsinghua.edu.cn/ubuntu\nSuites: noble noble-updates noble-backports\nComponents: main restricted universe multiverse\nSigned-By: /usr/share/keyrings/ubuntu-archive-keyring.gpg\n\nTypes: deb\nURIs: https://mirrors.tuna.tsinghua.edu.cn/ubuntu\nSuites: noble-security\nComponents: main restricted universe multiverse\nSigned-By: /usr/share/keyrings/ubuntu-archive-keyring.gpg" | tee /etc/apt/sources.list.d/ubuntu.sources > /dev/null
+sed -i.bak -E 's@(archive|security)\.ubuntu\.com@mirrors.tuna.tsinghua.edu.cn@g; s@http:@https:@g' /etc/apt/sources.list
 
 # 重设 DNS 配置
 echo -e "nameserver 8.8.8.8\nnameserver 8.8.4.4" | tee /etc/resolv.conf > /dev/null
@@ -35,12 +36,6 @@ apt update
 apt install ca-certificates
 update-ca-certificates
 apt-get update
-```
-
-
-
-```
-echo -e "Types: deb\nURIs: https://mirrors.aliyun.com/ubuntu/\nSuites: jammy jammy-updates jammy-backports\nComponents: main restricted universe multiverse\nSigned-By: /usr/share/keyrings/ubuntu-archive-keyring.gpg\n\nTypes: deb\nURIs: https://mirrors.aliyun.com/ubuntu/\nSuites: jammy-security\nComponents: main restricted universe multiverse\nSigned-By: /usr/share/keyrings/ubuntu-archive-keyring.gpg\n\nTypes: deb\nURIs: https://mirrors.tuna.tsinghua.edu.cn/ubuntu/\nSuites: jammy jammy-updates jammy-backports\nComponents: main restricted universe multiverse\nSigned-By: /usr/share/keyrings/ubuntu-archive-keyring.gpg\n\n" | tee /etc/apt/sources.list.d/ubuntu.sources > /dev/null
 ```
 
 
@@ -61,8 +56,6 @@ service ssh restart
 # 如果重新创建容器则
 ssh-keygen -R [192.168.5.93]:23400
 
-# 其他
-apt install -y libgl1
 ```
 
 ## 4.镜像打包
@@ -74,6 +67,37 @@ docker save -o new_image.tar new_image:v1.0.0
 docker rmi -f new_image:v1.0.0
 # 加载镜像
 docker load -i  new_image.tar
+```
+
+## 5.其他配置
+
+```bash
+# vim
+cat > ~/.vimrc << 'EOF'
+set encoding=utf-8
+set fileencodings=utf-8,gb2312,gbk,latin1
+set termencoding=utf-8
+set fileformat=unix
+
+set tabstop=4
+set shiftwidth=4
+set expandtab
+EOF
+
+
+
+# tmux
+cat > ~/.tmux.conf << 'EOF'
+set -g mouse on
+EOF
+
+tmux source-file ~/.tmux.conf
+
+# opencv需要
+apt install -y libgl1
+
+
+export UV_INDEX_URL=https://mirrors.aliyun.com/pypi/simple/
 ```
 
 
