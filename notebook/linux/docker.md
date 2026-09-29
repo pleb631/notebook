@@ -7,7 +7,7 @@ docker run -it --gpus all --net=host --shm-size 16g --privileged=true -v /media:
 
 # --restart=unless-stopped
 # 进入
-docker attach yolo26 
+docker attach ubuntu22_dml1
 ```
 
 ## 2.配置源
@@ -61,7 +61,7 @@ ssh-keygen -R [192.168.5.93]:23400
 ## 4.镜像打包
 
 ```bash
-docker commit yolo26 new_image:v1.0.0
+docker commit ubuntu22_dml1 new_image:v1.0.0
 docker save -o new_image.tar new_image:v1.0.0
 # 删除镜像
 docker rmi -f new_image:v1.0.0

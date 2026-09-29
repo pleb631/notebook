@@ -8,6 +8,8 @@ uv 是一个非常快速的 Python 依赖安装程序和分解器，使用 Rust 
 
 Github 地址：[astral-sh/uv](https://github.com/astral-sh/uv)
 
+
+
 ## 安装uv
 
 它是一个二进制文件，因此支持多种方式安装而不依赖 Rust 和 Python 环境（部分方式如下）
