@@ -633,3 +633,443 @@ U, S, Vt = np.linalg.svd(A)
 x = Vt[-1]       # V 的最后一列 v_n（转置后即 Vt 的最后一行）
 residual = S[-1]  # ||A @ x||
 ```
+
+# 三、概率解释与正则化
+
+第 2.1 节从优化角度定义了最小二乘问题：
+
+$$
+\min_x \|Ax-b\|^2.
+$$
+
+实际上，最小二乘还可以从**概率模型和最大似然估计**自然推导出来。
+
+---
+
+## 3.1 从线性模型开始
+
+假设观测数据满足线性关系
+
+$$
+b=Ax+\varepsilon,
+$$
+
+其中
+
+* $A\in\mathbb R^{m\times n}$ 为已知设计矩阵；
+* $x\in\mathbb R^n$ 为待估计参数；
+* $b\in\mathbb R^m$ 为观测值；
+* $\varepsilon$ 为测量噪声。
+
+假设每个观测的噪声相互独立，并服从均值为 $0$、方差为 $\sigma^2$ 的高斯分布：
+
+$$
+\varepsilon_i\sim\mathcal N(0,\sigma^2).
+$$
+
+于是对于第 $i$ 个观测，有
+
+$$
+b_i=a_i^Tx+\varepsilon_i,
+$$
+
+因此
+
+$$
+b_i\mid x\sim\mathcal N(a_i^Tx,\sigma^2).
+$$
+
+也就是说：
+
+$$
+p(b_i\mid x)
+=
+\frac{1}{\sqrt{2\pi\sigma^2}}
+\exp\left(
+-\frac{(b_i-a_i^Tx)^2}{2\sigma^2}
+\right).
+$$
+
+---
+
+## 3.2 最大似然估计
+
+由于假设各个样本的噪声相互独立，因此观测向量的联合概率密度为
+
+$$
+p(b\mid x)
+=
+\prod_{i=1}^{m}p(b_i\mid x).
+$$
+
+这就是似然函数：
+
+$$
+L(x)=p(b\mid x).
+$$
+
+最大似然估计希望找到一个 $x$，使当前观测数据 $b$ 的似然最大：
+
+$$
+\hat x_{\mathrm{MLE}}
+=
+\arg\max_x p(b\mid x).
+$$
+
+将高斯分布代入：
+
+$$
+p(b\mid x)
+=
+\left(\frac{1}{\sqrt{2\pi\sigma^2}}\right)^m
+\exp\left(
+-\frac{1}{2\sigma^2}
+\sum_{i=1}^{m}(b_i-a_i^Tx)^2
+\right).
+$$
+
+由于乘积形式不方便处理，通常取对数：
+
+$$
+\log p(b\mid x)
+=
+-\frac{m}{2}\log(2\pi\sigma^2)
+-\frac{1}{2\sigma^2}
+\sum_{i=1}^{m}(b_i-a_i^Tx)^2.
+$$
+
+第一项与 $x$ 无关，因此最大化对数似然等价于最小化
+
+$$
+\sum_{i=1}^{m}(b_i-a_i^Tx)^2.
+$$
+
+写成矩阵形式就是
+
+$$
+\boxed{
+\hat x_{\mathrm{MLE}}
+=
+\arg\min_x\|Ax-b\|^2
+}.
+$$
+
+因此：
+
+$$
+\boxed{
+\text{高斯噪声假设}
++\text{最大似然估计}
+\Longrightarrow
+\text{最小二乘}
+}
+$$
+
+这也给出了平方误差的概率意义：
+
+> 在独立、同方差的高斯观测噪声模型下，最小化平方误差等价于最大似然估计。
+
+---
+
+## 3.3 从最大似然到最大后验估计
+
+最大似然估计只考虑
+
+$$
+p(b\mid x),
+$$
+
+即：
+
+> 在参数 $x$ 已知的情况下，当前数据 $b$ 出现的可能性有多大？
+
+如果我们还对参数 $x$ 本身具有一定先验认识，就可以使用贝叶斯公式：
+
+$$
+p(x\mid b)
+=
+\frac{p(b\mid x)p(x)}{p(b)}.
+$$
+
+其中：
+
+* $p(b\mid x)$：似然；
+* $p(x)$：参数的先验分布；
+* $p(x\mid b)$：观察数据之后参数的后验分布。
+
+最大后验估计（MAP）寻找：
+
+$$
+\hat x_{\mathrm{MAP}}
+=
+\arg\max_x p(x\mid b).
+$$
+
+由于 $p(b)$ 与 $x$ 无关：
+
+$$
+\hat x_{\mathrm{MAP}}
+=
+\arg\max_x p(b\mid x)p(x).
+$$
+
+取负对数后：
+
+$$
+\boxed{
+\hat x_{\mathrm{MAP}}
+=
+\arg\min_x
+\left[
+-\log p(b\mid x)
+-\log p(x)
+\right]
+}
+$$
+
+因此可以理解为：
+
+$$
+\boxed{
+\text{MAP}
+=
+\text{数据拟合项}
++
+\text{先验约束项}
+}
+$$
+
+而机器学习中的很多**正则化项**，实际上都可以解释成某种参数先验。
+
+---
+
+## 3.4 高斯先验与岭回归
+
+仍然假设观测噪声为高斯分布：
+
+$$
+b\mid x\sim\mathcal N(Ax,\sigma^2I).
+$$
+
+因此负对数似然中与 $x$ 有关的部分为
+
+$$
+-\log p(b\mid x)
+\propto
+\frac{1}{2\sigma^2}\|Ax-b\|^2.
+$$
+
+现在进一步假设参数 $x$ 本身也服从零均值高斯分布：
+
+$$
+x\sim\mathcal N(0,\tau^2I).
+$$
+
+于是
+
+$$
+p(x)
+\propto
+\exp\left(
+-\frac{1}{2\tau^2}\|x\|^2
+\right),
+$$
+
+因此
+
+$$
+-\log p(x)
+\propto
+\frac{1}{2\tau^2}\|x\|^2.
+$$
+
+MAP 估计就变成
+
+$$
+\hat x_{\mathrm{MAP}}
+=
+\arg\min_x
+\left[
+\frac{1}{2\sigma^2}\|Ax-b\|^2
++
+\frac{1}{2\tau^2}\|x\|^2
+\right].
+$$
+
+整体乘以 $2\sigma^2$ 不会改变最优解：
+
+$$
+\hat x_{\mathrm{MAP}}
+=
+\arg\min_x
+\left[
+\|Ax-b\|^2
++
+\frac{\sigma^2}{\tau^2}\|x\|^2
+\right].
+$$
+
+令
+
+$$
+\lambda=\frac{\sigma^2}{\tau^2},
+$$
+
+就得到第 2.1 节的岭回归目标函数。该节已给出求导过程和闭式解；这里补充其概率来源：**高斯观测噪声 + 高斯参数先验 + MAP 估计，对应岭回归**。
+
+高斯先验意味着我们认为：
+
+> 参数通常应该靠近 $0$，特别大的参数出现概率较低。
+
+所以岭回归会倾向于把参数整体向 $0$ 收缩。
+
+---
+
+## 3.5 拉普拉斯先验与 Lasso
+
+如果不对参数使用高斯先验，而是假设每个参数独立服从**拉普拉斯分布（Laplace distribution）**：
+
+$$
+p(x_i)
+=
+\frac{1}{2s}
+\exp\left(
+-\frac{|x_i|}{s}
+\right).
+$$
+
+那么所有参数的联合先验为
+
+$$
+p(x)
+\propto
+\exp\left(
+-\frac{1}{s}\sum_i|x_i|
+\right).
+$$
+
+由于
+
+$$
+\sum_i|x_i|=\|x\|_1,
+$$
+
+因此：
+
+$$
+-\log p(x)
+\propto
+\frac{1}{s}\|x\|_1.
+$$
+
+如果观测噪声仍为独立同方差的高斯噪声，将负对数后验乘以 $2\sigma^2$ 后，令 $\lambda=2\sigma^2/s$，就得到 **Lasso（L1 正则化）**：
+
+$$
+\boxed{
+\hat x
+=
+\arg\min_x
+\left(
+\|Ax-b\|^2+\lambda\|x\|_1
+\right)
+}
+$$
+
+因此：
+
+$$
+\boxed{
+\text{高斯似然}
++
+\text{拉普拉斯参数先验}
++
+\text{MAP}
+\Longrightarrow
+\text{Lasso}
+}
+$$
+
+拉普拉斯分布在 $0$ 附近比高斯分布更加尖锐，因此 L1 正则化更倾向于直接把部分参数压到 $0$，从而产生**稀疏解**。
+
+---
+
+## 3.6 高斯先验与拉普拉斯先验的区别
+
+两种正则化可以统一理解为对参数 $x$ 的不同概率假设：
+
+| 概率假设         | 优化形式                      | 方法    | 典型效果   |
+| ------------ | ------------------------- | ----- | ------ |
+| 不加参数先验       | $\lVert Ax-b\rVert_2^2$                | 最小二乘  | 单纯拟合数据 |
+| $x$ 服从高斯分布   | $\lVert Ax-b\rVert_2^2+\lambda\lVert x\rVert_2^2$ | Ridge | 参数整体变小 |
+| $x$ 服从拉普拉斯分布 | $\lVert Ax-b\rVert_2^2+\lambda\lVert x\rVert_1$   | Lasso | 参数趋于稀疏 |
+
+所以正则化并不只是人为给损失函数“加一项”，从概率角度看：
+
+$$
+\boxed{
+\text{正则化项}
+\quad\Longleftrightarrow\quad
+-\log p(x)
+}
+$$
+
+即**正则化实际上是在给参数加入先验分布**。
+
+---
+
+## 3.7 拉普拉斯噪声与最小绝对偏差
+
+需要区分：
+
+* **参数 $x$ 使用拉普拉斯先验** $\rightarrow$ Lasso；
+* **观测噪声 $\varepsilon$ 服从拉普拉斯分布** $\rightarrow$ L1 残差。
+
+如果假设
+
+$$
+\varepsilon_i\sim\operatorname{Laplace}(0,s),
+$$
+
+那么
+
+$$
+p(b_i\mid x)
+\propto
+\exp\left(
+-\frac{|b_i-a_i^Tx|}{s}
+\right).
+$$
+
+最大似然估计得到：
+
+$$
+\boxed{
+\hat x
+=
+\arg\min_x
+\sum_i|b_i-a_i^Tx|
+=
+\arg\min_x\|Ax-b\|_1
+}
+$$
+
+这称为**最小绝对偏差（Least Absolute Deviations，LAD）**。
+
+因此可以把几个关系总结成：
+
+$$
+\boxed{
+\begin{aligned}
+\text{高斯噪声}+\mathrm{MLE}
+&\Longrightarrow L_2\text{ 残差}\\
+\text{拉普拉斯噪声}+\mathrm{MLE}
+&\Longrightarrow L_1\text{ 残差}\\
+\text{高斯噪声}+\text{高斯先验}+\mathrm{MAP}
+&\Longrightarrow \text{Ridge}\\
+\text{高斯噪声}+\text{拉普拉斯先验}+\mathrm{MAP}
+&\Longrightarrow \text{Lasso}
+\end{aligned}
+}
+$$
+
+从这个角度看，损失函数中的范数并不是凭空选择出来的，而是可以对应到具体的概率分布假设。
