@@ -20,7 +20,7 @@ def relative_url(target: Path, current: Path) -> str:
     return quote(Path(os.path.relpath(target, current.parent)).as_posix(), safe='/')
 
 
-def page_tree(files: list[Path], current: Path) -> str:
+def page_tree(files: list[Path], current: Path, collapsible: bool = True) -> str:
     """Render navigation at arbitrary directory depths."""
     def render(directory: Path) -> str:
         lines = ['<ul>']
@@ -35,7 +35,13 @@ def page_tree(files: list[Path], current: Path) -> str:
                               and len(page.relative_to(directory).parts) > 1},
                              key=lambda path: path.name.casefold())
         for child in directories:
-            lines.append(f'<li><div class="nav-section">{html.escape(child.name)}</div>{render(child)}</li>')
+            name = html.escape(child.name)
+            if collapsible:
+                opened = ' open' if current.is_relative_to(child) else ''
+                lines.append(f'<li><details{opened}><summary class="nav-section">{name}</summary>'
+                             f'{render(child)}</details></li>')
+            else:
+                lines.append(f'<li><div class="nav-section">{name}</div>{render(child)}</li>')
         lines.append('</ul>')
         return '\n'.join(lines)
 
@@ -98,6 +104,7 @@ def build() -> None:
             shutil.copy2(source, target)
     (OUT / '_assets').mkdir(exist_ok=True)
     shutil.copy2(ROOT / 'site' / 'style.css', OUT / '_assets' / 'style.css')
+    shutil.copy2(ROOT / 'site' / 'sidebar.js', OUT / '_assets' / 'sidebar.js')
     (OUT / '.nojekyll').touch()
     # This virtual source provides URLs for the home without writing to notebook/.
     home = DOCS / 'index.md'
@@ -114,12 +121,13 @@ def build() -> None:
             f'--template={TEMPLATE}',
             f'--variable=site-nav:{page_tree(nav_files, source)}',
             f'--variable=css-path:{css_link}',
+            f'--variable=sidebar-script:{relative_url(OUT / "_assets" / "sidebar.js", target)}',
             f'--variable=home-link:{home_link}',
             f'--metadata=title:{"首页" if source == DOCS / "index.md" else source.stem}',
             '--metadata=lang:zh-CN',
         ]
         if source == home:
-            args.append(f'--variable=page-index:{page_tree([p for p in files if p != source], source)}')
+            args.append(f'--variable=page-index:{page_tree([p for p in files if p != source], source, collapsible=False)}')
             content = f'# 学习笔记\n\n共 {len(files)} 篇笔记。通过左侧导航或下方目录浏览。\n'
             # An existing root index note can optionally provide the home content.
             if source in files:

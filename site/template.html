@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>$if(title)$$title$ · $endif$学习笔记</title>
   <link rel="stylesheet" href="$css-path$">
+  <script src="$sidebar-script$" defer></script>
   $if(math)$$math$$endif$
   $for(header-includes)$$header-includes$$endfor$
 </head>
@@ -12,11 +13,21 @@
   <a class="skip-link" href="#main-content">跳到正文</a>
   <header class="site-header"><a href="$home-link$">学习笔记</a><span>Markdown 知识库</span></header>
   <div class="layout">
-    <nav class="sidebar" aria-label="章节导航">$site-nav$</nav>
+    <aside class="sidebar" aria-label="笔记导航">
+      <div class="sidebar-tabs" role="tablist" aria-label="导航视图" hidden>
+        <button type="button" id="notes-tab" role="tab" aria-controls="notes-panel" aria-selected="true">笔记目录</button>
+        <button type="button" id="outline-tab" role="tab" aria-controls="outline-panel" aria-selected="false" tabindex="-1">本页大纲</button>
+      </div>
+      <section id="notes-panel" class="sidebar-panel" role="tabpanel" aria-labelledby="notes-tab">
+        <nav aria-label="笔记目录">$site-nav$</nav>
+      </section>
+      <section id="outline-panel" class="sidebar-panel" role="tabpanel" aria-labelledby="outline-tab">
+        <nav class="outline" aria-label="本页大纲">$if(toc)$$toc$$else$<p class="outline-empty">本页暂无标题大纲</p>$endif$</nav>
+      </section>
+    </aside>
     <main class="content" id="main-content"><article>$body$</article>
       $if(page-index)$<section class="page-index" aria-label="全部笔记"><h2>全部笔记</h2>$page-index$</section>$endif$
     </main>
-    <aside class="toc" aria-label="本页目录">$if(toc)$<div class="toc-title">本页目录</div>$toc$$endif$</aside>
   </div>
 </body>
 </html>
