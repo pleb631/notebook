@@ -20,7 +20,7 @@ int main() {
 
 ## 1.2 编译过程
 
-![2023-08-05-15-48-57](https://cdn.jsdelivr.net/gh/pleb631/ImgManager@main/img/2023-08-05-15-48-57.png)
+![](https://cdn.jsdelivr.net/gh/pleb631/ImgManager@main/img/2023-08-05-15-48-57.png)
 
 - 预处理
   预编译把一些  #define的宏定义完成文本替换，然后将#include的文件里的内容**复制**到.cpp文件里，如果.h文件里还有.h文件，就递归展开。在预处理这一步，代码注释直接被忽略，不会进入到后续的处理中，所以注释在程序中不会执行。生成文件 `main.i`
