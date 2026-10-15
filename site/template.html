@@ -1,0 +1,23 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>$if(title)$$title$ · $endif$学习笔记</title>
+  <link rel="stylesheet" href="$css-path$">
+  $if(highlighting-css)$<style>$highlighting-css$</style>$endif$
+  $if(math)$$math$$endif$
+  $for(header-includes)$$header-includes$$endfor$
+</head>
+<body>
+  <a class="skip-link" href="#main-content">跳到正文</a>
+  <header class="site-header"><a href="$home-link$">学习笔记</a><span>Markdown 知识库</span></header>
+  <div class="layout">
+    <nav class="sidebar" aria-label="章节导航">$site-nav$</nav>
+    <main class="content" id="main-content"><article>$body$</article>
+      $if(page-index)$<section class="page-index" aria-label="全部笔记"><h2>全部笔记</h2>$page-index$</section>$endif$
+    </main>
+    <aside class="toc" aria-label="本页目录">$if(toc)$<div class="toc-title">本页目录</div>$toc$$endif$</aside>
+  </div>
+</body>
+</html>

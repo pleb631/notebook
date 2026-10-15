@@ -191,7 +191,7 @@ n 是样本数
 
 例如，现有一组每周学习时长与数学考试成绩的数据：
 
-![](ml.assets/QQ_1761914618056.png)
+![](https://raw.githubusercontent.com/pleb631/ImgManager/refs/heads/main/img/QQ_1761914618056.png)
 
 按数值由小到大排出x,y的等级，并计算等级差：
 

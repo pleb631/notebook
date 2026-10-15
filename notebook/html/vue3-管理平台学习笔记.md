@@ -2172,7 +2172,7 @@ router.afterEach((to: any, from: any) => {
 
 将.env.development，.env.production  .env.test，三个环境文件下的服务器域名写为：
 
-![1686307539467-b5f7ec90-a237-4e69-9f8c-0bdd98739ce9.png](vue3-管理平台学习笔记.assets/1686307539467-b5f7ec90-a237-4e69-9f8c-0bdd98739ce9-114129.png)
+丢失
 
 2. 代理跨域
 

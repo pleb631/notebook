@@ -1,0 +1,45 @@
+name: Publish notebook
+on:
+  push:
+    branches: [main]
+    paths: ["notebook/**", "site/**", ".github/workflows/pages.yml"]
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: github-pages
+  cancel-in-progress: false
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pages: read
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - uses: pandoc/actions/setup@v1
+        with:
+          version: '3.6.4'
+      - uses: actions/configure-pages@v5
+      - name: Test site builder
+        run: python -m unittest discover -s site -p 'test_*.py'
+      - name: Build HTML
+        run: python3 site/build.py
+      - uses: actions/upload-pages-artifact@v4
+        with:
+          path: _site
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/deploy-pages@v4
+        id: deployment
