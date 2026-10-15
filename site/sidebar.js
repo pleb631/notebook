@@ -29,4 +29,30 @@
   }
   activate(tabs[0]);
   tablist.hidden = false;
+
+  const toggle = document.getElementById('sidebar-toggle');
+  const sidebar = document.getElementById('site-sidebar');
+  if (!toggle || !sidebar) return;
+  const home = document.querySelector('.site-header a');
+  const storageKey = 'notebook:sidebar-hidden:' + new URL(home.href).pathname;
+
+  function setHidden(hidden) {
+    sidebar.hidden = hidden;
+    document.body.classList.toggle('sidebar-hidden', hidden);
+    toggle.setAttribute('aria-expanded', String(!hidden));
+    toggle.textContent = hidden ? '显示导航' : '隐藏导航';
+  }
+
+  let savedHidden = false;
+  try {
+    savedHidden = window.localStorage.getItem(storageKey) === 'true';
+  } catch (_) { /* Navigation remains usable when storage is unavailable. */ }
+  setHidden(savedHidden);
+  toggle.hidden = false;
+  toggle.addEventListener('click', () => {
+    setHidden(!sidebar.hidden);
+    try {
+      window.localStorage.setItem(storageKey, String(sidebar.hidden));
+    } catch (_) { /* Saving the preference is optional. */ }
+  });
 })();

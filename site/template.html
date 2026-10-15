@@ -12,8 +12,9 @@
 <body>
   <a class="skip-link" href="#main-content">跳到正文</a>
   <header class="site-header"><a href="$home-link$">学习笔记</a><span>Markdown 知识库</span></header>
+  <button type="button" id="sidebar-toggle" class="sidebar-toggle" aria-controls="site-sidebar" aria-expanded="true" hidden>隐藏导航</button>
   <div class="layout">
-    <aside class="sidebar" aria-label="笔记导航">
+    <aside id="site-sidebar" class="sidebar" aria-label="笔记导航">
       <div class="sidebar-tabs" role="tablist" aria-label="导航视图" hidden>
         <button type="button" id="notes-tab" role="tab" aria-controls="notes-panel" aria-selected="true">笔记目录</button>
         <button type="button" id="outline-tab" role="tab" aria-controls="outline-panel" aria-selected="false" tabindex="-1">本页大纲</button>
